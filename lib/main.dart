@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:tutoring_software/pages/menu/menu.dart";
 
 void main() => runApp(MyApp());
 
@@ -10,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         backgroundColor: Colors.white,
-        body: Container(child: const Text("Hello World")),
+        body: const ScaffoldMenu()
       ),
     );
   }
