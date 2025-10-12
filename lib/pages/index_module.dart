@@ -15,7 +15,6 @@
 // import 'package:kazumi/shaders/shaders_controller.dart';
 // import 'package:kazumi/pages/search/search_module.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:flutter/material.dart';
 import 'package:tutoring_software/pages/index_page.dart';
 import 'package:tutoring_software/pages/router.dart';
 

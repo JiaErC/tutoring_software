@@ -28,6 +28,11 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // 添加以下配置以支持64位架构
+        ndk {
+            abiFilters += "arm64-v8a"
+            abiFilters += "x86_64"
+        }
     }
 
     buildTypes {
