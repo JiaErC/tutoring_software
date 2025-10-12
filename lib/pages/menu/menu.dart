@@ -4,6 +4,7 @@ import "package:flutter/material.dart";
 import "package:flutter_modular/flutter_modular.dart";
 import "package:provider/provider.dart";
 import "package:tutoring_software/bean/widgets/embedded_native_control_area.dart";
+import "package:tutoring_software/pages/router.dart";
 
 class ScaffoldMenu extends StatefulWidget {
   const ScaffoldMenu({super.key});
@@ -44,6 +45,7 @@ class NavigationBarState extends ChangeNotifier {
   }
 }
 
+//菜单的主页
 class _ScaffoldMenu extends State<ScaffoldMenu> {
   final PageController _page = PageController();
 
@@ -66,6 +68,7 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
     );
   }
 
+//底部导航栏
   Widget bottomMenuWidget(BuildContext context, NavigationBarState state) {
     return Scaffold(
       body: Container(
@@ -73,7 +76,7 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
         child: PageView.builder(
           physics: const NeverScrollableScrollPhysics(),
           controller: _page,
-          itemCount: 4,
+          itemCount: menu.size ,
           itemBuilder: (_, __) => const RouterOutlet(),
         ),
       ),
@@ -105,7 +108,7 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
               selectedIndex: state.selectedIndex,
               onDestinationSelected: (int index) {
                 state.updateSelectedIndex(index);
-                // Modular.to.navigate("/tab${menu.getPath(index)}/");
+                Modular.to.navigate("/tab${menu.getPath(index)}/");
               },
             ),
     );
@@ -148,7 +151,7 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
                 selectedIndex: state.selectedIndex,
                 onDestinationSelected: (int index) {
                   state.updateSelectedIndex(index);
-                  // Modular.to.navigate("/tab${menu.getPath(index)}/");
+                  Modular.to.navigate("/tab${menu.getPath(index)}/");
                 },
               ),
             ),
@@ -169,7 +172,7 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
                 ),
                 child: PageView.builder(
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: 4,
+                  itemCount: menu.size,
                   itemBuilder: (_, __) => const RouterOutlet(),
                 ),
               ),
