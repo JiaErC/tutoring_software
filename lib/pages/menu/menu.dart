@@ -109,8 +109,8 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
                   label: '练习',
                 ),
                 NavigationDestination(
-                  selectedIcon: Icon(Icons.settings),
-                  icon: Icon(Icons.settings_outlined),
+                  selectedIcon: Icon(Icons.person),
+                  icon: Icon(Icons.person_outlined),
                   label: '我的',
                 ),
               ],
@@ -154,8 +154,8 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
                     label: Text('练习'),
                   ),
                   NavigationRailDestination(
-                    selectedIcon: Icon(Icons.settings),
-                    icon: Icon(Icons.settings_outlined),
+                    selectedIcon: Icon(Icons.person),
+                    icon: Icon(Icons.person_outlined),
                     label: Text('我的'),
                   ),
                 ],
