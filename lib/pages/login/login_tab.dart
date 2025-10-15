@@ -84,6 +84,14 @@ class _LoginMenuState extends State<LoginMenu>
   //间距
   late EdgeInsets padding;
 
+  //封装前往对应页面的方法
+  void goPage(int index, NavigationBarState state) {
+    //点击对应的索引，跳转到对应的页面
+    index = getCurrentTabIndex();
+    state.updateSelectedIndex(index);
+    Modular.to.navigate("/login${login.getPath(index)}/");
+  }
+
   //顶部导航栏
   Widget topMenuWidget(BuildContext context, NavigationBarState state) {
     /*代码复用自PiliPlus*/
@@ -144,77 +152,7 @@ class _LoginMenuState extends State<LoginMenu>
                       // ),
                     ],
                     controller: _tabController,
-                    onTap: (int index) {
-                      //点击对应的索引，跳转到对应的页面
-                      index = getCurrentTabIndex();
-                      state.updateSelectedIndex(index);
-                      Modular.to.navigate("/login${login.getPath(index)}/");
-                    },
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-      body:  Container(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        child: PageView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          controller: _page,
-          itemCount: menu.size,
-          itemBuilder: (_, __) => const RouterOutlet(),
-        ),
-      ),
-    );
-    //顶部的导航栏实现
-    /*
-            return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          tooltip: '关闭',
-          icon: const Icon(Icons.close_outlined),
-          onPressed: Get.back,
-        ),
-        title: Row(
-          children: [
-            const Text('登录'),
-            if (isLandscape)
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: TabBar(
-                    isScrollable: true,
-                    dividerHeight: 0,
-                    tabs: const [
-                      Tab(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [Icon(Icons.password), Text(' 密码')],
-                        ),
-                      ),
-                      Tab(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [Icon(Icons.sms_outlined), Text(' 短信')],
-                        ),
-                      ),
-                      Tab(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [Icon(Icons.qr_code), Text(' 扫码')],
-                        ),
-                      ),
-                      Tab(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.cookie_outlined),
-                            Text(' Cookie'),
-                          ],
-                        ),
-                      ),
-                    ],
-                    controller: _loginPageCtr.tabController,
+                    onTap: (int index) => goPage(index, state),
                   ),
                 ),
               ),
@@ -226,11 +164,22 @@ class _LoginMenuState extends State<LoginMenu>
                   Tab(icon: Icon(Icons.password), text: '密码'),
                   Tab(icon: Icon(Icons.sms_outlined), text: '短信'),
                   Tab(icon: Icon(Icons.qr_code), text: '扫码'),
-                  Tab(icon: Icon(Icons.cookie_outlined), text: 'Cookie'),
+                  // Tab(icon: Icon(Icons.cookie_outlined), text: 'Cookie'),
                 ],
-                controller: _loginPageCtr.tabController,
+                controller: _tabController,
+                onTap: (int index) => goPage(index, state),
               )
             : null,
-      ),*/
+      ),
+      body: Container(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        child: PageView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          controller: _page,
+          itemCount: menu.size,
+          itemBuilder: (_, __) => const RouterOutlet(),
+        ),
+      ),
+    );
   }
 }
