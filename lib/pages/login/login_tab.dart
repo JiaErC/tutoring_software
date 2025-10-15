@@ -42,23 +42,32 @@ class NavigationBarState extends ChangeNotifier {
   // }
 }
 
-class _LoginMenuState extends State<LoginMenu> {
+class _LoginMenuState extends State<LoginMenu>
+    with SingleTickerProviderStateMixin
+//with SingleTickerProviderStateMixin
+{
   //定义头部导航栏
   late TabController _tabController;
-    final PageController _page = PageController();
+  final PageController _page = PageController();
 
-  //给头部导航栏赋值
-//   @override
-// void initState() {
-//   super.initState();
-//   _tabController = TabController(length: menu.size, vsync: this);
-//   _tabController.addListener(() {
-//     if (_tabController.index != state.selectedIndex) {
-//       state.updateSelectedIndex(_tabController.index);
-//       Modular.to.navigate("/tab${menu.getPath(_tabController.index)}/");
-//     }
-//   });
-// }
+  // 给头部导航栏赋值
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: login.size, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        // 导航到对应页面
+        Modular.to.navigate("/login${login.getPath(_tabController.index)}/");
+        // 同步更新PageView
+        _page.jumpToPage(_tabController.index);
+      }
+    });
+  }
+
+  int getCurrentTabIndex() {
+    return _tabController.index;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,84 +75,88 @@ class _LoginMenuState extends State<LoginMenu> {
       create: (context) => NavigationBarState(),
       child: Consumer<NavigationBarState>(
         builder: (context, state, _) {
-          return OrientationBuilder(
-            builder: (context, orientation) {
-              state._isTop = orientation == Orientation.portrait;
-              return orientation != Orientation.portrait
-                  ? sideMenuWidget(context, state)
-                  : topMenuWidget(context, state);
-            },
-          );
+          return topMenuWidget(context, state);
         },
       ),
     );
   }
 
+  //间距
+  late EdgeInsets padding;
+
   //顶部导航栏
   Widget topMenuWidget(BuildContext context, NavigationBarState state) {
-    return Column(children: [
-      //顶部的导航栏实现
-      Expanded(
-        flex:1,
-        child:TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(icon:Icon(Icons.password_outlined),text:"密码"),
-            Tab(icon:Icon(Icons.message_outlined),text:"短信"),
-            Tab(icon:Icon(Icons.qr_code_outlined),text:"扫码")
-          ],
-          //按钮被按压之后的效果
-          onTap:(index){
-            state.updateSelectedIndex(index);
-            Modular.to.navigate("/tab${login.getPath(index)}/");
-          }
-        )
-        /*NavigationRail(
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                groupAlignment: 1.0,
-                labelType: NavigationRailLabelType.selected,
-                destinations: const <NavigationRailDestination>[
-                  NavigationRailDestination(
-                    selectedIcon: Icon(Icons.home),
-                    icon: Icon(Icons.home_outlined),
-                    label: Text('主页'),
-                  ),
-                  NavigationRailDestination(
-                    selectedIcon: Icon(Icons.chat),
-                    icon: Icon(Icons.chat_outlined),
-                    label: Text('聊天'),
-                  ),
-                  NavigationRailDestination(
-                    selectedIcon: Icon(Icons.book),
-                    icon: Icon(Icons.book_outlined),
-                    label: Text('练习'),
-                  ),
-                  NavigationRailDestination(
-                    selectedIcon: Icon(Icons.settings),
-                    icon: Icon(Icons.settings_outlined),
-                    label: Text('我的'),
-                  ),
-                ],
-                selectedIndex: state.selectedIndex,
-                onDestinationSelected: (int index) {
-                state.updateSelectedIndex(index);
-                Modular.to.navigate("/tab${menu.getPath(index)}/");
-              },
-      )*/),
-      Expanded(
-        flex:9,
-        child:Container(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        child: PageView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          controller: _page,
-          itemCount: login.size,
-          itemBuilder: (_, __) => const RouterOutlet(),
+    /*代码复用自PiliPlus*/
+    padding =
+        MediaQuery.viewPaddingOf(context).copyWith(top: 0) +
+        const EdgeInsets.only(bottom: 25);
+    //判断界面的状态，当处于横屏的时候isLandscape为true
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          tooltip: '关闭',
+          icon: const Icon(Icons.close_outlined),
+          onPressed: () => Modular.to.navigate("/tab"),
         ),
-      ))
-    ],);
-    /* Scaffold(
-      body: Container(
+
+        title: Row(
+          children: [
+            const Text('登录'),
+            if (state.isTop)
+              Expanded(child: Align(alignment: Alignment.centerRight)),
+            //判断是否位横屏模式
+            if (isLandscape)
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TabBar(
+                    isScrollable: true,
+                    dividerHeight: 0,
+                    tabs: const [
+                      Tab(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [Icon(Icons.password), Text(' 密码')],
+                        ),
+                      ),
+                      Tab(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [Icon(Icons.sms_outlined), Text(' 短信')],
+                        ),
+                      ),
+                      Tab(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [Icon(Icons.qr_code), Text(' 扫码')],
+                        ),
+                      ),
+                      // Tab(
+                      //   child: Row(
+                      //     mainAxisSize: MainAxisSize.min,
+                      //     children: [
+                      //       Icon(Icons.cookie_outlined),
+                      //       Text(' Cookie'),
+                      //     ],
+                      //   ),
+                      // ),
+                    ],
+                    controller: _tabController,
+                    onTap: (int index) {
+                      //点击对应的索引，跳转到对应的页面
+                      index = getCurrentTabIndex();
+                      state.updateSelectedIndex(index);
+                      Modular.to.navigate("/login${login.getPath(index)}/");
+                    },
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+      body:  Container(
         color: Theme.of(context).colorScheme.primaryContainer,
         child: PageView.builder(
           physics: const NeverScrollableScrollPhysics(),
@@ -152,42 +165,72 @@ class _LoginMenuState extends State<LoginMenu> {
           itemBuilder: (_, __) => const RouterOutlet(),
         ),
       ),
-      bottomNavigationBar: state.isHide
-          ? const SizedBox(height: 0)
-          : NavigationBar(
-              destinations: const <Widget>[
-                NavigationDestination(
-                  selectedIcon: Icon(Icons.home),
-                  icon: Icon(Icons.home_outlined),
-                  label: '主页',
+    );
+    //顶部的导航栏实现
+    /*
+            return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          tooltip: '关闭',
+          icon: const Icon(Icons.close_outlined),
+          onPressed: Get.back,
+        ),
+        title: Row(
+          children: [
+            const Text('登录'),
+            if (isLandscape)
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TabBar(
+                    isScrollable: true,
+                    dividerHeight: 0,
+                    tabs: const [
+                      Tab(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [Icon(Icons.password), Text(' 密码')],
+                        ),
+                      ),
+                      Tab(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [Icon(Icons.sms_outlined), Text(' 短信')],
+                        ),
+                      ),
+                      Tab(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [Icon(Icons.qr_code), Text(' 扫码')],
+                        ),
+                      ),
+                      Tab(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.cookie_outlined),
+                            Text(' Cookie'),
+                          ],
+                        ),
+                      ),
+                    ],
+                    controller: _loginPageCtr.tabController,
+                  ),
                 ),
-                NavigationDestination(
-                  selectedIcon: Icon(Icons.chat),
-                  icon: Icon(Icons.chat_outlined),
-                  label: '聊天',
-                ),
-                NavigationDestination(
-                  selectedIcon: Icon(Icons.book),
-                  icon: Icon(Icons.book_outlined),
-                  label: '练习',
-                ),
-                NavigationDestination(
-                  selectedIcon: Icon(Icons.settings),
-                  icon: Icon(Icons.settings_outlined),
-                  label: '我的',
-                ),
-              ],
-              selectedIndex: state.selectedIndex,
-              onDestinationSelected: (int index) {
-                state.updateSelectedIndex(index);
-                Modular.to.navigate("/tab${menu.getPath(index)}/");
-              },
-            ),
-    );*/
-  }
-
-  //侧边导航栏
-  Widget sideMenuWidget(BuildContext context, NavigationBarState state){
-    return Container();
+              ),
+          ],
+        ),
+        bottom: !isLandscape
+            ? TabBar(
+                tabs: const [
+                  Tab(icon: Icon(Icons.password), text: '密码'),
+                  Tab(icon: Icon(Icons.sms_outlined), text: '短信'),
+                  Tab(icon: Icon(Icons.qr_code), text: '扫码'),
+                  Tab(icon: Icon(Icons.cookie_outlined), text: 'Cookie'),
+                ],
+                controller: _loginPageCtr.tabController,
+              )
+            : null,
+      ),*/
   }
 }

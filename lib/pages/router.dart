@@ -78,4 +78,8 @@ final MenuRoute menu = MenuRoute([
     path:"/qr_code",
     module: LoginQrCodeModule(),
   ),
+  // MenuRouteItem(
+  //   path:"/cookie",
+  //   module: LoginCookieModule(),
+  // ),
  ]);
