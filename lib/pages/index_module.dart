@@ -17,11 +17,12 @@
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:tutoring_software/pages/index_page.dart';
 import 'package:tutoring_software/pages/router.dart';
+import 'package:tutoring_software/pages/login/login_index_page.dart';
 
 //目的是定义整个软件的路由
 class IndexModule extends Module {
   @override
-  List<Module> get imports => menu.moduleList;
+  List<Module> get imports => [...menu.moduleList, ...login.moduleList];
 
   @override
   void binds(i) {
@@ -38,7 +39,7 @@ class IndexModule extends Module {
 
   @override
   void routes(r) {
-    r.redirect('/',to:"/tab");
+    r.redirect('/', to: "/tab");
     //检测初始化情况,也暂时用不到
     // r.child("/"),
     //     child: (_) => const InitPage(),
@@ -58,6 +59,16 @@ class IndexModule extends Module {
         return const IndexPage();
       },
       children: menu.routes,
+      transition: TransitionType.fadeIn,
+      duration: Duration(milliseconds: 70),
+    );
+    //登录的路由
+    r.child(
+      "/login",
+      child: (_) {
+        return const LoginIndexPage();
+      },
+      children: login.routes,
       transition: TransitionType.fadeIn,
       duration: Duration(milliseconds: 70),
     );
