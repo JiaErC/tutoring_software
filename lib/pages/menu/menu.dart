@@ -6,6 +6,7 @@ import "package:provider/provider.dart";
 import "package:tutoring_software/bean/widgets/embedded_native_control_area.dart";
 import "package:tutoring_software/pages/router.dart";
 import "package:tutoring_software/bean/widgets/edge_box.dart";
+import "package:tutoring_software/pages/menu/avatar.dart";
 
 class ScaffoldMenu extends StatefulWidget {
   const ScaffoldMenu({super.key});
@@ -76,15 +77,7 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
         elevation:0,
         leading: EdgeBox(
           margin: EdgeInsets.only(left: 5, top: 5),
-          child: InkWell(
-            onTap: () {
-              debugPrint("点击头像");
-            },
-            child: CircleAvatar(
-              backgroundImage: AssetImage("lib/images/1.png"),
-              radius: 20,
-            ),
-          ),
+          child: PersonAvatar(),
         ),
       ),
       body: Container(
@@ -141,15 +134,7 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
               child: NavigationRail(
                 backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                 //创建头部个人头像区域
-                leading: InkWell(
-                  onTap: () {
-                    debugPrint("点击头像");
-                  },
-                  child: CircleAvatar(
-                    backgroundImage: AssetImage("lib/images/1.png"),
-                    radius: 30,
-                  ),
-                ),
+                leading: PersonAvatar(),
                 groupAlignment: 1.0,
                 labelType: NavigationRailLabelType.selected,
                 destinations: const <NavigationRailDestination>[
