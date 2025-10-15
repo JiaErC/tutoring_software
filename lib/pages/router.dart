@@ -4,6 +4,9 @@ import 'package:tutoring_software/pages/chat/chat_module.dart';
 import 'package:tutoring_software/pages/study/study_module.dart';
 import 'package:tutoring_software/pages/my/my_module.dart';
 import 'package:tutoring_software/pages/home/home_module.dart';
+import 'package:tutoring_software/pages/login/password/password_module.dart';
+import 'package:tutoring_software/pages/login/qr_code/qr_code_module.dart';
+import 'package:tutoring_software/pages/login/sms/sms_module.dart';
 
 //路由项目的具体设置
 class MenuRouteItem {
@@ -60,3 +63,19 @@ final MenuRoute menu = MenuRoute([
     module: MyModule(),
   ),
 ]);
+
+//登录导航栏
+ final MenuRoute login = MenuRoute([
+  MenuRouteItem(
+    path:"/password",
+    module: LoginPasswordModule(),
+  ),
+  MenuRouteItem(
+    path:"/sms",
+    module: LoginSmsModule(),
+  ),
+  MenuRouteItem(
+    path:"/qr_code",
+    module: LoginQrCodeModule(),
+  ),
+ ]);
