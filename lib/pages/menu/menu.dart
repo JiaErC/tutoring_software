@@ -5,6 +5,7 @@ import "package:flutter_modular/flutter_modular.dart";
 import "package:provider/provider.dart";
 import "package:tutoring_software/bean/widgets/embedded_native_control_area.dart";
 import "package:tutoring_software/pages/router.dart";
+import "package:tutoring_software/bean/widgets/edge_box.dart";
 
 class ScaffoldMenu extends StatefulWidget {
   const ScaffoldMenu({super.key});
@@ -71,6 +72,21 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
   //底部导航栏
   Widget bottomMenuWidget(BuildContext context, NavigationBarState state) {
     return Scaffold(
+      appBar: AppBar(
+        elevation:0,
+        leading: EdgeBox(
+          margin: EdgeInsets.only(left: 5, top: 5),
+          child: InkWell(
+            onTap: () {
+              debugPrint("点击头像");
+            },
+            child: CircleAvatar(
+              backgroundImage: AssetImage("lib/images/1.png"),
+              radius: 20,
+            ),
+          ),
+        ),
+      ),
       body: Container(
         color: Theme.of(context).colorScheme.primaryContainer,
         child: PageView.builder(
@@ -126,13 +142,14 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
                 backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                 //创建头部个人头像区域
                 leading: InkWell(
-                    onTap: () {
-                      debugPrint("点击头像");
-                    },
-                    child: CircleAvatar(
-                      backgroundImage: AssetImage("lib/images/1.png"),
-                    ),
+                  onTap: () {
+                    debugPrint("点击头像");
+                  },
+                  child: CircleAvatar(
+                    backgroundImage: AssetImage("lib/images/1.png"),
+                    radius: 30,
                   ),
+                ),
                 groupAlignment: 1.0,
                 labelType: NavigationRailLabelType.selected,
                 destinations: const <NavigationRailDestination>[
