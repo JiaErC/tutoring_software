@@ -15,9 +15,9 @@ class ScaffoldMenu extends StatefulWidget {
 
 /*NavigationBarState复用来自Kazumi的代码*/
 class NavigationBarState extends ChangeNotifier {
-  int _selectedIndex = 0;//导航的索引
-  bool _isHide = false;//导航是否隐藏，true为隐藏
-  bool _isBottom = false;//导航栏是否在底部，true为底部
+  int _selectedIndex = 0; //导航的索引
+  bool _isHide = false; //导航是否隐藏，true为隐藏
+  bool _isBottom = false; //导航栏是否在底部，true为底部
 
   //三个只读属性
   int get selectedIndex => _selectedIndex;
@@ -68,7 +68,7 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
     );
   }
 
-//底部导航栏
+  //底部导航栏
   Widget bottomMenuWidget(BuildContext context, NavigationBarState state) {
     return Scaffold(
       body: Container(
@@ -76,7 +76,7 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
         child: PageView.builder(
           physics: const NeverScrollableScrollPhysics(),
           controller: _page,
-          itemCount: menu.size ,
+          itemCount: menu.size,
           itemBuilder: (_, __) => const RouterOutlet(),
         ),
       ),
@@ -124,6 +124,15 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
               visible: !state.isHide,
               child: NavigationRail(
                 backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+                //创建头部个人头像区域
+                leading: InkWell(
+                    onTap: () {
+                      debugPrint("点击头像");
+                    },
+                    child: CircleAvatar(
+                      backgroundImage: AssetImage("lib/images/1.png"),
+                    ),
+                  ),
                 groupAlignment: 1.0,
                 labelType: NavigationRailLabelType.selected,
                 destinations: const <NavigationRailDestination>[
