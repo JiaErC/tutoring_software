@@ -43,6 +43,7 @@ PiliPlus分析
 */
 
 import 'package:flutter/material.dart';
+import 'package:getwidget/getwidget.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -58,20 +59,46 @@ class _MyPageState extends State<MyPage> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          Text('My page', textAlign: TextAlign.center),
-          userAvatar(context),
+          Row(children: [userAvatar(context),settingButton(context)]),
         ],
       ),
     );
   }
 
   Widget userAvatar(context) {
-    return Card(
-      margin: EdgeInsets.all(10),
-      elevation: 5,
-      child: CircleAvatar(
-        radius: 40, // 调整此值可改变头像大小
-        backgroundImage: AssetImage('lib/data/images/1.png'),
+    return Expanded(
+      flex: 1,
+      child: GFCard(
+        titlePosition: GFPosition.start,
+        color: Colors.transparent,
+        elevation: 0,
+        title: GFListTile(
+          avatar: GFAvatar(
+            backgroundImage: AssetImage("lib/data/images/1.png"),
+            radius: 20,
+          ),
+          titleText: "请先登录",
+          subTitleText: "这里是联系方式",
+        ),
+        content: Text("这里是简介"),
+        //buttonBar:这里存放标签和联系方式
+      ),
+    );
+  }
+
+  //相关的设置按钮区域
+  Widget settingButton(context) {
+    return Expanded(
+      flex: 1,
+      child: GFButtonBar(
+        children: [
+          GFButton(
+            text: "设置",
+            onPressed: () {
+              debugPrint("点击设置应用");
+            },
+          ),
+        ],
       ),
     );
   }
