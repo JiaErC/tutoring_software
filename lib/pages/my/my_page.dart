@@ -44,6 +44,7 @@ PiliPlus分析
 
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:tutoring_software/bean/widgets/edge_box.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -59,13 +60,13 @@ class _MyPageState extends State<MyPage> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          Row(children: [userAvatar(context),settingButton(context)]),
+          Row(children: [_userAvatar(context), _settingButton(context)]),
         ],
       ),
     );
   }
 
-  Widget userAvatar(context) {
+  Widget _userAvatar(context) {
     return Expanded(
       flex: 1,
       child: GFCard(
@@ -87,18 +88,58 @@ class _MyPageState extends State<MyPage> {
   }
 
   //相关的设置按钮区域
-  Widget settingButton(context) {
+  Widget _settingButton(context) {
     return Expanded(
       flex: 1,
-      child: GFButtonBar(
-        children: [
-          GFButton(
-            text: "设置",
-            onPressed: () {
-              debugPrint("点击设置应用");
-            },
+      child: EdgeBox(
+        margin: EdgeInsets.only(right: 20, top: 10),
+        child: Align(
+          alignment: Alignment.topRight,
+          child: GFButtonBar(
+            children: [
+              IconButton(
+                iconSize: 22,
+                padding: const EdgeInsets.all(8),
+                style: const ButtonStyle(
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                tooltip: "进入或者退出无痕模式",
+                onPressed: () => debugPrint("点击切换无痕模式按钮"),
+                icon: Icon(Icons.stream),
+              ),
+              IconButton(
+                iconSize: 22,
+                padding: const EdgeInsets.all(8),
+                style: const ButtonStyle(
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                tooltip: '设置账号模式',
+                onPressed: () => debugPrint("点击切换账号模式按钮"),
+                icon: const Icon(Icons.switch_account_outlined),
+              ),
+              IconButton(
+                iconSize: 22,
+                padding: const EdgeInsets.all(8),
+                style: const ButtonStyle(
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                tooltip: '切换主题',
+                onPressed: () => debugPrint("点击切换主题按钮"),
+                icon: Icon(Icons.sunny),
+              ),
+              IconButton(
+                iconSize: 22,
+                padding: const EdgeInsets.all(8),
+                style: const ButtonStyle(
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                tooltip: '设置',
+                onPressed: () => debugPrint("点击设置按钮"),
+                icon: const Icon(Icons.settings_outlined),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
