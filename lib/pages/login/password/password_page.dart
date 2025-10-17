@@ -8,6 +8,8 @@ class PasswordPage extends StatefulWidget {
 }
 
 class _PasswordPageState extends State<PasswordPage> {
+  bool showPassword = false;//是否显示密码的变量
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,7 +17,6 @@ class _PasswordPageState extends State<PasswordPage> {
       body: _loginByPassword(context),
     );
   }
-}
 
 /*以下代码来自PiliPuls*/
  Widget _loginByPassword(BuildContext context/*,ThemeData theme*/) {
@@ -44,7 +45,7 @@ class _PasswordPageState extends State<PasswordPage> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: TextField(
-            // obscureText: !showPassword,
+            obscureText: !showPassword,
             keyboardType: TextInputType.visiblePassword,
             // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
             // controller: _loginPageCtr.passwordTextController,
@@ -64,10 +65,10 @@ class _PasswordPageState extends State<PasswordPage> {
           children: [
             const SizedBox(width: 10),
             //点击即可显示密码
-            // Checkbox(
-            //   value: showPassword,
-            //   onChanged: (value) => setState(() => showPassword = value!),
-            // ),
+            Checkbox(
+              value: showPassword,
+              onChanged: (value) => setState(() => showPassword = value!),
+            ),
             const Text('显示密码'),
             const Spacer(),
             TextButton(
@@ -169,3 +170,4 @@ class _PasswordPageState extends State<PasswordPage> {
       ],
     );
   }
+}
