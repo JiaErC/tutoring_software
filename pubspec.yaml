@@ -38,6 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   getwidget: ^7.0.0
   flutter_material_design_icons: ^1.1.7447
+  get: ^4.7.2
 
 dev_dependencies:
   flutter_test:

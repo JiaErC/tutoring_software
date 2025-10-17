@@ -65,6 +65,14 @@ class _LoginMenuState extends State<LoginMenu>
     });
   }
 
+  //释放资源
+  @override
+  void dispose() {
+    // 必须先释放_tabController，然后再调用super.dispose()
+    _tabController.dispose();
+    super.dispose();
+  }
+
   int getCurrentTabIndex() {
     return _tabController.index;
   }
