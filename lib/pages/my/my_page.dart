@@ -60,7 +60,12 @@ class _MyPageState extends State<MyPage> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          Row(children: [_userAvatar(context), _settingButton(context)]),
+          SizedBox(
+            height: 200,
+            child: Row(
+              children: [_userAvatar(context), _buildingButtonArea(context)],
+            ),
+          ),
         ],
       ),
     );
@@ -87,7 +92,18 @@ class _MyPageState extends State<MyPage> {
     );
   }
 
+  //设置按钮区域和切换身份区域
+  Widget _buildingButtonArea(context) {
+    return Expanded(
+      flex: 1,
+      child: Column(
+        children: [_settingButton(context), _identityTagArea(context)],
+      ),
+    );
+  }
+
   //相关的设置按钮区域
+  /*代码来源于PiliPlus*/
   Widget _settingButton(context) {
     return Expanded(
       flex: 1,
@@ -140,6 +156,54 @@ class _MyPageState extends State<MyPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  //显示学生和老师身份标签切换的区域
+  Widget _identityTagArea(context) {
+    return Expanded(
+      flex: 2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 10, bottom: 5),
+            child: Text("身份设置", style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          EdgeBox(
+            margin: EdgeInsets.only(right: 50, left: 20, top: 10, bottom: 15),
+            child: Tooltip(
+              message: "点击可切换学生/老师身份",
+              child: GFButton(
+                onPressed: () => debugPrint("点击切换身份按钮"),
+                fullWidthButton: true,
+                type: GFButtonType.outline,
+                shape: GFButtonShape.square,
+                color: Colors.blue.shade50,
+                splashColor: Colors.blue.shade100,
+                focusColor: Colors.blue.shade400,
+                highlightColor: Colors.blue.shade100,
+                text: "当前身份：学生",
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 24,
+                  height: 1.2,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.school, size: 20),
+                    SizedBox(width: 8),
+                    Text("点击切换为老师"),
+                    SizedBox(width: 8),
+                    Icon(Icons.swap_horiz, size: 20),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
