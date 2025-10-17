@@ -154,7 +154,7 @@ class _MyPageState extends State<MyPage> {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 tooltip: '设置',
-                onPressed: () => debugPrint("点击设置按钮"),
+                onPressed: () => Modular.to.pushNamed("/settings"),
                 icon: const Icon(Icons.settings_outlined),
               ),
             ],
