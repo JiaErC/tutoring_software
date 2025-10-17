@@ -11,7 +11,7 @@ class PersonAvatar extends StatelessWidget {
     return InkWell(
       onTap: () {
         debugPrint("点击头像");
-        Modular.to.pushNamed("/login");
+        Modular.to.pushNamed("/tab/my");
       },
       child: GFAvatar(
         backgroundImage: AssetImage("lib/data/images/1.png"),

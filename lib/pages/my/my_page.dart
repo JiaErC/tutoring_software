@@ -43,6 +43,7 @@ PiliPlus分析
 */
 
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:tutoring_software/bean/widgets/edge_box.dart';
 
@@ -79,11 +80,14 @@ class _MyPageState extends State<MyPage> {
         color: Colors.transparent,
         elevation: 0,
         title: GFListTile(
-          avatar: GFAvatar(
-            backgroundImage: AssetImage("lib/data/images/1.png"),
-            radius: 20,
+          avatar: InkWell(
+            onTap: () => Modular.to.pushNamed("/login/password"),
+            child: GFAvatar(
+              backgroundImage: AssetImage("lib/data/images/1.png"),
+              radius: 20,
+            ),
           ),
-          titleText: "请先登录",
+          titleText: "点击头像登录",
           subTitleText: "这里是联系方式",
         ),
         content: Text("这里是简介"),
