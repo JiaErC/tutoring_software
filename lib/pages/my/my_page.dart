@@ -43,6 +43,9 @@ PiliPlus分析
 */
 
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
+import 'package:getwidget/getwidget.dart';
+import 'package:tutoring_software/bean/widgets/edge_box.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -58,20 +61,153 @@ class _MyPageState extends State<MyPage> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          Text('My page', textAlign: TextAlign.center),
-          userAvatar(context),
+          SizedBox(
+            height: 200,
+            child: Row(
+              children: [_userAvatar(context), _buildingButtonArea(context)],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget userAvatar(context) {
-    return Card(
-      margin: EdgeInsets.all(10),
-      elevation: 5,
-      child: CircleAvatar(
-        radius: 40, // 调整此值可改变头像大小
-        backgroundImage: AssetImage('lib/data/images/1.png'),
+  Widget _userAvatar(context) {
+    return Expanded(
+      flex: 1,
+      child: GFCard(
+        titlePosition: GFPosition.start,
+        color: Colors.transparent,
+        elevation: 0,
+        title: GFListTile(
+          avatar: InkWell(
+            onTap: () => Modular.to.pushNamed("/login/password"),
+            child: GFAvatar(
+              backgroundImage: AssetImage("lib/data/images/1.png"),
+              radius: 20,
+            ),
+          ),
+          titleText: "点击头像登录",
+          subTitleText: "这里是联系方式",
+        ),
+        content: Text("这里是简介"),
+        //buttonBar:这里存放标签和联系方式
+      ),
+    );
+  }
+
+  //设置按钮区域和切换身份区域
+  Widget _buildingButtonArea(context) {
+    return Expanded(
+      flex: 1,
+      child: Column(
+        children: [_settingButton(context), _identityTagArea(context)],
+      ),
+    );
+  }
+
+  //相关的设置按钮区域
+  /*代码来源于PiliPlus*/
+  Widget _settingButton(context) {
+    return Expanded(
+      flex: 1,
+      child: EdgeBox(
+        margin: EdgeInsets.only(right: 20, top: 10),
+        child: Align(
+          alignment: Alignment.topRight,
+          child: GFButtonBar(
+            children: [
+              IconButton(
+                iconSize: 22,
+                padding: const EdgeInsets.all(8),
+                style: const ButtonStyle(
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                tooltip: "进入或者退出无痕模式",
+                onPressed: () => debugPrint("点击切换无痕模式按钮"),
+                icon: Icon(Icons.stream),
+              ),
+              IconButton(
+                iconSize: 22,
+                padding: const EdgeInsets.all(8),
+                style: const ButtonStyle(
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                tooltip: '设置账号模式',
+                onPressed: () => debugPrint("点击切换账号模式按钮"),
+                icon: const Icon(Icons.switch_account_outlined),
+              ),
+              IconButton(
+                iconSize: 22,
+                padding: const EdgeInsets.all(8),
+                style: const ButtonStyle(
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                tooltip: '切换主题',
+                onPressed: () => debugPrint("点击切换主题按钮"),
+                icon: Icon(Icons.sunny),
+              ),
+              IconButton(
+                iconSize: 22,
+                padding: const EdgeInsets.all(8),
+                style: const ButtonStyle(
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                tooltip: '设置',
+                onPressed: () => debugPrint("点击设置按钮"),
+                icon: const Icon(Icons.settings_outlined),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  //显示学生和老师身份标签切换的区域
+  Widget _identityTagArea(context) {
+    return Expanded(
+      flex: 2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 10, bottom: 5),
+            child: Text("身份设置", style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          EdgeBox(
+            margin: EdgeInsets.only(right: 50, left: 20, top: 10, bottom: 15),
+            child: Tooltip(
+              message: "点击可切换学生/老师身份",
+              child: GFButton(
+                onPressed: () => debugPrint("点击切换身份按钮"),
+                fullWidthButton: true,
+                type: GFButtonType.outline,
+                shape: GFButtonShape.square,
+                color: Colors.blue.shade50,
+                splashColor: Colors.blue.shade100,
+                focusColor: Colors.blue.shade400,
+                highlightColor: Colors.blue.shade100,
+                text: "当前身份：学生",
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 24,
+                  height: 1.2,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.school, size: 20),
+                    SizedBox(width: 8),
+                    Text("点击切换为老师"),
+                    SizedBox(width: 8),
+                    Icon(Icons.swap_horiz, size: 20),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
