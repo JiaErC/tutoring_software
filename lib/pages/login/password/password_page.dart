@@ -8,18 +8,23 @@ class PasswordPage extends StatefulWidget {
 }
 
 class _PasswordPageState extends State<PasswordPage> {
-  bool showPassword = false;//是否显示密码的变量
+  bool showPassword = false; //是否显示密码的变量
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: _loginByPassword(context),
+      body: MediaQuery.of(context).orientation == Orientation.landscape
+          ? Align(
+              alignment: Alignment.center,
+              child: SizedBox(width: 800, child: _loginByPassword(context)),
+            )
+          : _loginByPassword(context),
     );
   }
 
-/*以下代码来自PiliPuls*/
- Widget _loginByPassword(BuildContext context/*,ThemeData theme*/) {
+  /*以下代码来自PiliPuls*/
+  Widget _loginByPassword(BuildContext context /*,ThemeData theme*/) {
     return Column(
       children: [
         const SizedBox(height: 20),
@@ -36,7 +41,7 @@ class _PasswordPageState extends State<PasswordPage> {
               labelText: '账号',
               hintText: '邮箱/手机号',
               suffixIcon: IconButton(
-                onPressed: ()=>debugPrint("清空用户写入账号的内容"),
+                onPressed: () => debugPrint("清空用户写入账号的内容"),
                 icon: const Icon(Icons.clear),
               ),
             ),
@@ -55,7 +60,7 @@ class _PasswordPageState extends State<PasswordPage> {
               border: const UnderlineInputBorder(),
               labelText: '密码',
               suffixIcon: IconButton(
-                onPressed:()=>debugPrint("清空用户写入密码的内容"),
+                onPressed: () => debugPrint("清空用户写入密码的内容"),
                 icon: const Icon(Icons.clear),
               ),
             ),
@@ -93,9 +98,7 @@ class _PasswordPageState extends State<PasswordPage> {
                           child: Text("试试扫码、手机号登录，或选择"),
                         ),
                         ListTile(
-                          title: const Text(
-                            '找回密码（手机版）',
-                          ),
+                          title: const Text('找回密码（手机版）'),
                           leading: const Icon(Icons.smartphone_outlined),
                           subtitle: const Text(
                             'https://passport.bilibili.com/h5-app/passport/login/findPassword',
@@ -112,12 +115,10 @@ class _PasswordPageState extends State<PasswordPage> {
                           //       'pageTitle': '忘记密码',
                           //     },
                           //   ),
-                          onTap:()=>debugPrint("找回密码（手机版）"),
+                          onTap: () => debugPrint("找回密码（手机版）"),
                         ),
                         ListTile(
-                          title: const Text(
-                            '找回密码（电脑版）',
-                          ),
+                          title: const Text('找回密码（电脑版）'),
                           leading: const Icon(Icons.desktop_windows_outlined),
                           subtitle: const Text(
                             'https://passport.bilibili.com/pc/passport/findPassword',
@@ -135,7 +136,7 @@ class _PasswordPageState extends State<PasswordPage> {
                           //       'uaType': 'pc',
                           //     },
                           //   ),
-                          onTap:()=>debugPrint("找回密码（电脑版）"),
+                          onTap: () => debugPrint("找回密码（电脑版）"),
                         ),
                       ],
                     );
@@ -148,7 +149,7 @@ class _PasswordPageState extends State<PasswordPage> {
           ],
         ),
         OutlinedButton.icon(
-          onPressed: ()=>debugPrint("登录"),
+          onPressed: () => debugPrint("登录"),
           icon: const Icon(Icons.login),
           label: const Text('登录'),
         ),
