@@ -39,6 +39,7 @@ dependencies:
   getwidget: ^7.0.0
   flutter_material_design_icons: ^1.1.7447
   get: ^4.7.2
+  mobx: ^2.5.0
 
 dev_dependencies:
   flutter_test:
