@@ -1,5 +1,7 @@
 import "package:hive/hive.dart";
 
+part 'user_data_item.g.dart';
+
 //定义用户项目的键值
 @HiveType(typeId:0)
 class UserDataItem {

@@ -1,4 +1,15 @@
+import "package:hive/hive.dart";
+import "package:tutoring_software/modules/user_data/user_data_item.dart";
+
 class GStorage{
+  //存储用户相关的数据集
+  static late Box<UserDataItem> userDataBox;
+
+  //数据库初始化
+  static Future init() async {
+    Hive.registerAdapter(UserDataItemAdapter());
+    userDataBox = await Hive.openBox('userData');
+  }
 
 }
 class SettingBoxKey {
