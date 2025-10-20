@@ -39,6 +39,7 @@ dependencies:
   getwidget: ^7.0.0
   flutter_material_design_icons: ^1.1.7447
   get: ^4.7.2
+  hive: ^2.2.3
 
 dev_dependencies:
   flutter_test:
