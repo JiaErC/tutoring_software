@@ -19,6 +19,7 @@ import 'package:tutoring_software/pages/index_page.dart';
 import 'package:tutoring_software/pages/router.dart';
 import 'package:tutoring_software/pages/login/login_index_page.dart';
 import 'package:tutoring_software/pages/my/settings/settings_module.dart';
+import 'package:tutoring_software/pages/register/register_module.dart';
 
 //目的是定义整个软件的路由
 class IndexModule extends Module {
@@ -78,6 +79,8 @@ class IndexModule extends Module {
     // /// The route need [ BangumiItem ] as argument.
     // r.module("/info", module: InfoModule());
     r.module("/settings", module: SettingsModule());
+    //注册路由
+    r.module("/register",module: RegisterModule());
     // r.module("/search", module: SearchModule());
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 
 class PasswordPage extends StatefulWidget {
   const PasswordPage({super.key});
@@ -148,10 +149,25 @@ class _PasswordPageState extends State<PasswordPage> {
             const SizedBox(width: 20),
           ],
         ),
-        OutlinedButton.icon(
-          onPressed: () => debugPrint("登录"),
-          icon: const Icon(Icons.login),
-          label: const Text('登录'),
+        Align(
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              OutlinedButton.icon(
+                onPressed: () => debugPrint("登录"),
+                icon: const Icon(Icons.login),
+                label: const Text('登录'),
+              ),
+              const SizedBox(width: 20),
+              //注册按钮，
+              OutlinedButton.icon(
+                onPressed: () => Modular.to.pushNamed('/register'),
+                icon: const Icon(Icons.login),
+                label: const Text('注册'),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 20),
         //结束语
