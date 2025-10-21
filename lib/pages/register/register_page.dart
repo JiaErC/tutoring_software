@@ -8,6 +8,11 @@ class RegisterPage extends StatefulWidget {
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
+//定义性别 0 保密，1：男，2：女
+int? _gender = 0;
+//选择学生还是老师，也就是应用的身份，1：学生，2：老师
+Set<int> _selectedRoles = {};
+
 class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
@@ -20,6 +25,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
         title: const Text('注册'), // 设置页面标题
       ),
+      backgroundColor: Colors.white,
       body: MediaQuery.of(context).orientation == Orientation.landscape
           ? Align(
               alignment: Alignment.center,
@@ -31,101 +37,231 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _buildRegister(BuildContext context) {
     //返回注册的各个项目
-    return Column(
-      children: [
-        const SizedBox(height: 20),
-        const Text('注册账户'),
-        const SizedBox(height: 10),
-        //写入用户名
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: TextField(
-            // controller: _loginPageCtr.usernameTextController,
-            // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
-            decoration: InputDecoration(
-              prefixIcon: const Icon(MdiIcons.account),
-              border: const UnderlineInputBorder(),
-              labelText: '用户名',
-              // hintText: '邮箱/手机号',
-              suffixIcon: IconButton(
-                onPressed: () => debugPrint("清空用户名"),
-                icon: const Icon(Icons.clear),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          const Text('注册账户'),
+          const SizedBox(height: 10),
+          //写入用户名
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: TextField(
+              // controller: _loginPageCtr.usernameTextController,
+              // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
+              decoration: InputDecoration(
+                prefixIcon: const Icon(MdiIcons.account),
+                border: const UnderlineInputBorder(),
+                labelText: '用户名',
+                // hintText: '邮箱/手机号',
+                suffixIcon: IconButton(
+                  onPressed: () => debugPrint("清空用户名"),
+                  icon: const Icon(Icons.clear),
+                ),
               ),
             ),
           ),
-        ),
-        //写入email
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: TextField(
-            // controller: _loginPageCtr.usernameTextController,
-            // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
-            decoration: InputDecoration(
-              prefixIcon: const Icon(MdiIcons.email),
-              border: const UnderlineInputBorder(),
-              labelText: '邮箱',
-              // hintText: '邮箱/手机号',
-              suffixIcon: IconButton(
-                onPressed: () => debugPrint("清空邮箱"),
-                icon: const Icon(Icons.clear),
+          //写入email
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: TextField(
+              // controller: _loginPageCtr.usernameTextController,
+              // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
+              decoration: InputDecoration(
+                prefixIcon: const Icon(MdiIcons.email),
+                border: const UnderlineInputBorder(),
+                labelText: '邮箱',
+                // hintText: '邮箱/手机号',
+                suffixIcon: IconButton(
+                  onPressed: () => debugPrint("清空邮箱"),
+                  icon: const Icon(Icons.clear),
+                ),
               ),
             ),
           ),
-        ),
-        //写入电话号码
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: TextField(
-            // controller: _loginPageCtr.usernameTextController,
-            // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
-            decoration: InputDecoration(
-              prefixIcon: const Icon(MdiIcons.phone),
-              border: const UnderlineInputBorder(),
-              labelText: '电话号码',
-              // hintText: '邮箱/手机号',
-              suffixIcon: IconButton(
-                onPressed: () => debugPrint("清空电话号码"),
-                icon: const Icon(Icons.clear),
+          //写入电话号码
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: TextField(
+              // controller: _loginPageCtr.usernameTextController,
+              // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
+              decoration: InputDecoration(
+                prefixIcon: const Icon(MdiIcons.phone),
+                border: const UnderlineInputBorder(),
+                labelText: '电话号码',
+                // hintText: '邮箱/手机号',
+                suffixIcon: IconButton(
+                  onPressed: () => debugPrint("清空电话号码"),
+                  icon: const Icon(Icons.clear),
+                ),
               ),
             ),
           ),
-        ),
-        //两次写入密码
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: TextField(
-            // controller: _loginPageCtr.usernameTextController,
-            // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
-            decoration: InputDecoration(
-              prefixIcon: const Icon(MdiIcons.lock),
-              border: const UnderlineInputBorder(),
-              labelText: '密码',
-              // hintText: '邮箱/手机号',
-              suffixIcon: IconButton(
-                onPressed: () => debugPrint("清空密码"),
-                icon: const Icon(Icons.clear),
+          //两次写入密码
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: TextField(
+              obscureText: true,
+              // controller: _loginPageCtr.usernameTextController,
+              // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
+              decoration: InputDecoration(
+                prefixIcon: const Icon(MdiIcons.lock),
+                border: const UnderlineInputBorder(),
+                labelText: '密码',
+                // hintText: '邮箱/手机号',
+                suffixIcon: IconButton(
+                  onPressed: () => debugPrint("清空密码"),
+                  icon: const Icon(Icons.clear),
+                ),
               ),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: TextField(
-            // controller: _loginPageCtr.usernameTextController,
-            // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
-            decoration: InputDecoration(
-              prefixIcon: const Icon(MdiIcons.lock),
-              border: const UnderlineInputBorder(),
-              labelText: '请再次输入密码',
-              // hintText: '邮箱/手机号',
-              suffixIcon: IconButton(
-                onPressed: () => debugPrint("清空密码"),
-                icon: const Icon(Icons.clear),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: TextField(
+              obscureText: true,
+              // controller: _loginPageCtr.usernameTextController,
+              // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
+              decoration: InputDecoration(
+                prefixIcon: const Icon(MdiIcons.lock),
+                border: const UnderlineInputBorder(),
+                labelText: '请再次输入密码',
+                // hintText: '邮箱/手机号',
+                suffixIcon: IconButton(
+                  onPressed: () => debugPrint("清空密码"),
+                  icon: const Icon(Icons.clear),
+                ),
               ),
             ),
           ),
-        ),
-      ],
+          //性别选择
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: RadioGroup<int>(
+              groupValue: _gender,
+              onChanged: (value) {
+                setState(() {
+                  _gender = value;
+                  debugPrint('性别：$_gender');
+                });
+              },
+              child: Row(
+                children: <Widget>[
+                  const Icon(MdiIcons.genderMaleFemale),
+                  const SizedBox(width: 10),
+                  const Text(
+                    '性别',
+                    style: TextStyle(fontSize: 12, color: Colors.black87),
+                  ),
+                  Radio<int>(value: 1),
+                  const Text('男'),
+                  Radio<int>(value: 2),
+                  const Text('女'),
+                  Radio<int>(value: 0),
+                  const Text('保密'),
+                ],
+              ),
+            ),
+          ),
+          //接下来是生日信息
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Row(
+              children: [
+                const Icon(MdiIcons.cake),
+                const SizedBox(width: 10),
+                const Text(
+                  '生日',
+                  style: TextStyle(fontSize: 12, color: Colors.black87),
+                ),
+                const SizedBox(width: 60),
+                //选择出生日期
+                SizedBox(
+                  width: 200,
+                  child:
+                      //选择年、月、日
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          final DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime(
+                              2000,
+                              1,
+                              1,
+                            ), // 初始选中日期，例如2000年1月1日
+                            firstDate: DateTime(1900), // 允许选择的最早日期
+                            lastDate: DateTime.now(), // 允许选择的最晚日期（今天）
+                            helpText: '选择您的生日', // 自定义对话框标题
+                            cancelText: '取消', // 自定义取消按钮文字
+                            confirmText: '确定', // 自定义确认按钮文字
+                          );
+
+                          if (pickedDate != null) {
+                            // 用户选择了日期，可以在这里处理 pickedDate
+                            debugPrint("选择的生日是: $pickedDate");
+                            // 例如：更新状态，将生日显示在界面上
+                          }
+                        },
+                        icon: const Icon(MdiIcons.calendar),
+                        label: const Text('选择生日'),
+                      ),
+                ),
+              ],
+            ),
+          ),
+          //选择学生还是老师，也就是应用的身份，1：学生，2：老师
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Row(
+              children: <Widget>[
+                const Icon(MdiIcons.accountCog),
+                const SizedBox(width: 10),
+                const Text(
+                  '身份',
+                  style: TextStyle(fontSize: 12, color: Colors.black87),
+                ),
+                // 替换为Checkbox组件
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _selectedRoles.contains(1),
+                      onChanged: (bool? value) {
+                        setState(() {
+                          if (value == true) {
+                            _selectedRoles.add(1);
+                          } else {
+                            _selectedRoles.remove(1);
+                          }
+                          debugPrint('选中的身份：$_selectedRoles');
+                        });
+                      },
+                    ),
+                    const Text('学生'),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _selectedRoles.contains(2),
+                      onChanged: (bool? value) {
+                        setState(() {
+                          if (value == true) {
+                            _selectedRoles.add(2);
+                          } else {
+                            _selectedRoles.remove(2);
+                          }
+                          debugPrint('选中的身份：$_selectedRoles');
+                        });
+                      },
+                    ),
+                    const Text('老师'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
