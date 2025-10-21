@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_material_design_icons/flutter_material_design_icons.dart";
+import "package:flutter_modular/flutter_modular.dart";
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -260,8 +261,73 @@ class _RegisterPageState extends State<RegisterPage> {
               ],
             ),
           ),
+          //当用户选择了学生身份的时候
+          //显示这个组件，用来选择学习的科目
+          if (_selectedRoles.contains(1))
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: _buildStudySubjects(context),
+            ),
+          //当用户选择了老师身份的时候
+          //显示这个组件，用来选择教学的科目
+          if (_selectedRoles.contains(2))
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: _buildTeachSubjects(context),
+            ),
+          //确定按钮
+          Center(
+            child: OutlinedButton.icon(
+              onPressed: () => debugPrint("确定"),
+              icon: const Icon(Icons.login),
+              label: const Text('确定'),
+            ),
+          ),
+          const SizedBox(height: 20),
         ],
       ),
+    );
+  }
+
+  //跳转到选择学习科目的界面
+  Widget _buildStudySubjects(BuildContext context) {
+    return Row(
+      children: [
+        const Icon(MdiIcons.bookOpen),
+        const SizedBox(width: 10),
+        const Text(
+          "选择学习科目",
+          style: TextStyle(fontSize: 12, color: Colors.black87),
+        ),
+        const SizedBox(width: 60),
+        //跳转到选择科目的界面
+        OutlinedButton.icon(
+          onPressed: () => Modular.to.pushNamed('/subjects'),
+          icon: const Icon(MdiIcons.pencil),
+          label: const Text('选择科目'),
+        ),
+      ],
+    );
+  }
+
+  //跳转到选择教学科目的界面
+  Widget _buildTeachSubjects(BuildContext context) {
+    return Row(
+      children: [
+        const Icon(Icons.book),
+        const SizedBox(width: 10),
+        const Text(
+          "选择教学科目",
+          style: TextStyle(fontSize: 12, color: Colors.black87),
+        ),
+        const SizedBox(width: 60),
+        //跳转到选择科目的界面
+        OutlinedButton.icon(
+          onPressed: () => Modular.to.pushNamed('/subjects'),
+          icon: const Icon(MdiIcons.pen),
+          label: const Text('选择科目'),
+        ),
+      ],
     );
   }
 }
