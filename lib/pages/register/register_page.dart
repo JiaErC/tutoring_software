@@ -302,7 +302,7 @@ class _RegisterPageState extends State<RegisterPage> {
         const SizedBox(width: 60),
         //跳转到选择科目的界面
         OutlinedButton.icon(
-          onPressed: () => Modular.to.pushNamed('/subjects'),
+          onPressed: () => Modular.to.pushNamed('/subjects',arguments: {'isTeacher': false,}),
           icon: const Icon(MdiIcons.pencil),
           label: const Text('选择科目'),
         ),
@@ -323,7 +323,7 @@ class _RegisterPageState extends State<RegisterPage> {
         const SizedBox(width: 60),
         //跳转到选择科目的界面
         OutlinedButton.icon(
-          onPressed: () => Modular.to.pushNamed('/subjects'),
+          onPressed: () => Modular.to.pushNamed('/subjects',arguments: {'isTeacher': true,}),
           icon: const Icon(MdiIcons.pen),
           label: const Text('选择科目'),
         ),
