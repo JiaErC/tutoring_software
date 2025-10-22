@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import "package:flutter_material_design_icons/flutter_material_design_icons.dart";
 import 'package:getwidget/getwidget.dart';
 
@@ -17,6 +20,29 @@ class _SubjectsPageState extends State<SubjectsPage> {
   //判断两个下拉菜单是否展开
   bool _isPrimaryExpanded = false; //这个是中小学科目菜单
   bool _isSecondaryExpanded = false; //这个是大学生和成年人科目菜单
+
+  //存储解析之后的JSON文件
+  Map<String, dynamic>? _subjectData;
+  String? _selectedCategory; //记录选中的学科大类
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSubjectData();
+  }
+
+  Future<void> _loadSubjectData() async {
+    try {
+      // 从assets加载JSON文件
+      String data = await rootBundle.loadString('lib/data/subjects_data.json');
+      // 解析JSON
+      setState(() {
+        _subjectData = json.decode(data);
+      });
+    } catch (e) {
+      debugPrint('加载科目数据出错: $e');
+    }
+  }
 
   //在didChangeDependencies()中获取路由参数
   @override
@@ -80,7 +106,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
   Widget _buildButton(String s, IconData i) {
     return _isLandscape
         ? GFButton(
-            onPressed: () => debugPrint("选择$s"),
+            onPressed: () => _selectedCategory = s,
             icon: Icon(i, size: 18),
             shape: GFButtonShape.square,
             fullWidthButton: true,
@@ -95,7 +121,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
         : SizedBox(
             height: 60,
             child: GFButton(
-              onPressed: () => debugPrint("选择$s"),
+              onPressed: () => _selectedCategory = s,
               icon: Icon(i, size: 23), // 增加图标大小
               shape: GFButtonShape.square,
               fullWidthButton: true,
@@ -114,6 +140,19 @@ class _SubjectsPageState extends State<SubjectsPage> {
   //以下为选择科目组件
   //大科目菜单
   Widget _majorSubjectGroups(BuildContext context) {
+    //下拉菜单的文字样式
+    TextStyle dropDownTextStyle = _isLandscape
+        ? TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: _isPrimaryExpanded ? Colors.purple[900] : Colors.black87,
+          )
+        : TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: _isPrimaryExpanded ? Colors.purple[900] : Colors.black87,
+          );
+
     return Align(
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
@@ -130,21 +169,11 @@ class _SubjectsPageState extends State<SubjectsPage> {
                 leading: const Icon(MdiIcons.tableChair),
                 textColor: Colors.deepPurpleAccent,
                 title: Text(
-                  _isLandscape?"小学和中学":"小学\n中学",
-                  style: _isLandscape
-                      ? TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: _isPrimaryExpanded?Colors.purple[900]:Colors.black87,
-                        )
-                      : TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: _isPrimaryExpanded?Colors.purple[900]:Colors.black87,
-                        ),
+                  _isLandscape ? "小学和中学" : "小学\n中学",
+                  style: dropDownTextStyle,
                 ),
                 subtitle: Text(
-                  _isPrimaryExpanded?"":"适合中小学生未成年人，需要绑定家长",
+                  _isPrimaryExpanded ? "" : "适合中小学生未成年人，需要绑定家长",
                   style: TextStyle(fontSize: 10, color: Colors.black45),
                 ),
                 // 控制初始是否展开
@@ -171,22 +200,9 @@ class _SubjectsPageState extends State<SubjectsPage> {
               ),
               ExpansionTile(
                 leading: const Icon(MdiIcons.accountSchool),
-                title: Text(
-                  "大学学习\n终身学习",
-                  style: _isLandscape
-                      ? TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: _isSecondaryExpanded?Colors.purple[900]:Colors.black87,
-                        )
-                      : TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: _isSecondaryExpanded?Colors.purple[900]:Colors.black87,
-                        ),
-                ),
+                title: Text("大学学习\n终身学习", style: dropDownTextStyle),
                 subtitle: Text(
-                  _isSecondaryExpanded?"":"适合成年人，不需要绑定家长",
+                  _isSecondaryExpanded ? "" : "适合成年人，不需要绑定家长",
                   style: TextStyle(fontSize: 10, color: Colors.black45),
                 ),
                 // 控制初始是否展开
@@ -217,5 +233,36 @@ class _SubjectsPageState extends State<SubjectsPage> {
         ),
       ),
     );
+  }
+
+  //小科目菜单
+  //打包Warp流式显示表格
+  Widget _wrapSubjects(BuildContext context){
+  if(_subjectData != null && _selectedCategory !=null){
+    Map<String, dynamic> subMap = _subjectData!["兴趣爱好"];
+
+
+  }
+    return Container();
+  }
+
+//参考代码
+//   if (_subjectData != null && _selectedCategory == "兴趣爱好") {
+//   // 获取兴趣爱好Map
+//   Map<String, dynamic> hobbyMap = _subjectData!["兴趣爱好"];
+  
+//   // 遍历所有子类别
+//   hobbyMap.forEach((String subCategory, dynamic subjects) {
+//     // subCategory: "美术类"、"音乐类"等
+//     // 将subjects转换为String列表
+//     List<String> subjectList = (subjects as List).cast<String>();
+    
+//     debugPrint("子类别: $subCategory, 科目数量: ${subjectList.length}");
+//   });
+// }
+
+  //对应的组件
+  Widget _subfieldSubjects(BuildContext context) {
+    return Container();
   }
 }
