@@ -85,6 +85,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
                         color: Colors.lightBlue[50],
                         borderRadius: BorderRadius.circular(10),
                       ),
+                      child: _subfieldSubjects(context),
                     ),
                   ),
                 ],
@@ -95,7 +96,10 @@ class _SubjectsPageState extends State<SubjectsPage> {
                 Expanded(flex: 1, child: _majorSubjectGroups(context)),
                 Expanded(
                   flex: 2,
-                  child: Container(color: Colors.lightBlue[50]),
+                  child: Container(
+                    color: Colors.lightBlue[50],
+                    child: _subfieldSubjects(context),
+                  ),
                 ),
               ],
             ),
@@ -106,7 +110,12 @@ class _SubjectsPageState extends State<SubjectsPage> {
   Widget _buildButton(String s, IconData i) {
     return _isLandscape
         ? GFButton(
-            onPressed: () => _selectedCategory = s,
+            onPressed: () {
+              setState(() {
+                _selectedCategory = s;
+                debugPrint(_selectedCategory);
+              });
+            },
             icon: Icon(i, size: 18),
             shape: GFButtonShape.square,
             fullWidthButton: true,
@@ -121,7 +130,12 @@ class _SubjectsPageState extends State<SubjectsPage> {
         : SizedBox(
             height: 60,
             child: GFButton(
-              onPressed: () => _selectedCategory = s,
+              onPressed: () {
+                setState(() {
+                  _selectedCategory = s;
+                  debugPrint(_selectedCategory);
+                });
+              },
               icon: Icon(i, size: 23), // 增加图标大小
               shape: GFButtonShape.square,
               fullWidthButton: true,
@@ -236,33 +250,55 @@ class _SubjectsPageState extends State<SubjectsPage> {
   }
 
   //小科目菜单
+  //制作小科目按钮
+  Widget _buildSubButton(String s) {
+    return GFButton(
+      onPressed: () => debugPrint("选择了小科目:$s"),
+      text: s,
+      type: GFButtonType.transparent,
+      shape: GFButtonShape.square,
+    );
+  }
+
   //打包Warp流式显示表格
-  Widget _wrapSubjects(BuildContext context){
-  if(_subjectData != null && _selectedCategory !=null){
-    Map<String, dynamic> subMap = _subjectData!["兴趣爱好"];
-
-
+  List<Widget> _expansionTileSubjects() {
+    List<Widget> expansionTileList = [];
+    if (_subjectData != null && _selectedCategory != null) {
+      Map<String, dynamic> subMap = _subjectData![_selectedCategory!];
+      subMap.forEach((String subCategory, dynamic subjects) {
+        //一个存放科目按钮的组件，用来当Wrap的子组件
+        List<Widget> w = [];
+        List<String> subList = (subMap[subCategory] as List).cast<String>();
+        for (String s in subList) {
+          w.add(_buildSubButton(s));
+        }
+        expansionTileList.add(
+          ExpansionTile(
+            title: Text(subCategory),
+            initiallyExpanded: true,
+            children: [
+              Wrap(
+                spacing: 5.0,
+                runSpacing: 5.0,
+                textDirection: TextDirection.ltr,
+                children: w,
+              ),
+            ],
+          ),
+        );
+      });
+    }
+    return expansionTileList;
   }
-    return Container();
-  }
-
-//参考代码
-//   if (_subjectData != null && _selectedCategory == "兴趣爱好") {
-//   // 获取兴趣爱好Map
-//   Map<String, dynamic> hobbyMap = _subjectData!["兴趣爱好"];
-  
-//   // 遍历所有子类别
-//   hobbyMap.forEach((String subCategory, dynamic subjects) {
-//     // subCategory: "美术类"、"音乐类"等
-//     // 将subjects转换为String列表
-//     List<String> subjectList = (subjects as List).cast<String>();
-    
-//     debugPrint("子类别: $subCategory, 科目数量: ${subjectList.length}");
-//   });
-// }
 
   //对应的组件
   Widget _subfieldSubjects(BuildContext context) {
-    return Container();
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        child: Column(children: _expansionTileSubjects()),
+      ),
+    );
   }
 }
