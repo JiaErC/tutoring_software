@@ -24,6 +24,8 @@ class _SubjectsPageState extends State<SubjectsPage> {
   //存储解析之后的JSON文件
   Map<String, dynamic>? _subjectData;
   String? _selectedCategory; //记录选中的学科大类
+  //存储选择的学科
+  Map<String, dynamic> _selectedSubjects = {};
 
   @override
   void initState() {
@@ -63,13 +65,29 @@ class _SubjectsPageState extends State<SubjectsPage> {
     _isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: GFAppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           tooltip: "返回上一页",
           onPressed: () => Navigator.pop(context), // 返回上一级路由
         ),
         title: _isTeacher ? const Text("选择教学科目") : const Text("选择学习科目"),
+        actions: <Widget>[
+          //存放一个下拉菜单，用来存放已经选择的学科
+          //存放一个按钮，用来清除已选的学科
+          GFButton(
+            onPressed: () => debugPrint("已选的学科$_selectedSubjects"),
+            icon: Icon(Icons.clear, size: 20),
+            text: "清空已选数据",
+            textStyle: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+            shape: GFButtonShape.square,
+            color: Colors.redAccent,
+          ),
+        ],
       ),
       backgroundColor: Colors.white,
       body: _isLandscape
@@ -251,11 +269,30 @@ class _SubjectsPageState extends State<SubjectsPage> {
 
   //小科目菜单
   //制作小科目按钮
-  Widget _buildSubButton(String s) {
+  Widget _buildSubButton(String s, String subject) {
     return GFButton(
-      onPressed: () => debugPrint("选择了小科目:$s"),
+      onPressed: () {
+        if (_selectedCategory == null) {
+          debugPrint("Fuck select $_selectedCategory");
+        }
+        setState(() {
+          // 添加setState来更新UI
+          // 如果_selectedSubjects中不存在_selectedCategory键，先创建一个空Map
+          if (!_selectedSubjects.containsKey(_selectedCategory)) {
+            _selectedSubjects[_selectedCategory!] = {};
+          }
+          // 然后安全地操作内部Map
+          if (!_selectedSubjects[_selectedCategory]!.containsKey(subject)) {
+            _selectedSubjects[_selectedCategory]![subject] = [s];
+            debugPrint("Fuck select $subject$s");
+          } else {
+            _selectedSubjects[_selectedCategory]![subject].add(s);
+            debugPrint("Fuck select $subject$s");
+          }
+        });
+      },
       text: s,
-      type: GFButtonType.transparent,
+      type: GFButtonType.outline,
       shape: GFButtonShape.square,
     );
   }
@@ -270,7 +307,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
         List<Widget> w = [];
         List<String> subList = (subMap[subCategory] as List).cast<String>();
         for (String s in subList) {
-          w.add(_buildSubButton(s));
+          w.add(_buildSubButton(s, subCategory));
         }
         expansionTileList.add(
           ExpansionTile(
@@ -299,6 +336,20 @@ class _SubjectsPageState extends State<SubjectsPage> {
         physics: AlwaysScrollableScrollPhysics(),
         child: Column(children: _expansionTileSubjects()),
       ),
+    );
+  }
+
+  //构建已经选择的学科的组件
+  //存储下拉菜单项目的单个组件
+
+  Widget _buildSelectedSubjects(BuildContext context) {
+    return GFDropdown(
+      onChanged: (value) {
+        debugPrint("选择了学科:$value");
+      },
+      items: <DropdownMenuItem>[
+        DropdownMenuItem(child: const Center(child: Text("选择学科"))),
+      ],
     );
   }
 }

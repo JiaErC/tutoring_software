@@ -13,8 +13,48 @@ class RegisterPage extends StatefulWidget {
 int? _gender = 0;
 //选择学生还是老师，也就是应用的身份，1：学生，2：老师
 Set<int> _selectedRoles = {};
+//是否选择了学科，老师的和学生的
+bool _isTeachSelectedSubject = false;
+bool _isStudySelectedSubject = false;
 
 class _RegisterPageState extends State<RegisterPage> {
+  //这个是
+  Widget _textPrompt(bool isSelected) {
+    return isSelected
+        ? Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.green,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: const Center(
+              child: Text(
+                '已选择学科',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          )
+        : Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.redAccent,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: const Center(
+              child: Text(
+                '请选择学科',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -302,10 +342,16 @@ class _RegisterPageState extends State<RegisterPage> {
         const SizedBox(width: 60),
         //跳转到选择科目的界面
         OutlinedButton.icon(
-          onPressed: () => Modular.to.pushNamed('/subjects',arguments: {'isTeacher': false,}),
+          onPressed: () => Modular.to.pushNamed(
+            '/subjects',
+            arguments: {'isTeacher': false},
+          ),
           icon: const Icon(MdiIcons.pencil),
           label: const Text('选择科目'),
         ),
+        const SizedBox(width: 60),
+        //提示框，提示是否选择了学科
+        _textPrompt(_isStudySelectedSubject),
       ],
     );
   }
@@ -323,10 +369,14 @@ class _RegisterPageState extends State<RegisterPage> {
         const SizedBox(width: 60),
         //跳转到选择科目的界面
         OutlinedButton.icon(
-          onPressed: () => Modular.to.pushNamed('/subjects',arguments: {'isTeacher': true,}),
+          onPressed: () =>
+              Modular.to.pushNamed('/subjects', arguments: {'isTeacher': true}),
           icon: const Icon(MdiIcons.pen),
           label: const Text('选择科目'),
         ),
+        const SizedBox(width: 60),
+        //提示框，提示是否选择了学科
+        _textPrompt(_isTeachSelectedSubject),
       ],
     );
   }
