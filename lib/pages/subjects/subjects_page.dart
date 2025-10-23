@@ -20,12 +20,14 @@ class _SubjectsPageState extends State<SubjectsPage> {
   //判断两个下拉菜单是否展开
   bool _isPrimaryExpanded = false; //这个是中小学科目菜单
   bool _isSecondaryExpanded = false; //这个是大学生和成年人科目菜单
+  //是否查看
+  bool _isView = false;
 
   //存储解析之后的JSON文件
   Map<String, dynamic>? _subjectData;
   String? _selectedCategory; //记录选中的学科大类
   //存储选择的学科
-  Map<String, dynamic> _selectedSubjects = {};
+  final Map<String, dynamic> _selectedSubjects = {};
 
   @override
   void initState() {
@@ -60,6 +62,20 @@ class _SubjectsPageState extends State<SubjectsPage> {
     // });
   }
 
+  //创建一个按钮构建器，用来构建这个页面需要的控制按钮
+  Widget _buildControlButton(String s, Color c, Function() f) {
+    return GFButton(
+      text: s,
+      textStyle: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w900,
+        color: Colors.white,
+      ),
+      color: c,
+      onPressed: f,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     _isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
@@ -75,17 +91,29 @@ class _SubjectsPageState extends State<SubjectsPage> {
         actions: <Widget>[
           //存放一个下拉菜单，用来存放已经选择的学科
           //存放一个按钮，用来清除已选的学科
-          GFButton(
-            onPressed: () => debugPrint("已选的学科$_selectedSubjects"),
-            icon: Icon(Icons.clear, size: 20),
-            text: "清空已选数据",
-            textStyle: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
-            shape: GFButtonShape.square,
-            color: Colors.redAccent,
+          _buildControlButton(
+            "一键清空",
+            Colors.redAccent,
+            () => setState(() {
+              _selectedSubjects.clear();
+              _isView = false;
+            }),
+          ),
+        ],
+      ),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          _buildControlButton(
+            "查看",
+            const Color.fromRGBO(251, 192, 45, 1),
+            () => setState(() => _isView = true),
+          ),
+          const SizedBox(width: 30),
+          _buildControlButton(
+            "确认",
+            Colors.blueAccent,
+            () => debugPrint("选择了$_selectedSubjects"),
           ),
         ],
       ),
@@ -98,13 +126,15 @@ class _SubjectsPageState extends State<SubjectsPage> {
                   Expanded(flex: 2, child: _majorSubjectGroups(context)),
                   Expanded(
                     flex: 3,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.lightBlue[50],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: _subfieldSubjects(context),
-                    ),
+                    child: _isView
+                        ? _viewSubjects(context)
+                        : Container(
+                            decoration: BoxDecoration(
+                              color: Colors.lightBlue[50],
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: _subfieldSubjects(context),
+                          ),
                   ),
                 ],
               ),
@@ -114,10 +144,15 @@ class _SubjectsPageState extends State<SubjectsPage> {
                 Expanded(flex: 1, child: _majorSubjectGroups(context)),
                 Expanded(
                   flex: 2,
-                  child: Container(
-                    color: Colors.lightBlue[50],
-                    child: _subfieldSubjects(context),
-                  ),
+                  child: _isView
+                      ? _viewSubjects(context)
+                      : Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.lightBlue[50],
+                          ),
+                          child: _subfieldSubjects(context),
+                        ),
                 ),
               ],
             ),
@@ -292,7 +327,12 @@ class _SubjectsPageState extends State<SubjectsPage> {
         });
       },
       text: s,
-      type: GFButtonType.outline,
+      textStyle: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+      ),
+      color: Color.fromARGB(255, 0x64, 0xb5, 0xf5), //ff64b5f5
       shape: GFButtonShape.square,
     );
   }
@@ -315,7 +355,9 @@ class _SubjectsPageState extends State<SubjectsPage> {
             initiallyExpanded: true,
             children: [
               Wrap(
-                spacing: 5.0,
+                direction: Axis.horizontal,
+                alignment: WrapAlignment.start,
+                spacing: 7.5,
                 runSpacing: 5.0,
                 textDirection: TextDirection.ltr,
                 children: w,
@@ -324,6 +366,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
           ),
         );
       });
+      expansionTileList.add(const SizedBox(height: 100));
     }
     return expansionTileList;
   }
@@ -331,7 +374,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
   //对应的组件
   Widget _subfieldSubjects(BuildContext context) {
     return Align(
-      alignment: Alignment.topCenter,
+      alignment: Alignment.topLeft,
       child: SingleChildScrollView(
         physics: AlwaysScrollableScrollPhysics(),
         child: Column(children: _expansionTileSubjects()),
@@ -339,17 +382,116 @@ class _SubjectsPageState extends State<SubjectsPage> {
     );
   }
 
-  //构建已经选择的学科的组件
-  //存储下拉菜单项目的单个组件
+  //构建查看学科界面的每个学科的按钮
+  Widget _buildViewButton(String s, Color c, Function() f) {
+    return Container(
+      decoration: BoxDecoration(
+        color: c,
+        borderRadius: BorderRadius.all(Radius.circular(5)),
+      ),
+      child: Row(
+        children: [
+          Text(
+            s,
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          GFButton(
+            onPressed: f,
+            type: GFButtonType.transparent,
+            icon: const Icon(Icons.clear),
+          ),
+        ],
+      ),
+    );
+  }
 
-  Widget _buildSelectedSubjects(BuildContext context) {
-    return GFDropdown(
-      onChanged: (value) {
-        debugPrint("选择了学科:$value");
-      },
-      items: <DropdownMenuItem>[
-        DropdownMenuItem(child: const Center(child: Text("选择学科"))),
-      ],
+  //移除学科大类
+  void _removeCategory(String category) {
+    setState(() {
+      _selectedSubjects.remove(category);
+    });
+  }
+
+  //移除学科小类
+  void _removeSubCategory(String category, String subCategory) {
+    setState(() {
+      _selectedSubjects[category]!.remove(subCategory);
+    });
+  }
+
+  //移除具体的学科
+  void _removeSubject(String category, String subCategory, String subject) {
+    setState(() {
+      _selectedSubjects[category]![subCategory]!.remove(subject);
+    });
+  }
+
+  // //构建查看三个学科的组件
+  List<Widget> _viewSubjectsWidgets() {
+    List<SizedBox> sizedBox = [];
+    if (_selectedSubjects.isNotEmpty) {
+      _selectedSubjects.forEach((categroy, subCategory) {
+        List<Widget> childSubjects = [];
+        subCategory.forEach((s, subList) {
+          // 具体的学科
+          List<Widget> subjectWidgets = [];
+          for (String subject in subList) {
+            subjectWidgets.add(
+              _buildViewButton(
+                subject,
+                Colors.blueAccent,
+                () => _removeSubject(categroy, s, subject),
+              ),
+            );
+          }
+          childSubjects.add(
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: _buildViewButton(
+                    s,
+                    Colors.greenAccent,
+                    () => _removeSubCategory(categroy, s),
+                  ),
+                ),
+                Expanded(flex: 1, child: Column(children: subjectWidgets)),
+              ],
+            ),
+          );
+        });
+        sizedBox.add(
+          SizedBox(
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: _buildViewButton(
+                    categroy,
+                    Colors.redAccent,
+                    () => _removeCategory(categroy),
+                  ),
+                ),
+                Expanded(flex: 2, child: Column(children: childSubjects)),
+              ],
+            ),
+          ),
+        );
+      });
+    } else {
+      setState(() => _isView = false);
+    }
+    return sizedBox;
+  }
+
+  //查看自己选择的学科的一个页面
+  Widget _viewSubjects(BuildContext context) {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        child: Column(children: _viewSubjectsWidgets()),
+      ),
     );
   }
 }
