@@ -389,16 +389,19 @@ class _SubjectsPageState extends State<SubjectsPage> {
         color: c,
         borderRadius: BorderRadius.all(Radius.circular(5)),
       ),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             s,
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
-          GFButton(
-            onPressed: f,
+          GFIconButton(
+            icon: Icon(Icons.clear, color: Colors.black),
+            shape: GFIconButtonShape.pills,
             type: GFButtonType.transparent,
-            icon: const Icon(Icons.clear),
+            onPressed: f,
           ),
         ],
       ),
@@ -416,6 +419,9 @@ class _SubjectsPageState extends State<SubjectsPage> {
   void _removeSubCategory(String category, String subCategory) {
     setState(() {
       _selectedSubjects[category]!.remove(subCategory);
+      if (_selectedSubjects[category]!.isEmpty) {
+        _removeCategory(category);
+      }
     });
   }
 
@@ -423,6 +429,9 @@ class _SubjectsPageState extends State<SubjectsPage> {
   void _removeSubject(String category, String subCategory, String subject) {
     setState(() {
       _selectedSubjects[category]![subCategory]!.remove(subject);
+      if (_selectedSubjects[category]![subCategory]!.isEmpty) {
+        _removeSubCategory(category, subCategory);
+      }
     });
   }
 

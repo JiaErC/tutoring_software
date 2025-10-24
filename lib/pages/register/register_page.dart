@@ -18,6 +18,9 @@ bool _isTeachSelectedSubject = false;
 bool _isStudySelectedSubject = false;
 
 class _RegisterPageState extends State<RegisterPage> {
+  //创建一个是否横屏的显示器
+  bool _isLandscape = false;
+
   //这个是
   Widget _textPrompt(bool isSelected) {
     return isSelected
@@ -57,6 +60,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    _isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     return Scaffold(
       // 添加返回按钮
       appBar: AppBar(
@@ -67,11 +71,8 @@ class _RegisterPageState extends State<RegisterPage> {
         title: const Text('注册'), // 设置页面标题
       ),
       backgroundColor: Colors.white,
-      body: MediaQuery.of(context).orientation == Orientation.landscape
-          ? Align(
-              alignment: Alignment.center,
-              child: SizedBox(width: 800, child: _buildRegister(context)),
-            )
+      body: _isLandscape
+          ? Align(alignment: Alignment.center, child: _buildRegister(context))
           : _buildRegister(context),
     );
   }
@@ -79,6 +80,9 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget _buildRegister(BuildContext context) {
     //返回注册的各个项目
     return SingleChildScrollView(
+      padding: _isLandscape
+          ? const EdgeInsets.symmetric(horizontal: 150)
+          : const EdgeInsets.all(0),
       child: Column(
         children: [
           const SizedBox(height: 20),
