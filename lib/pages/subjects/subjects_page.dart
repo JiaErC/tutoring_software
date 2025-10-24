@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import "package:flutter_material_design_icons/flutter_material_design_icons.dart";
 import 'package:getwidget/getwidget.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 
 class SubjectsPage extends StatefulWidget {
   const SubjectsPage({super.key});
@@ -101,22 +102,31 @@ class _SubjectsPageState extends State<SubjectsPage> {
           ),
         ],
       ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          _buildControlButton(
-            "查看",
-            const Color.fromRGBO(251, 192, 45, 1),
-            () => setState(() => _isView = true),
-          ),
-          const SizedBox(width: 30),
-          _buildControlButton(
-            "确认",
-            Colors.blueAccent,
-            () => debugPrint("选择了$_selectedSubjects"),
-          ),
-        ],
-      ),
+      floatingActionButton: _isView
+          ? _buildControlButton(
+              "返回",
+              Colors.green,
+              () => setState(() => _isView = false),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                _buildControlButton(
+                  "查看",
+                  const Color.fromRGBO(251, 192, 45, 1),
+                  () => setState(() => _isView = true),
+                ),
+                const SizedBox(width: 30),
+                _buildControlButton(
+                  "确认",
+                  Colors.blueAccent,
+                  () => Modular.to.pushNamed(
+                    "/register",
+                    arguments: _selectedSubjects,
+                  ),
+                ),
+              ],
+            ),
       backgroundColor: Colors.white,
       body: _isLandscape
           ? Align(
@@ -126,15 +136,15 @@ class _SubjectsPageState extends State<SubjectsPage> {
                   Expanded(flex: 2, child: _majorSubjectGroups(context)),
                   Expanded(
                     flex: 3,
-                    child: _isView
-                        ? _viewSubjects(context)
-                        : Container(
-                            decoration: BoxDecoration(
-                              color: Colors.lightBlue[50],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: _subfieldSubjects(context),
-                          ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.lightBlue[50],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: _isView
+                          ? _viewSubjects(context)
+                          : _subfieldSubjects(context),
+                    ),
                   ),
                 ],
               ),
@@ -144,15 +154,15 @@ class _SubjectsPageState extends State<SubjectsPage> {
                 Expanded(flex: 1, child: _majorSubjectGroups(context)),
                 Expanded(
                   flex: 2,
-                  child: _isView
-                      ? _viewSubjects(context)
-                      : Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.lightBlue[50],
-                          ),
-                          child: _subfieldSubjects(context),
-                        ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.lightBlue[50],
+                    ),
+                    child: _isView
+                        ? _viewSubjects(context)
+                        : _subfieldSubjects(context),
+                  ),
                 ),
               ],
             ),
@@ -437,7 +447,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
 
   // //构建查看三个学科的组件
   List<Widget> _viewSubjectsWidgets() {
-    List<SizedBox> sizedBox = [];
+    List<Widget> sizedBox = [const SizedBox(height: 10)];
     if (_selectedSubjects.isNotEmpty) {
       _selectedSubjects.forEach((categroy, subCategory) {
         List<Widget> childSubjects = [];
@@ -453,31 +463,41 @@ class _SubjectsPageState extends State<SubjectsPage> {
               ),
             );
           }
-          childSubjects.add(
+          childSubjects.addAll([
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 5.0,
               children: [
+                const SizedBox(width: 5),
                 Expanded(
                   flex: 1,
                   child: _buildViewButton(
                     s,
-                    Colors.greenAccent,
+                    Colors.blueAccent[400]!,
                     () => _removeSubCategory(categroy, s),
                   ),
                 ),
-                Expanded(flex: 1, child: Column(children: subjectWidgets)),
+                Expanded(
+                  flex: 1,
+                  child: Column(spacing: 2.0, children: subjectWidgets),
+                ),
+                const SizedBox(width: 10),
               ],
             ),
-          );
+            const SizedBox(height: 20),
+          ]);
         });
-        sizedBox.add(
+        sizedBox.addAll([
           SizedBox(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(width: 10),
                 Expanded(
                   flex: 1,
                   child: _buildViewButton(
                     categroy,
-                    Colors.redAccent,
+                    Colors.blueAccent[700]!,
                     () => _removeCategory(categroy),
                   ),
                 ),
@@ -485,11 +505,18 @@ class _SubjectsPageState extends State<SubjectsPage> {
               ],
             ),
           ),
-        );
+          const Divider(
+            thickness: 2,
+            color: Color.fromARGB(255, 66, 165, 245),
+            indent: 20,
+            endIndent: 10,
+          ),
+        ]);
       });
     } else {
       setState(() => _isView = false);
     }
+    sizedBox.add(const SizedBox(height: 100));
     return sizedBox;
   }
 
