@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_material_design_icons/flutter_material_design_icons.dart";
 import "package:flutter_modular/flutter_modular.dart";
 
@@ -26,7 +27,12 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
+  //添加邮箱和电话的验证状态
+  bool _isEmailValid = true;
+  bool _isPhoneValid = true;
 
   //组件销毁的时候的提示
   @override
@@ -38,6 +44,56 @@ class _RegisterPageState extends State<RegisterPage> {
     _confirmPasswordController.dispose();
     super.dispose();
   }
+
+  //这个是输入框组件的
+  Widget _buildTextInput(
+    TextEditingController c,
+    String t,
+    Icon ic,
+    List<TextInputFormatter> l,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: TextField(
+        controller: c,
+        keyboardType: TextInputType.emailAddress,
+        inputFormatters: l,
+        onChanged: _validateEmail,
+        decoration: InputDecoration(
+          prefixIcon: ic,
+          border: const UnderlineInputBorder(),
+          labelText: t,
+          suffixIcon: IconButton(
+            onPressed: () => _usernameController.clear(),
+            icon: const Icon(Icons.clear),
+          ),
+        ),
+      ),
+    );
+  }
+
+  //邮箱正则表达式
+  final RegExp _emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+  );
+
+  //电话号码正则表达式（中国手机号）
+  final RegExp _phoneRegex = RegExp(r'^1[3-9]\d{9}$');
+
+  //验证邮箱
+  void _validateEmail(String value) {
+    setState(() {
+      _isEmailValid = _emailRegex.hasMatch(value) || value.isEmpty;
+    });
+  }
+
+  //验证电话号码
+  void _validatePhone(String value) {
+    setState(() {
+      _isPhoneValid = _phoneRegex.hasMatch(value) || value.isEmpty;
+    });
+  }
+
   //这个是选择学科的提示
   Widget _textPrompt(bool isSelected) {
     return isSelected
@@ -106,95 +162,33 @@ class _RegisterPageState extends State<RegisterPage> {
           const Text('注册账户'),
           const SizedBox(height: 10),
           //写入用户名
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: TextField(
-              controller: _usernameController,
-              // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
-              decoration: InputDecoration(
-                prefixIcon: const Icon(MdiIcons.account),
-                border: const UnderlineInputBorder(),
-                labelText: '用户名',
-                // hintText: '邮箱/手机号',
-                suffixIcon: IconButton(
-                  onPressed: () => _usernameController.clear(),
-                  icon: const Icon(Icons.clear),
-                ),
-              ),
-            ),
+          _buildTextInput(
+            _usernameController,
+            '用户名',
+            const Icon(MdiIcons.account),
           ),
           //写入email
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: TextField(
-              controller:_emailController,
-              // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
-              decoration: InputDecoration(
-                prefixIcon: const Icon(MdiIcons.email),
-                border: const UnderlineInputBorder(),
-                labelText: '邮箱',
-                // hintText: '邮箱/手机号',
-                suffixIcon: IconButton(
-                  onPressed: () => _emailController.clear(),
-                  icon: const Icon(Icons.clear),
-                ),
-              ),
-            ),
-          ),
+          _buildTextInput(_emailController, '邮箱', const Icon(MdiIcons.email), [
+            // 只允许输入符合邮箱格式的字符
+            FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z0-9._%+-@]")),
+          ]),
           //写入电话号码
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: TextField(
-              controller: _phoneController,
-              // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
-              decoration: InputDecoration(
-                prefixIcon: const Icon(MdiIcons.phone),
-                border: const UnderlineInputBorder(),
-                labelText: '电话号码',
-                // hintText: '邮箱/手机号',
-                suffixIcon: IconButton(
-                  onPressed: () => _phoneController.clear(),
-                  icon: const Icon(Icons.clear),
-                ),
-              ),
-            ),
+          _buildTextInput(
+            _phoneController,
+            '电话号码',
+            const Icon(MdiIcons.phone),
+            [
+              // 只允许输入数字
+              FilteringTextInputFormatter.digitsOnly,
+            ],
+            
           ),
           //两次写入密码
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: TextField(
-              obscureText: true,
-              controller: _passwordController,
-              // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
-              decoration: InputDecoration(
-                prefixIcon: const Icon(MdiIcons.lock),
-                border: const UnderlineInputBorder(),
-                labelText: '密码',
-                // hintText: '邮箱/手机号',
-                suffixIcon: IconButton(
-                  onPressed: () => _passwordController.clear(),
-                  icon: const Icon(Icons.clear),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: TextField(
-              obscureText: true,
-              controller: _confirmPasswordController,
-              // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
-              decoration: InputDecoration(
-                prefixIcon: const Icon(MdiIcons.lock),
-                border: const UnderlineInputBorder(),
-                labelText: '请再次输入密码',
-                // hintText: '邮箱/手机号',
-                suffixIcon: IconButton(
-                  onPressed: () => _confirmPasswordController.clear(),
-                  icon: const Icon(Icons.clear),
-                ),
-              ),
-            ),
+          _buildTextInput(_passwordController, '密码', const Icon(MdiIcons.lock)),
+          _buildTextInput(
+            _confirmPasswordController,
+            '确认密码',
+            const Icon(MdiIcons.lock),
           ),
           //性别选择
           Padding(
