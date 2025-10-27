@@ -21,7 +21,24 @@ class _RegisterPageState extends State<RegisterPage> {
   //创建一个是否横屏的显示器
   bool _isLandscape = false;
 
-  //这个是
+  //引入各个输入框的控制器
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  //组件销毁的时候的提示
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+  //这个是选择学科的提示
   Widget _textPrompt(bool isSelected) {
     return isSelected
         ? Container(
@@ -92,7 +109,7 @@ class _RegisterPageState extends State<RegisterPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: TextField(
-              // controller: _loginPageCtr.usernameTextController,
+              controller: _usernameController,
               // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
               decoration: InputDecoration(
                 prefixIcon: const Icon(MdiIcons.account),
@@ -100,7 +117,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 labelText: '用户名',
                 // hintText: '邮箱/手机号',
                 suffixIcon: IconButton(
-                  onPressed: () => debugPrint("清空用户名"),
+                  onPressed: () => _usernameController.clear(),
                   icon: const Icon(Icons.clear),
                 ),
               ),
@@ -110,7 +127,7 @@ class _RegisterPageState extends State<RegisterPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: TextField(
-              // controller: _loginPageCtr.usernameTextController,
+              controller:_emailController,
               // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
               decoration: InputDecoration(
                 prefixIcon: const Icon(MdiIcons.email),
@@ -118,7 +135,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 labelText: '邮箱',
                 // hintText: '邮箱/手机号',
                 suffixIcon: IconButton(
-                  onPressed: () => debugPrint("清空邮箱"),
+                  onPressed: () => _emailController.clear(),
                   icon: const Icon(Icons.clear),
                 ),
               ),
@@ -128,7 +145,7 @@ class _RegisterPageState extends State<RegisterPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: TextField(
-              // controller: _loginPageCtr.usernameTextController,
+              controller: _phoneController,
               // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
               decoration: InputDecoration(
                 prefixIcon: const Icon(MdiIcons.phone),
@@ -136,7 +153,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 labelText: '电话号码',
                 // hintText: '邮箱/手机号',
                 suffixIcon: IconButton(
-                  onPressed: () => debugPrint("清空电话号码"),
+                  onPressed: () => _phoneController.clear(),
                   icon: const Icon(Icons.clear),
                 ),
               ),
@@ -147,7 +164,7 @@ class _RegisterPageState extends State<RegisterPage> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: TextField(
               obscureText: true,
-              // controller: _loginPageCtr.usernameTextController,
+              controller: _passwordController,
               // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
               decoration: InputDecoration(
                 prefixIcon: const Icon(MdiIcons.lock),
@@ -155,7 +172,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 labelText: '密码',
                 // hintText: '邮箱/手机号',
                 suffixIcon: IconButton(
-                  onPressed: () => debugPrint("清空密码"),
+                  onPressed: () => _passwordController.clear(),
                   icon: const Icon(Icons.clear),
                 ),
               ),
@@ -165,7 +182,7 @@ class _RegisterPageState extends State<RegisterPage> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: TextField(
               obscureText: true,
-              // controller: _loginPageCtr.usernameTextController,
+              controller: _confirmPasswordController,
               // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
               decoration: InputDecoration(
                 prefixIcon: const Icon(MdiIcons.lock),
@@ -173,7 +190,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 labelText: '请再次输入密码',
                 // hintText: '邮箱/手机号',
                 suffixIcon: IconButton(
-                  onPressed: () => debugPrint("清空密码"),
+                  onPressed: () => _confirmPasswordController.clear(),
                   icon: const Icon(Icons.clear),
                 ),
               ),
