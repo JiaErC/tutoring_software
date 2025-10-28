@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
+import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
+
 class PasswordPage extends StatefulWidget {
   const PasswordPage({super.key});
 
@@ -10,6 +12,31 @@ class PasswordPage extends StatefulWidget {
 
 class _PasswordPageState extends State<PasswordPage> {
   bool showPassword = false; //是否显示密码的变量
+  //两个控制器
+  final TextEditingController _userAccountController = TextEditingController();
+  final TextEditingController _userPasswordController = TextEditingController();
+
+  //判断账号是否满足邮箱和手机号的格式
+  bool _isAccountValid = true;
+
+  //邮箱正则表达式
+  final RegExp _emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+  );
+  //电话号码正则表达式（中国手机号）
+  final RegExp _phoneRegex = RegExp(r'^1[3-9]\d{9}$');
+
+  void _validateAccount(String value){
+    if (_emailRegex.hasMatch(value) || _phoneRegex.hasMatch(value)||value.isEmpty) {
+      // 邮箱或手机号格式正确
+      _isAccountValid = true;
+      debugPrint("邮箱或手机号格式正确");
+    } else {
+      // 邮箱或手机号格式不正确
+      // 显示错误提示
+      _isAccountValid = false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,37 +58,41 @@ class _PasswordPageState extends State<PasswordPage> {
         const SizedBox(height: 20),
         const Text('使用账号密码登录'),
         const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: TextField(
-            // controller: _loginPageCtr.usernameTextController,
+        buildProperty(
+          TextField(
+            controller: _userAccountController,
             // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
+            onChanged: _validateAccount,
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.account_box),
               border: const UnderlineInputBorder(),
               labelText: '账号',
               hintText: '邮箱/手机号',
               suffixIcon: IconButton(
-                onPressed: () => debugPrint("清空用户写入账号的内容"),
+                onPressed: () {
+                  _userAccountController.clear();
+                },
                 icon: const Icon(Icons.clear),
               ),
+              errorText: _isAccountValid ? null : '请输入正确的邮箱或手机号',
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: TextField(
+        buildProperty(
+          TextField(
             obscureText: !showPassword,
             keyboardType: TextInputType.visiblePassword,
             // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
-            // controller: _loginPageCtr.passwordTextController,
+            controller: _userPasswordController,
             autofillHints: const [AutofillHints.password],
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.password),
               border: const UnderlineInputBorder(),
               labelText: '密码',
               suffixIcon: IconButton(
-                onPressed: () => debugPrint("清空用户写入密码的内容"),
+                onPressed: () {
+                  _userPasswordController.clear();
+                },
                 icon: const Icon(Icons.clear),
               ),
             ),

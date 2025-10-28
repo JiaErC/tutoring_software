@@ -97,12 +97,10 @@ class _RegisterPageState extends State<RegisterPage> {
   final RegExp _emailRegex = RegExp(
     r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
   );
-
   //电话号码正则表达式（中国手机号）
   final RegExp _phoneRegex = RegExp(r'^1[3-9]\d{9}$');
   // 用户名正则表达式：2-30个任意字符
   final RegExp _usernameRegex = RegExp(r'^.{2,30}$');
-
   // 密码正则表达式：至少包含一个数字、一个大写字母、一个小写字母和一个特殊字符
   final RegExp _passwordContainsDigit = RegExp(r'\d');
   final RegExp _passwordContainsUppercase = RegExp(r'[A-Z]');
