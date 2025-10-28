@@ -35,6 +35,10 @@ class _RegisterPageState extends State<RegisterPage> {
   //添加邮箱和电话的验证状态
   bool _isEmailValid = true;
   bool _isPhoneValid = true;
+  // 添加用户名和密码的验证状态
+  bool _isUsernameValid = true;
+  bool _isPasswordValid = true;
+  bool _isConfirmPasswordValid = true;
 
   //组件销毁的时候的提示
   @override
@@ -54,6 +58,14 @@ class _RegisterPageState extends State<RegisterPage> {
 
   //电话号码正则表达式（中国手机号）
   final RegExp _phoneRegex = RegExp(r'^1[3-9]\d{9}$');
+  // 用户名正则表达式：2-30个任意字符
+  final RegExp _usernameRegex = RegExp(r'^.{2,30}$');
+
+  // 密码正则表达式：至少包含一个数字、一个大写字母、一个小写字母和一个特殊字符
+  final RegExp _passwordContainsDigit = RegExp(r'\d');
+  final RegExp _passwordContainsUppercase = RegExp(r'[A-Z]');
+  final RegExp _passwordContainsLowercase = RegExp(r'[a-z]');
+  // final RegExp _passwordContainsSpecial = RegExp(r'[!@#$%^&*(),.?":{}|<>]+-/');
 
   //验证邮箱
   void _validateEmail(String value) {
@@ -66,6 +78,41 @@ class _RegisterPageState extends State<RegisterPage> {
   void _validatePhone(String value) {
     setState(() {
       _isPhoneValid = _phoneRegex.hasMatch(value) || value.isEmpty;
+    });
+  }
+
+  // 验证用户名
+  void _validateUsername(String value) {
+    setState(() {
+      _isUsernameValid = _usernameRegex.hasMatch(value) || value.isEmpty;
+    });
+  }
+
+  // 验证密码
+  void _validatePassword(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        _isPasswordValid = true;
+      } else {
+        _isPasswordValid =
+            _passwordContainsDigit.hasMatch(value) &&
+            _passwordContainsUppercase.hasMatch(value) &&
+            _passwordContainsLowercase.hasMatch(value) ;
+      }
+
+      // 同时验证确认密码是否与密码一致
+      _validateConfirmPassword(_confirmPasswordController.text);
+    });
+  }
+
+  // 验证确认密码
+  void _validateConfirmPassword(String value) {
+    setState(() {
+      if (value.isEmpty || _passwordController.text.isEmpty) {
+        _isConfirmPasswordValid = true;
+      } else {
+        _isConfirmPasswordValid = value == _passwordController.text;
+      }
     });
   }
 
@@ -140,6 +187,7 @@ class _RegisterPageState extends State<RegisterPage> {
           buildProperty(
             TextField(
               controller: _usernameController,
+              onChanged: _validateUsername,
               decoration: InputDecoration(
                 prefixIcon: const Icon(MdiIcons.account),
                 border: const UnderlineInputBorder(),
@@ -148,6 +196,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   onPressed: () => _usernameController.clear(),
                   icon: const Icon(Icons.clear),
                 ),
+                errorText: !_isUsernameValid ? '用户名长度应为2-30个字符' : null,
               ),
             ),
           ),
@@ -165,8 +214,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   onPressed: () => _emailController.clear(),
                   icon: const Icon(Icons.clear),
                 ),
-                              errorText: !_isEmailValid ? '请输入有效的邮箱地址' : null,
-              )
+                errorText: !_isEmailValid ? '请输入有效的邮箱地址' : null,
+              ),
             ),
           ),
           //写入电话号码
@@ -191,6 +240,7 @@ class _RegisterPageState extends State<RegisterPage> {
           buildProperty(
             TextField(
               controller: _passwordController,
+              onChanged: _validatePassword,
               obscureText: true,
               decoration: InputDecoration(
                 prefixIcon: const Icon(MdiIcons.lock),
@@ -200,12 +250,15 @@ class _RegisterPageState extends State<RegisterPage> {
                   onPressed: () => _passwordController.clear(),
                   icon: const Icon(Icons.clear),
                 ),
+                errorText: !_isPasswordValid ? '密码必须包含数字、大写字母、小写字母' : null,
               ),
             ),
           ),
           buildProperty(
             TextField(
               controller: _confirmPasswordController,
+              onChanged: _validateConfirmPassword,
+              obscureText: true,
               decoration: InputDecoration(
                 prefixIcon: const Icon(MdiIcons.lock),
                 border: const UnderlineInputBorder(),
@@ -214,6 +267,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   onPressed: () => _confirmPasswordController.clear(),
                   icon: const Icon(Icons.clear),
                 ),
+                errorText: !_isConfirmPasswordValid ? '两次输入的密码不一致' : null,
               ),
             ),
           ),
