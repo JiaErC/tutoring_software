@@ -5,6 +5,8 @@ import "package:flutter_modular/flutter_modular.dart";
 import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
 import 'package:tutoring_software/utils/file_utils.dart';
 import 'register_controller.dart';
+import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
+import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -35,6 +37,8 @@ Map<String, dynamic> uStudySubjects = {};
 class _RegisterPageState extends State<RegisterPage> {
   //引入注册控制器
   final RegisterController controller = Modular.get<RegisterController>();
+  //引入用户数据控制器
+  final UserDataController userDataController = Modular.get<UserDataController>();
   //创建一个是否横屏的显示器
   bool _isLandscape = false;
 
@@ -307,6 +311,18 @@ class _RegisterPageState extends State<RegisterPage> {
         'uTeachSubjects': uTeachSubjects,
         'uStudySubjects': uStudySubjects,
       };
+       final userDataItem = UserDataItem(
+      uID: DateTime.now().millisecondsSinceEpoch, // 注意：这里应该是 int 类型
+      uName: uName,
+      uEmail: uEmail,
+      uPassword: uPassword,
+      uPhone: uPhone,
+      uBirthday: uBirthday,
+      uGender: uGender.toString(), // 转换为字符串
+      uRole: uRole.toList().join(','), // 转换为逗号分隔的字符串
+      uTeachSubjects: uTeachSubjects,
+      uStudySubjects: uStudySubjects,
+    );
       // 写入文件
       await FileUtils.writeJsonFile(userData);
       // 显示成功消息

@@ -1,14 +1,19 @@
 import 'package:hive/hive.dart';
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 import 'package:tutoring_software/utils/storage.dart';
+import 'package:mobx/mobx.dart';
 
-class UserDataController {
+part 'user_data_controller.g.dart';
+
+class UserDataController = _UserDataController with _$UserDataController;
+
+abstract class _UserDataController with Store{
   // 定义Hive box名称
   static const String userBoxName = 'users';
-  // 单例模式
-  static final UserDataController _instance = UserDataController._internal();
-  factory UserDataController() => _instance;
-  UserDataController._internal();
+  // // 单例模式
+  // static final _UserDataController _instance = _UserDataController._internal();
+  // factory _UserDataController() => _instance;
+  // _UserDataController._internal();
 
   //打开盒子
   var storedUserDataBox = GStorage.userDataBox;

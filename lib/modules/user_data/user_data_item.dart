@@ -26,23 +26,26 @@ class UserDataItem {
   @HiveField(9, defaultValue: "学生")
   late String uRole;
   @HiveField(10, defaultValue: [])
-  late List<Map<String, dynamic>> uTeachSubjects;
+  late Map<String, dynamic> uTeachSubjects;
   @HiveField(11,defaultValue: [])
-  late List<Map<String, dynamic>> uStudySubjects;
+  late Map<String, dynamic> uStudySubjects;
   @HiveField(12,defaultValue: [])
   late List<String> contacts;
+  @HiveField(13)
+  late String uPassword;
 
   //构造函数
   UserDataItem({
     required this.uID,
     required this.uName,
-    required this.uAvatar,
+    // required this.uAvatar,
     required this.uEmail,
     required this.uPhone,
     required this.uGender,
     required this.uBirthday,
-    required this.uSignature,
-    required this.uLocation,
+    required this.uPassword,
+    // required this.uSignature,
+    // required this.uLocation,
     required this.uRole,
     required this.uTeachSubjects,
     required this.uStudySubjects,

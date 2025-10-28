@@ -19,32 +19,29 @@ class UserDataItemAdapter extends TypeAdapter<UserDataItem> {
     return UserDataItem(
       uID: fields[0] as int,
       uName: fields[1] as String,
-      uAvatar:
-          fields[2] == null ? '../../data/images/1.png' : fields[2] as String,
       uEmail: fields[3] == null ? '' : fields[3] as String,
       uPhone: fields[4] == null ? '' : fields[4] as String,
       uGender: fields[5] == null ? '隐藏' : fields[5] as String,
       uBirthday: fields[6] == null ? '2000 1 1' : fields[6] as String,
-      uSignature: fields[7] == null ? '这里什么都没有' : fields[7] as String,
-      uLocation: fields[8] == null ? '' : fields[8] as String,
+      uPassword: fields[13] as String,
       uRole: fields[9] == null ? '学生' : fields[9] as String,
-      uTeachSubjects: fields[10] == null
-          ? []
-          : (fields[10] as List)
-              .map((dynamic e) => (e as Map).cast<String, dynamic>())
-              .toList(),
-      uStudySubjects: fields[11] == null
-          ? []
-          : (fields[11] as List)
-              .map((dynamic e) => (e as Map).cast<String, dynamic>())
-              .toList(),
-    )..contacts = fields[12] == null ? [] : (fields[12] as List).cast<String>();
+      uTeachSubjects:
+          fields[10] == null ? [] : (fields[10] as Map).cast<String, dynamic>(),
+      uStudySubjects:
+          fields[11] == null ? [] : (fields[11] as Map).cast<String, dynamic>(),
+    )
+      ..uAvatar =
+          fields[2] == null ? '../../data/images/1.png' : fields[2] as String
+      ..uSignature = fields[7] == null ? '这里什么都没有' : fields[7] as String
+      ..uLocation = fields[8] == null ? '' : fields[8] as String
+      ..contacts =
+          fields[12] == null ? [] : (fields[12] as List).cast<String>();
   }
 
   @override
   void write(BinaryWriter writer, UserDataItem obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.uID)
       ..writeByte(1)
@@ -70,7 +67,9 @@ class UserDataItemAdapter extends TypeAdapter<UserDataItem> {
       ..writeByte(11)
       ..write(obj.uStudySubjects)
       ..writeByte(12)
-      ..write(obj.contacts);
+      ..write(obj.contacts)
+      ..writeByte(13)
+      ..write(obj.uPassword);
   }
 
   @override
