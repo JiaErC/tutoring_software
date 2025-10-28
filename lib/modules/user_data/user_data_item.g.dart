@@ -17,23 +17,23 @@ class UserDataItemAdapter extends TypeAdapter<UserDataItem> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return UserDataItem(
-      userID: fields[0] as int,
-      userName: fields[1] as String,
-      userAvatar:
+      uID: fields[0] as int,
+      uName: fields[1] as String,
+      uAvatar:
           fields[2] == null ? '../../data/images/1.png' : fields[2] as String,
-      userEmail: fields[3] == null ? '' : fields[3] as String,
-      userPhone: fields[4] == null ? '' : fields[4] as String,
-      userGender: fields[5] == null ? '隐藏' : fields[5] as String,
-      userBirthday: fields[6] == null ? '2000 1 1' : fields[6] as String,
-      userSignature: fields[7] == null ? '这里什么都没有' : fields[7] as String,
-      userLocation: fields[8] == null ? '' : fields[8] as String,
-      userCharacter: fields[9] == null ? '学生' : fields[9] as String,
-      subjectsTaught: fields[10] == null
+      uEmail: fields[3] == null ? '' : fields[3] as String,
+      uPhone: fields[4] == null ? '' : fields[4] as String,
+      uGender: fields[5] == null ? '隐藏' : fields[5] as String,
+      uBirthday: fields[6] == null ? '2000 1 1' : fields[6] as String,
+      uSignature: fields[7] == null ? '这里什么都没有' : fields[7] as String,
+      uLocation: fields[8] == null ? '' : fields[8] as String,
+      uCharacter: fields[9] == null ? '学生' : fields[9] as String,
+      uTeachSubjects: fields[10] == null
           ? []
           : (fields[10] as List)
               .map((dynamic e) => (e as Map).cast<String, dynamic>())
               .toList(),
-      subjectsStudied: fields[11] == null
+      uStudySubjects: fields[11] == null
           ? []
           : (fields[11] as List)
               .map((dynamic e) => (e as Map).cast<String, dynamic>())
@@ -46,29 +46,29 @@ class UserDataItemAdapter extends TypeAdapter<UserDataItem> {
     writer
       ..writeByte(13)
       ..writeByte(0)
-      ..write(obj.userID)
+      ..write(obj.uID)
       ..writeByte(1)
-      ..write(obj.userName)
+      ..write(obj.uName)
       ..writeByte(2)
-      ..write(obj.userAvatar)
+      ..write(obj.uAvatar)
       ..writeByte(3)
-      ..write(obj.userEmail)
+      ..write(obj.uEmail)
       ..writeByte(4)
-      ..write(obj.userPhone)
+      ..write(obj.uPhone)
       ..writeByte(5)
-      ..write(obj.userGender)
+      ..write(obj.uGender)
       ..writeByte(6)
-      ..write(obj.userBirthday)
+      ..write(obj.uBirthday)
       ..writeByte(7)
-      ..write(obj.userSignature)
+      ..write(obj.uSignature)
       ..writeByte(8)
-      ..write(obj.userLocation)
+      ..write(obj.uLocation)
       ..writeByte(9)
-      ..write(obj.userCharacter)
+      ..write(obj.uCharacter)
       ..writeByte(10)
-      ..write(obj.subjectsTaught)
+      ..write(obj.uTeachSubjects)
       ..writeByte(11)
-      ..write(obj.subjectsStudied)
+      ..write(obj.uStudySubjects)
       ..writeByte(12)
       ..write(obj.contacts);
   }

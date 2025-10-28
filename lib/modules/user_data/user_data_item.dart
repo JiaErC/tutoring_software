@@ -6,45 +6,45 @@ part 'user_data_item.g.dart';
 @HiveType(typeId:0)
 class UserDataItem {
   @HiveField(0)
-  late int userID;
+  late int uID;
   @HiveField(1)
-  late String userName;
+  late String uName;
   @HiveField(2, defaultValue: "../../data/images/1.png")
-  late String userAvatar;
+  late String uAvatar;
   @HiveField(3, defaultValue: "")
-  late String userEmail;
+  late String uEmail;
   @HiveField(4, defaultValue: "")
-  late String userPhone;
+  late String uPhone;
   @HiveField(5, defaultValue: "隐藏")
-  late String userGender;
+  late String uGender;
   @HiveField(6, defaultValue: "2000 1 1")
-  late String userBirthday;
+  late String uBirthday;
   @HiveField(7, defaultValue: "这里什么都没有")
-  late String userSignature;
+  late String uSignature;
   @HiveField(8, defaultValue: "")
-  late String userLocation;
+  late String uLocation;
   @HiveField(9, defaultValue: "学生")
-  late String userCharacter;
+  late String uCharacter;
   @HiveField(10, defaultValue: [])
-  late List<Map<String, dynamic>> subjectsTaught;
+  late List<Map<String, dynamic>> uTeachSubjects;
   @HiveField(11,defaultValue: [])
-  late List<Map<String, dynamic>> subjectsStudied;
+  late List<Map<String, dynamic>> uStudySubjects;
   @HiveField(12,defaultValue: [])
   late List<String> contacts;
 
   //构造函数
   UserDataItem({
-    required this.userID,
-    required this.userName,
-    required this.userAvatar,
-    required this.userEmail,
-    required this.userPhone,
-    required this.userGender,
-    required this.userBirthday,
-    required this.userSignature,
-    required this.userLocation,
-    required this.userCharacter,
-    required this.subjectsTaught,
-    required this.subjectsStudied,
+    required this.uID,
+    required this.uName,
+    required this.uAvatar,
+    required this.uEmail,
+    required this.uPhone,
+    required this.uGender,
+    required this.uBirthday,
+    required this.uSignature,
+    required this.uLocation,
+    required this.uCharacter,
+    required this.uTeachSubjects,
+    required this.uStudySubjects,
   });
 }
