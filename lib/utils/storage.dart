@@ -24,7 +24,7 @@ class SettingBoxKey {
   uBirthday = 'uBirthday',
   uSignature = 'uSignature',//用户个性签名
   uLocation = 'uLocation',//用户地址
-  uCharacter = 'uCharacter',//用户的身份，老师还是学生
+  uRole = 'uRole',//用户的身份，老师还是学生
   uContacts = 'uContacts',
   //关于老师的键
   uTeachSubjects = 'uTeachSubjects',

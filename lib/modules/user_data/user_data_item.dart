@@ -24,7 +24,7 @@ class UserDataItem {
   @HiveField(8, defaultValue: "")
   late String uLocation;
   @HiveField(9, defaultValue: "学生")
-  late String uCharacter;
+  late String uRole;
   @HiveField(10, defaultValue: [])
   late List<Map<String, dynamic>> uTeachSubjects;
   @HiveField(11,defaultValue: [])
@@ -43,7 +43,7 @@ class UserDataItem {
     required this.uBirthday,
     required this.uSignature,
     required this.uLocation,
-    required this.uCharacter,
+    required this.uRole,
     required this.uTeachSubjects,
     required this.uStudySubjects,
   });

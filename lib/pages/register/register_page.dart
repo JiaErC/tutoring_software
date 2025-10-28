@@ -3,6 +3,7 @@ import "package:flutter_material_design_icons/flutter_material_design_icons.dart
 import "package:flutter_modular/flutter_modular.dart";
 
 import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
+import 'package:tutoring_software/utils/file_utils.dart';
 import 'register_controller.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -290,6 +291,38 @@ class _RegisterPageState extends State<RegisterPage> {
           );
   }
 
+  // 在_RegisterPageState类中添加保存用户数据到JSON文件的方法
+  Future<void> _saveUserDataToJson() async {
+    try {
+      // 构建符合现有格式的用户数据对象
+      Map<String, dynamic> userData = {
+        'uID': DateTime.now().millisecondsSinceEpoch.toString(), // 转换为字符串
+        'uName': uName,
+        'uEmail': uEmail,
+        'uPassword': uPassword, // 注意：实际应用中应考虑密码加密
+        'uPhone': uPhone,
+        'uBirthday': uBirthday,
+        'uGender': uGender.toString(), // 转换为字符串
+        'uRole': uRole.toList().join(','), // 转换为逗号分隔的字符串
+        'uTeachSubjects': uTeachSubjects,
+        'uStudySubjects': uStudySubjects,
+      };
+      // 写入文件
+      await FileUtils.writeJsonFile(userData);
+      // 显示成功消息
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('注册成功！数据已保存。')));
+      // 注册成功后导航到登录页面或首页
+      Modular.to.pushReplacementNamed('/login');
+    } catch (e) {
+      print('保存用户数据失败: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('注册失败，请重试。')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     _isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
@@ -550,7 +583,7 @@ class _RegisterPageState extends State<RegisterPage> {
           //确定按钮
           Center(
             child: OutlinedButton.icon(
-              onPressed: () {
+              onPressed: () async {
                 //表单验证
                 if (_validateForm()) {
                   // 将表单数据赋值给用户属性
@@ -564,6 +597,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   debugPrint('身份: $uRole');
                   debugPrint('学习科目: $uStudySubjects');
                   debugPrint('教学科目: $uTeachSubjects');
+                  // 调用保存用户数据到JSON文件的方法
+                  await _saveUserDataToJson();
                 }
               },
               icon: const Icon(Icons.login),

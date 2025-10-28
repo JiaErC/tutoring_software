@@ -27,7 +27,7 @@ class UserDataItemAdapter extends TypeAdapter<UserDataItem> {
       uBirthday: fields[6] == null ? '2000 1 1' : fields[6] as String,
       uSignature: fields[7] == null ? '这里什么都没有' : fields[7] as String,
       uLocation: fields[8] == null ? '' : fields[8] as String,
-      uCharacter: fields[9] == null ? '学生' : fields[9] as String,
+      uRole: fields[9] == null ? '学生' : fields[9] as String,
       uTeachSubjects: fields[10] == null
           ? []
           : (fields[10] as List)
@@ -64,7 +64,7 @@ class UserDataItemAdapter extends TypeAdapter<UserDataItem> {
       ..writeByte(8)
       ..write(obj.uLocation)
       ..writeByte(9)
-      ..write(obj.uCharacter)
+      ..write(obj.uRole)
       ..writeByte(10)
       ..write(obj.uTeachSubjects)
       ..writeByte(11)

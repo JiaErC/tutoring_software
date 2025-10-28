@@ -1,0 +1,12 @@
+{
+    "uID":"",
+    "uName":"",
+    "uEmail":"",
+    "uPassword":"",
+    "uPhone":"",
+    "uBirthday":"",
+    "uGender":"",
+    "uRole":"",
+    "uTeachSubjects":{},
+    "uStudySubjects":{}
+}
