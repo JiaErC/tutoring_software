@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
+
+import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
 
 class PasswordPage extends StatefulWidget {
   const PasswordPage({super.key});
@@ -7,8 +10,89 @@ class PasswordPage extends StatefulWidget {
   State<PasswordPage> createState() => _PasswordPageState();
 }
 
+//用户的账号和密码
+String uAccount = '';
+String uPassword = '';
+
 class _PasswordPageState extends State<PasswordPage> {
   bool showPassword = false; //是否显示密码的变量
+  //两个控制器
+  final TextEditingController _userAccountController = TextEditingController();
+  final TextEditingController _userPasswordController = TextEditingController();
+
+  //判断账号是否满足邮箱和手机号的格式
+  bool _isAccountValid = true;
+  //判断密码是否满足格式
+  bool _isPasswordValid = true;
+
+  //邮箱正则表达式
+  final RegExp _emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+  );
+  //电话号码正则表达式（中国手机号）
+  final RegExp _phoneRegex = RegExp(r'^1[3-9]\d{9}$');
+  // 密码正则表达式：至少包含一个数字、一个大写字母、一个小写字母和一个特殊字符
+  final RegExp _passwordContainsDigit = RegExp(r'\d');
+  final RegExp _passwordContainsUppercase = RegExp(r'[A-Z]');
+  final RegExp _passwordContainsLowercase = RegExp(r'[a-z]');
+
+  //验证账号
+  void _validateAccount(String value) {
+    setState(() {
+      if (_emailRegex.hasMatch(value) ||
+          _phoneRegex.hasMatch(value) ||
+          value.isEmpty) {
+        // 邮箱或手机号格式正确
+        _isAccountValid = true;
+      } else {
+        // 邮箱或手机号格式不正确
+        // 显示错误提示
+        _isAccountValid = false;
+      }
+    });
+  }
+
+  //验证密码
+  void _validatePassword(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        _isPasswordValid = true;
+      } else {
+        _isPasswordValid =
+            _passwordContainsDigit.hasMatch(value) &&
+            _passwordContainsUppercase.hasMatch(value) &&
+            _passwordContainsLowercase.hasMatch(value);
+      }
+    });
+  }
+
+  bool _validateForm() {
+    bool isValid = true;
+    // 验证账号
+    if (!_isAccountValid || _userAccountController.text.isEmpty) {
+      isValid = false;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('请输入有效的账号(邮箱/手机号)')));
+      return isValid;
+    }
+    // 验证密码
+    if (!_isPasswordValid || _userPasswordController.text.isEmpty) {
+      isValid = false;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('密码必须包含数字、大写字母和小写字母')));
+      return isValid;
+    }
+
+    return isValid;
+  }
+
+  // 账号和密码的赋值
+  void _assignFormDataToUserProperties() {
+    uAccount = _userAccountController.text;
+    uPassword = _userPasswordController.text;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,39 +114,45 @@ class _PasswordPageState extends State<PasswordPage> {
         const SizedBox(height: 20),
         const Text('使用账号密码登录'),
         const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: TextField(
-            // controller: _loginPageCtr.usernameTextController,
+        buildProperty(
+          TextField(
+            controller: _userAccountController,
             // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
+            onChanged: _validateAccount,
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.account_box),
               border: const UnderlineInputBorder(),
               labelText: '账号',
               hintText: '邮箱/手机号',
               suffixIcon: IconButton(
-                onPressed: () => debugPrint("清空用户写入账号的内容"),
+                onPressed: () {
+                  _userAccountController.clear();
+                },
                 icon: const Icon(Icons.clear),
               ),
+              errorText: _isAccountValid ? null : '请输入正确的邮箱或手机号',
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: TextField(
+        buildProperty(
+          TextField(
             obscureText: !showPassword,
             keyboardType: TextInputType.visiblePassword,
+            onChanged: _validatePassword,
             // inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
-            // controller: _loginPageCtr.passwordTextController,
+            controller: _userPasswordController,
             autofillHints: const [AutofillHints.password],
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.password),
               border: const UnderlineInputBorder(),
               labelText: '密码',
               suffixIcon: IconButton(
-                onPressed: () => debugPrint("清空用户写入密码的内容"),
+                onPressed: () {
+                  _userPasswordController.clear();
+                },
                 icon: const Icon(Icons.clear),
               ),
+              errorText: _isPasswordValid ? null : "你的密码格式不正确哟",
             ),
           ),
         ),
@@ -148,10 +238,29 @@ class _PasswordPageState extends State<PasswordPage> {
             const SizedBox(width: 20),
           ],
         ),
-        OutlinedButton.icon(
-          onPressed: () => debugPrint("登录"),
-          icon: const Icon(Icons.login),
-          label: const Text('登录'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            OutlinedButton.icon(
+              onPressed: () {
+                //表单验证
+                if (_validateForm()) {
+                  // 密码和账号的输出情况
+                  _assignFormDataToUserProperties();
+                  debugPrint("账号：$uAccount");
+                  debugPrint("密码：$uPassword");
+                }
+              },
+              icon: const Icon(Icons.login),
+              label: const Text('登录'),
+            ),
+            const SizedBox(width: 30),
+            OutlinedButton.icon(
+              onPressed: () => Modular.to.pushNamed("/register"),
+              icon: const Icon(Icons.app_registration),
+              label: const Text('注册'),
+            ),
+          ],
         ),
         const SizedBox(height: 20),
         //结束语
