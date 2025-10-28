@@ -3,6 +3,8 @@ import "package:flutter/services.dart";
 import "package:flutter_material_design_icons/flutter_material_design_icons.dart";
 import "package:flutter_modular/flutter_modular.dart";
 
+import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
+
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -43,33 +45,6 @@ class _RegisterPageState extends State<RegisterPage> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
-  }
-
-  //这个是输入框组件的
-  Widget _buildTextInput(
-    TextEditingController c,
-    String t,
-    Icon ic,
-    List<TextInputFormatter> l,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: TextField(
-        controller: c,
-        keyboardType: TextInputType.emailAddress,
-        inputFormatters: l,
-        onChanged: _validateEmail,
-        decoration: InputDecoration(
-          prefixIcon: ic,
-          border: const UnderlineInputBorder(),
-          labelText: t,
-          suffixIcon: IconButton(
-            onPressed: () => _usernameController.clear(),
-            icon: const Icon(Icons.clear),
-          ),
-        ),
-      ),
-    );
   }
 
   //邮箱正则表达式
@@ -162,38 +137,89 @@ class _RegisterPageState extends State<RegisterPage> {
           const Text('注册账户'),
           const SizedBox(height: 10),
           //写入用户名
-          _buildTextInput(
-            _usernameController,
-            '用户名',
-            const Icon(MdiIcons.account),
+          buildProperty(
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(MdiIcons.account),
+                border: const UnderlineInputBorder(),
+                labelText: '用户名',
+                suffixIcon: IconButton(
+                  onPressed: () => _usernameController.clear(),
+                  icon: const Icon(Icons.clear),
+                ),
+              ),
+            ),
           ),
           //写入email
-          _buildTextInput(_emailController, '邮箱', const Icon(MdiIcons.email), [
-            // 只允许输入符合邮箱格式的字符
-            FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z0-9._%+-@]")),
-          ]),
+          buildProperty(
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              onChanged: _validateEmail,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(MdiIcons.email),
+                border: const UnderlineInputBorder(),
+                labelText: '邮箱',
+                suffixIcon: IconButton(
+                  onPressed: () => _emailController.clear(),
+                  icon: const Icon(Icons.clear),
+                ),
+                              errorText: !_isEmailValid ? '请输入有效的邮箱地址' : null,
+              )
+            ),
+          ),
           //写入电话号码
-          _buildTextInput(
-            _phoneController,
-            '电话号码',
-            const Icon(MdiIcons.phone),
-            [
-              // 只允许输入数字
-              FilteringTextInputFormatter.digitsOnly,
-            ],
-            
+          buildProperty(
+            TextField(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              onChanged: _validatePhone,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(MdiIcons.phone),
+                border: const UnderlineInputBorder(),
+                labelText: '电话号码',
+                suffixIcon: IconButton(
+                  onPressed: () => _phoneController.clear(),
+                  icon: const Icon(Icons.clear),
+                ),
+                errorText: !_isPhoneValid ? '请输入有效的手机号码' : null,
+              ),
+            ),
           ),
           //两次写入密码
-          _buildTextInput(_passwordController, '密码', const Icon(MdiIcons.lock)),
-          _buildTextInput(
-            _confirmPasswordController,
-            '确认密码',
-            const Icon(MdiIcons.lock),
+          buildProperty(
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(MdiIcons.lock),
+                border: const UnderlineInputBorder(),
+                labelText: '密码',
+                suffixIcon: IconButton(
+                  onPressed: () => _passwordController.clear(),
+                  icon: const Icon(Icons.clear),
+                ),
+              ),
+            ),
+          ),
+          buildProperty(
+            TextField(
+              controller: _confirmPasswordController,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(MdiIcons.lock),
+                border: const UnderlineInputBorder(),
+                labelText: '确认密码',
+                suffixIcon: IconButton(
+                  onPressed: () => _confirmPasswordController.clear(),
+                  icon: const Icon(Icons.clear),
+                ),
+              ),
+            ),
           ),
           //性别选择
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: RadioGroup<int>(
+          buildProperty(
+            RadioGroup<int>(
               groupValue: _gender,
               onChanged: (value) {
                 setState(() {
@@ -220,9 +246,8 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           ),
           //接下来是生日信息
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Row(
+          buildProperty(
+            Row(
               children: [
                 const Icon(MdiIcons.cake),
                 const SizedBox(width: 10),
@@ -266,9 +291,8 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           ),
           //选择学生还是老师，也就是应用的身份，1：学生，2：老师
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Row(
+          buildProperty(
+            Row(
               children: <Widget>[
                 const Icon(MdiIcons.accountCog),
                 const SizedBox(width: 10),
