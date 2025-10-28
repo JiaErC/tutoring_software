@@ -110,11 +110,11 @@ class _LoginMenuState extends State<LoginMenu>
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
     return Scaffold(
-      appBar: AppBar(
+      appBar:AppBar(
         leading: IconButton(
-          tooltip: '关闭',
-          icon: const Icon(Icons.close_outlined),
-          onPressed: () => Modular.to.navigate("/tab"),
+          icon: const Icon(Icons.arrow_back),
+          tooltip:"登录",
+          onPressed: () => Navigator.pop(context), // 返回上一级路由
         ),
 
         title: Row(
