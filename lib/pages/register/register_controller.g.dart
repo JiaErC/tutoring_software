@@ -9,162 +9,202 @@ part of 'register_controller.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$RegisterController on _RegisterController, Store {
-  late final _$usernameAtom =
-      Atom(name: '_RegisterController.username', context: context);
+  Computed<bool>? _$isPasswordMatchComputed;
 
   @override
-  String get username {
-    _$usernameAtom.reportRead();
-    return super.username;
+  bool get isPasswordMatch =>
+      (_$isPasswordMatchComputed ??= Computed<bool>(() => super.isPasswordMatch,
+              name: '_RegisterController.isPasswordMatch'))
+          .value;
+
+  late final _$uNameAtom =
+      Atom(name: '_RegisterController.uName', context: context);
+
+  @override
+  String get uName {
+    _$uNameAtom.reportRead();
+    return super.uName;
   }
 
   @override
-  set username(String value) {
-    _$usernameAtom.reportWrite(value, super.username, () {
-      super.username = value;
+  set uName(String value) {
+    _$uNameAtom.reportWrite(value, super.uName, () {
+      super.uName = value;
     });
   }
 
-  late final _$emailAtom =
-      Atom(name: '_RegisterController.email', context: context);
+  late final _$uEmailAtom =
+      Atom(name: '_RegisterController.uEmail', context: context);
 
   @override
-  String get email {
-    _$emailAtom.reportRead();
-    return super.email;
+  String get uEmail {
+    _$uEmailAtom.reportRead();
+    return super.uEmail;
   }
 
   @override
-  set email(String value) {
-    _$emailAtom.reportWrite(value, super.email, () {
-      super.email = value;
+  set uEmail(String value) {
+    _$uEmailAtom.reportWrite(value, super.uEmail, () {
+      super.uEmail = value;
     });
   }
 
-  late final _$passwordAtom =
-      Atom(name: '_RegisterController.password', context: context);
+  late final _$uPhoneAtom =
+      Atom(name: '_RegisterController.uPhone', context: context);
 
   @override
-  String get password {
-    _$passwordAtom.reportRead();
-    return super.password;
+  String get uPhone {
+    _$uPhoneAtom.reportRead();
+    return super.uPhone;
   }
 
   @override
-  set password(String value) {
-    _$passwordAtom.reportWrite(value, super.password, () {
-      super.password = value;
+  set uPhone(String value) {
+    _$uPhoneAtom.reportWrite(value, super.uPhone, () {
+      super.uPhone = value;
     });
   }
 
-  late final _$phoneAtom =
-      Atom(name: '_RegisterController.phone', context: context);
+  late final _$uPasswordAtom =
+      Atom(name: '_RegisterController.uPassword', context: context);
 
   @override
-  String get phone {
-    _$phoneAtom.reportRead();
-    return super.phone;
+  String get uPassword {
+    _$uPasswordAtom.reportRead();
+    return super.uPassword;
   }
 
   @override
-  set phone(String value) {
-    _$phoneAtom.reportWrite(value, super.phone, () {
-      super.phone = value;
+  set uPassword(String value) {
+    _$uPasswordAtom.reportWrite(value, super.uPassword, () {
+      super.uPassword = value;
     });
   }
 
-  late final _$genderAtom =
-      Atom(name: '_RegisterController.gender', context: context);
+  late final _$uGenderAtom =
+      Atom(name: '_RegisterController.uGender', context: context);
 
   @override
-  int get gender {
-    _$genderAtom.reportRead();
-    return super.gender;
+  int get uGender {
+    _$uGenderAtom.reportRead();
+    return super.uGender;
   }
 
   @override
-  set gender(int value) {
-    _$genderAtom.reportWrite(value, super.gender, () {
-      super.gender = value;
+  set uGender(int value) {
+    _$uGenderAtom.reportWrite(value, super.uGender, () {
+      super.uGender = value;
     });
   }
 
-  late final _$birthdayAtom =
-      Atom(name: '_RegisterController.birthday', context: context);
+  late final _$uBirthdayAtom =
+      Atom(name: '_RegisterController.uBirthday', context: context);
 
   @override
-  String get birthday {
-    _$birthdayAtom.reportRead();
-    return super.birthday;
+  String get uBirthday {
+    _$uBirthdayAtom.reportRead();
+    return super.uBirthday;
   }
 
   @override
-  set birthday(String value) {
-    _$birthdayAtom.reportWrite(value, super.birthday, () {
-      super.birthday = value;
+  set uBirthday(String value) {
+    _$uBirthdayAtom.reportWrite(value, super.uBirthday, () {
+      super.uBirthday = value;
     });
   }
 
-  late final _$roleAtom =
-      Atom(name: '_RegisterController.role', context: context);
+  late final _$uRoleAtom =
+      Atom(name: '_RegisterController.uRole', context: context);
 
   @override
-  Set<int> get role {
-    _$roleAtom.reportRead();
-    return super.role;
+  Set<int> get uRole {
+    _$uRoleAtom.reportRead();
+    return super.uRole;
   }
 
   @override
-  set role(Set<int> value) {
-    _$roleAtom.reportWrite(value, super.role, () {
-      super.role = value;
+  set uRole(Set<int> value) {
+    _$uRoleAtom.reportWrite(value, super.uRole, () {
+      super.uRole = value;
     });
   }
 
-  late final _$studySubjectsAtom =
-      Atom(name: '_RegisterController.studySubjects', context: context);
+  late final _$uTeachSubjectsAtom =
+      Atom(name: '_RegisterController.uTeachSubjects', context: context);
 
   @override
-  Map<String, dynamic> get studySubjects {
-    _$studySubjectsAtom.reportRead();
-    return super.studySubjects;
+  Map<String, dynamic> get uTeachSubjects {
+    _$uTeachSubjectsAtom.reportRead();
+    return super.uTeachSubjects;
   }
 
   @override
-  set studySubjects(Map<String, dynamic> value) {
-    _$studySubjectsAtom.reportWrite(value, super.studySubjects, () {
-      super.studySubjects = value;
+  set uTeachSubjects(Map<String, dynamic> value) {
+    _$uTeachSubjectsAtom.reportWrite(value, super.uTeachSubjects, () {
+      super.uTeachSubjects = value;
     });
   }
 
-  late final _$teachSubjectsAtom =
-      Atom(name: '_RegisterController.teachSubjects', context: context);
+  late final _$uStudySubjectsAtom =
+      Atom(name: '_RegisterController.uStudySubjects', context: context);
 
   @override
-  Map<String, dynamic> get teachSubjects {
-    _$teachSubjectsAtom.reportRead();
-    return super.teachSubjects;
+  Map<String, dynamic> get uStudySubjects {
+    _$uStudySubjectsAtom.reportRead();
+    return super.uStudySubjects;
   }
 
   @override
-  set teachSubjects(Map<String, dynamic> value) {
-    _$teachSubjectsAtom.reportWrite(value, super.teachSubjects, () {
-      super.teachSubjects = value;
+  set uStudySubjects(Map<String, dynamic> value) {
+    _$uStudySubjectsAtom.reportWrite(value, super.uStudySubjects, () {
+      super.uStudySubjects = value;
     });
+  }
+
+  late final _$uConfirmPasswordAtom =
+      Atom(name: '_RegisterController.uConfirmPassword', context: context);
+
+  @override
+  String get uConfirmPassword {
+    _$uConfirmPasswordAtom.reportRead();
+    return super.uConfirmPassword;
+  }
+
+  @override
+  set uConfirmPassword(String value) {
+    _$uConfirmPasswordAtom.reportWrite(value, super.uConfirmPassword, () {
+      super.uConfirmPassword = value;
+    });
+  }
+
+  late final _$_RegisterControllerActionController =
+      ActionController(name: '_RegisterController', context: context);
+
+  @override
+  void clearAllData() {
+    final _$actionInfo = _$_RegisterControllerActionController.startAction(
+        name: '_RegisterController.clearAllData');
+    try {
+      return super.clearAllData();
+    } finally {
+      _$_RegisterControllerActionController.endAction(_$actionInfo);
+    }
   }
 
   @override
   String toString() {
     return '''
-username: ${username},
-email: ${email},
-password: ${password},
-phone: ${phone},
-gender: ${gender},
-birthday: ${birthday},
-role: ${role},
-studySubjects: ${studySubjects},
-teachSubjects: ${teachSubjects}
+uName: ${uName},
+uEmail: ${uEmail},
+uPhone: ${uPhone},
+uPassword: ${uPassword},
+uGender: ${uGender},
+uBirthday: ${uBirthday},
+uRole: ${uRole},
+uTeachSubjects: ${uTeachSubjects},
+uStudySubjects: ${uStudySubjects},
+uConfirmPassword: ${uConfirmPassword},
+isPasswordMatch: ${isPasswordMatch}
     ''';
   }
 }

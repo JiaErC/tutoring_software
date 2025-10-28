@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import "package:flutter_material_design_icons/flutter_material_design_icons.dart";
 import 'package:getwidget/getwidget.dart';
-import 'package:flutter_modular/flutter_modular.dart';
 
 class SubjectsPage extends StatefulWidget {
   const SubjectsPage({super.key});
@@ -86,7 +85,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           tooltip: "返回上一页",
-          onPressed: () => Navigator.pop(context), // 返回上一级路由
+          onPressed: () => Navigator.pop(context, _selectedSubjects), // 返回上一级路由
         ),
         title: _isTeacher ? const Text("选择教学科目") : const Text("选择学习科目"),
         actions: <Widget>[
@@ -120,10 +119,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
                 _buildControlButton(
                   "确认",
                   Colors.blueAccent,
-                  () => Modular.to.pushNamed(
-                    "/register",
-                    arguments: _selectedSubjects,
-                  ),
+                  () => Navigator.pop(context, _selectedSubjects),
                 ),
               ],
             ),
