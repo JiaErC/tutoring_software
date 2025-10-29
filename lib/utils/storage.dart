@@ -14,6 +14,9 @@ class GStorage {
   static Future init() async {
     Hive.registerAdapter(UserDataItemAdapter());
     Hive.registerAdapter(StatusAdapter());
+    /*数据不重要的时候，直接删除数据库解决问题*/ 
+    // await Hive.deleteBoxFromDisk('userData');
+    // await Hive.deleteBoxFromDisk('status');
     userDataBox = await Hive.openBox('userData');
     statusBox = await Hive.openBox('status');
     /**/ 
