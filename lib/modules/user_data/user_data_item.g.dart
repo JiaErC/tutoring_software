@@ -17,58 +17,44 @@ class UserDataItemAdapter extends TypeAdapter<UserDataItem> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return UserDataItem(
-      uID: fields[0] as int,
+      uID: fields[0] as String,
       uName: fields[1] as String,
-      uEmail: fields[3] == null ? '' : fields[3] as String,
-      uPhone: fields[4] == null ? '' : fields[4] as String,
-      uGender: fields[5] == null ? '隐藏' : fields[5] as String,
-      uBirthday: fields[6] == null ? '2000 1 1' : fields[6] as String,
-      uPassword: fields[13] as String,
-      uRole: fields[9] == null ? '学生' : fields[9] as String,
+      uEmail: fields[2] == null ? '' : fields[2] as String,
+      uPhone: fields[3] == null ? '' : fields[3] as String,
+      uGender: fields[4] == null ? '隐藏' : fields[4] as String,
+      uBirthday: fields[5] == null ? '2000 1 1' : fields[5] as String,
+      uPassword: fields[9] as String,
+      uRole: fields[6] == null ? '学生' : fields[6] as String,
       uTeachSubjects:
-          fields[10] == null ? [] : (fields[10] as Map).cast<String, dynamic>(),
+          fields[7] == null ? {} : (fields[7] as Map).cast<String, dynamic>(),
       uStudySubjects:
-          fields[11] == null ? [] : (fields[11] as Map).cast<String, dynamic>(),
-    )
-      ..uAvatar =
-          fields[2] == null ? '../../data/images/1.png' : fields[2] as String
-      ..uSignature = fields[7] == null ? '这里什么都没有' : fields[7] as String
-      ..uLocation = fields[8] == null ? '' : fields[8] as String
-      ..contacts =
-          fields[12] == null ? [] : (fields[12] as List).cast<String>();
+          fields[8] == null ? {} : (fields[8] as Map).cast<String, dynamic>(),
+    );
   }
 
   @override
   void write(BinaryWriter writer, UserDataItem obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.uID)
       ..writeByte(1)
       ..write(obj.uName)
       ..writeByte(2)
-      ..write(obj.uAvatar)
-      ..writeByte(3)
       ..write(obj.uEmail)
-      ..writeByte(4)
+      ..writeByte(3)
       ..write(obj.uPhone)
-      ..writeByte(5)
+      ..writeByte(4)
       ..write(obj.uGender)
-      ..writeByte(6)
+      ..writeByte(5)
       ..write(obj.uBirthday)
-      ..writeByte(7)
-      ..write(obj.uSignature)
-      ..writeByte(8)
-      ..write(obj.uLocation)
-      ..writeByte(9)
+      ..writeByte(6)
       ..write(obj.uRole)
-      ..writeByte(10)
+      ..writeByte(7)
       ..write(obj.uTeachSubjects)
-      ..writeByte(11)
+      ..writeByte(8)
       ..write(obj.uStudySubjects)
-      ..writeByte(12)
-      ..write(obj.contacts)
-      ..writeByte(13)
+      ..writeByte(9)
       ..write(obj.uPassword);
   }
 

@@ -38,7 +38,8 @@ class _RegisterPageState extends State<RegisterPage> {
   //引入注册控制器
   final RegisterController controller = Modular.get<RegisterController>();
   //引入用户数据控制器
-  final UserDataController userDataController = Modular.get<UserDataController>();
+  final UserDataController userDataController =
+      Modular.get<UserDataController>();
   //创建一个是否横屏的显示器
   bool _isLandscape = false;
 
@@ -298,9 +299,10 @@ class _RegisterPageState extends State<RegisterPage> {
   // 在_RegisterPageState类中添加保存用户数据到JSON文件的方法
   Future<void> _saveUserDataToJson() async {
     try {
+      final String uid = DateTime.now().millisecondsSinceEpoch.toString();
       // 构建符合现有格式的用户数据对象
       Map<String, dynamic> userData = {
-        'uID': DateTime.now().millisecondsSinceEpoch.toString(), // 转换为字符串
+        'uID': uid,
         'uName': uName,
         'uEmail': uEmail,
         'uPassword': uPassword, // 注意：实际应用中应考虑密码加密
@@ -311,20 +313,21 @@ class _RegisterPageState extends State<RegisterPage> {
         'uTeachSubjects': uTeachSubjects,
         'uStudySubjects': uStudySubjects,
       };
-       final userDataItem = UserDataItem(
-      uID: DateTime.now().millisecondsSinceEpoch, // 注意：这里应该是 int 类型
-      uName: uName,
-      uEmail: uEmail,
-      uPassword: uPassword,
-      uPhone: uPhone,
-      uBirthday: uBirthday,
-      uGender: uGender.toString(), // 转换为字符串
-      uRole: uRole.toList().join(','), // 转换为逗号分隔的字符串
-      uTeachSubjects: uTeachSubjects,
-      uStudySubjects: uStudySubjects,
-    );
+      final userDataItem = UserDataItem(
+        uID: uid,
+        uName: uName,
+        uEmail: uEmail,
+        uPassword: uPassword,
+        uPhone: uPhone,
+        uBirthday: uBirthday,
+        uGender: uGender.toString(), // 转换为字符串
+        uRole: uRole.toList().join(','), // 转换为逗号分隔的字符串
+        uTeachSubjects: uTeachSubjects,
+        uStudySubjects: uStudySubjects,
+      );
       // 写入文件
       await FileUtils.writeJsonFile(userData);
+      userDataController.saveUserData(userDataItem);
       // 显示成功消息
       ScaffoldMessenger.of(
         context,

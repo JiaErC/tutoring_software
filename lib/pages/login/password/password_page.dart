@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
+import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
 
 class PasswordPage extends StatefulWidget {
   const PasswordPage({super.key});
@@ -15,6 +16,9 @@ String uAccount = '';
 String uPassword = '';
 
 class _PasswordPageState extends State<PasswordPage> {
+  //此处的代码仅作为测试
+  UserDataController userDataController = Modular.get<UserDataController>();
+
   bool showPassword = false; //是否显示密码的变量
   //两个控制器
   final TextEditingController _userAccountController = TextEditingController();
@@ -249,6 +253,9 @@ class _PasswordPageState extends State<PasswordPage> {
                   _assignFormDataToUserProperties();
                   debugPrint("账号：$uAccount");
                   debugPrint("密码：$uPassword");
+                  //此处的代码仅作为验证hive数据库对注册结果的存储情况
+                  debugPrint("此处为用户数据保存情况：");
+                  userDataController.init();
                 }
               },
               icon: const Icon(Icons.login),
