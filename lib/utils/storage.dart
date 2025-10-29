@@ -19,9 +19,6 @@ class GStorage {
     // await Hive.deleteBoxFromDisk('status');
     userDataBox = await Hive.openBox('userData');
     statusBox = await Hive.openBox('status');
-    /**/ 
-    userDataBox.clear();
-    statusBox.clear();
     //如果盒子为空，就添加一个默认的登录状态
     if (statusBox.isEmpty) {
       statusBox.add(Status(isLogin: false, uID: ""));
