@@ -317,6 +317,8 @@ class _RegisterPageState extends State<RegisterPage> {
       userDataController.saveUserData(userDataItem);
       // 登录状态设置为true
       statusController.addStatus(uid);
+      // //查看登录状态
+      // debugPrint("登录状态：${statusController.isLogin}\n登录用户ID：${statusController.uID}\n");
       // 显示成功消息
       ScaffoldMessenger.of(
         context,

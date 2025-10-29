@@ -3,23 +3,33 @@ import 'package:path_provider/path_provider.dart';
 
 import "package:tutoring_software/modules/user_data/user_data_item.dart";
 import 'package:tutoring_software/modules/status/status.dart';
+import 'package:tutoring_software/modules/account_manager/email_item.dart';
+import 'package:tutoring_software/modules/account_manager/phone_number_item.dart';
 
 class GStorage {
   //存储用户相关的数据集
   static late Box<UserDataItem> userDataBox;
   //存储这个用户登录状态的数据集
   static late Box<Status> statusBox;
+  //存储手机号和电话号码的数据集
+  static late Box<PhoneNumberItem> phoneNumberBox;
+  static late Box<EmailItem> emailBox;
 
   //数据库初始化
   static Future init() async {
     Hive.registerAdapter(UserDataItemAdapter());
     Hive.registerAdapter(StatusAdapter());
-    /*数据不重要的时候，直接删除数据库解决问题*/ 
+    Hive.registerAdapter(PhoneNumberItemAdapter());
+    Hive.registerAdapter(EmailItemAdapter());
+    /*数据不重要的时候，直接删除数据库解决问题*/
     // await Hive.deleteBoxFromDisk('userData');
     // await Hive.deleteBoxFromDisk('status');
     userDataBox = await Hive.openBox('userData');
     statusBox = await Hive.openBox('status');
-    //如果盒子为空，就添加一个默认的登录状态
+    phoneNumberBox = await Hive.openBox('phoneNumber');
+    emailBox = await Hive.openBox('email');
+
+    //如果登录状态盒子为空，就添加一个默认的登录状态
     if (statusBox.isEmpty) {
       statusBox.add(Status(isLogin: false, uID: ""));
     }
