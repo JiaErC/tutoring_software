@@ -24,6 +24,7 @@ import 'package:tutoring_software/pages/register/register_module.dart';
 import 'package:tutoring_software/pages/subjects/subjects_module.dart';
 import 'package:tutoring_software/pages/register/register_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
+import 'package:tutoring_software/pages/login/login_controller.dart';
 
 //目的是定义整个软件的路由
 class IndexModule extends Module {
@@ -43,6 +44,7 @@ class IndexModule extends Module {
     // i.addSingleton(ShadersController.new);
     i.addSingleton(UserDataController.new);
     i.addSingleton(RegisterController.new);
+    i.addSingleton(LoginController.new);
   }
 
   @override
