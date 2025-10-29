@@ -253,7 +253,7 @@ class _PasswordPageState extends State<PasswordPage> {
                   _assignFormDataToUserProperties();
                   debugPrint("账号：$uAccount");
                   debugPrint("密码：$uPassword");
-                  //此处的代码仅作为验证hive数据库对注册结果的存储情况
+                  //验证用户账户查找情况
                   debugPrint("此处为用户数据保存情况：");
                   userDataController.init();
                 }

@@ -3,7 +3,7 @@ import "package:hive/hive.dart";
 part 'user_data_item.g.dart';
 
 //定义用户项目的键值
-@HiveType(typeId: 0)
+@HiveType(typeId: 1)
 class UserDataItem {
   @HiveField(0)
   late String uID;

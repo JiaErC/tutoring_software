@@ -3,10 +3,10 @@ import "package:flutter_material_design_icons/flutter_material_design_icons.dart
 import "package:flutter_modular/flutter_modular.dart";
 
 import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
-import 'package:tutoring_software/utils/file_utils.dart';
 import 'register_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
+import 'package:tutoring_software/modules/status/status_controller.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -40,6 +40,8 @@ class _RegisterPageState extends State<RegisterPage> {
   //引入用户数据控制器
   final UserDataController userDataController =
       Modular.get<UserDataController>();
+  //引入状态控制器
+  final StatusController statusController = Modular.get<StatusController>();
   //创建一个是否横屏的显示器
   bool _isLandscape = false;
 
@@ -297,22 +299,9 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   // 在_RegisterPageState类中添加保存用户数据到JSON文件的方法
-  Future<void> _saveUserDataToJson() async {
+  Future<void> _saveUserData() async {
     try {
       final String uid = DateTime.now().millisecondsSinceEpoch.toString();
-      // 构建符合现有格式的用户数据对象
-      Map<String, dynamic> userData = {
-        'uID': uid,
-        'uName': uName,
-        'uEmail': uEmail,
-        'uPassword': uPassword, // 注意：实际应用中应考虑密码加密
-        'uPhone': uPhone,
-        'uBirthday': uBirthday,
-        'uGender': uGender.toString(), // 转换为字符串
-        'uRole': uRole.toList().join(','), // 转换为逗号分隔的字符串
-        'uTeachSubjects': uTeachSubjects,
-        'uStudySubjects': uStudySubjects,
-      };
       final userDataItem = UserDataItem(
         uID: uid,
         uName: uName,
@@ -325,9 +314,9 @@ class _RegisterPageState extends State<RegisterPage> {
         uTeachSubjects: uTeachSubjects,
         uStudySubjects: uStudySubjects,
       );
-      // 写入文件
-      await FileUtils.writeJsonFile(userData);
       userDataController.saveUserData(userDataItem);
+      // 登录状态设置为true
+      statusController.addStatus(uid);
       // 显示成功消息
       ScaffoldMessenger.of(
         context,
@@ -617,7 +606,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   debugPrint('学习科目: $uStudySubjects');
                   debugPrint('教学科目: $uTeachSubjects');
                   // 调用保存用户数据到JSON文件的方法
-                  await _saveUserDataToJson();
+                  await _saveUserData();
+                  debugPrint("登录状态：${statusController.isLogin},\n 登录ID：${statusController.uID}");
                 }
               },
               icon: const Icon(Icons.login),
