@@ -1,4 +1,5 @@
 import "package:hive/hive.dart";
+import 'package:path_provider/path_provider.dart';
 
 import "package:tutoring_software/modules/user_data/user_data_item.dart";
 import 'package:tutoring_software/modules/status/status.dart';
@@ -15,7 +16,9 @@ class GStorage {
     Hive.registerAdapter(StatusAdapter());
     userDataBox = await Hive.openBox('userData');
     statusBox = await Hive.openBox('status');
-
+    /**/ 
+    userDataBox.clear();
+    statusBox.clear();
     //如果盒子为空，就添加一个默认的登录状态
     if (statusBox.isEmpty) {
       statusBox.add(Status(isLogin: false, uID: ""));
