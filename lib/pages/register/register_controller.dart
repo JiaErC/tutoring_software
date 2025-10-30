@@ -43,9 +43,11 @@ abstract class _RegisterController with Store {
     uConfirmPassword = '';
     uGender = 0;
     uBirthday = '';
-    uRole = {};
-    uTeachSubjects = {};
-    uStudySubjects = {};
+    uRole.clear();
+    uTeachSubjects.clear();
+    uStudySubjects.clear();
+    uTeachSubjectsCount = 0;
+    uStudySubjectsCount = 0;
   }
 
   // 更新角色选择

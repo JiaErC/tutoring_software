@@ -624,6 +624,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   debugPrint(
                     "登录状态：${statusController.isLogin},\n 登录ID：${statusController.uID}",
                   );
+                  setState(
+                    () =>
+                        //注册之后把注册页面清空
+                        _registerController.clearAllData(),
+                  );
                 }
               },
               icon: const Icon(Icons.login),
@@ -654,7 +659,10 @@ class _RegisterPageState extends State<RegisterPage> {
             //   '/subjects',
             //   arguments: {'isTeacher': false},
             // );
-            await Modular.to.pushNamed('/subjects',arguments: {'isTeacher': false});
+            await Modular.to.pushNamed(
+              '/subjects',
+              arguments: {'isTeacher': false},
+            );
             setState(() {
               _isStudySelectedSubject =
                   _registerController.uStudySubjects.isNotEmpty;
@@ -692,7 +700,10 @@ class _RegisterPageState extends State<RegisterPage> {
             //   arguments: {'isTeacher': true},
             // );
             /*使用await关键字来等待导航操作的完成，也就是等代码在导航到下一个页面并且返回之后，再执行接下来的代码*/
-            await Modular.to.pushNamed('/subjects',arguments: {'isTeacher': true});
+            await Modular.to.pushNamed(
+              '/subjects',
+              arguments: {'isTeacher': true},
+            );
             // 直接使用注册控制类来获取选择的学科
             // 更新状态，表示已选择学科
             setState(() {
