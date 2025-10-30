@@ -37,7 +37,8 @@ Map<String, dynamic> uStudySubjects = {};
 
 class _RegisterPageState extends State<RegisterPage> {
   //引入注册控制器
-  final RegisterController controller = Modular.get<RegisterController>();
+  final RegisterController _registerController =
+      Modular.get<RegisterController>();
   //引入用户数据控制器
   final UserDataController userDataController =
       Modular.get<UserDataController>();
@@ -69,7 +70,7 @@ class _RegisterPageState extends State<RegisterPage> {
     super.initState();
     // 初始化时同步数据
     _syncControllerWithForm();
-    _gender = controller.uGender;
+    _gender = _registerController.uGender;
   }
 
   @override
@@ -92,16 +93,16 @@ class _RegisterPageState extends State<RegisterPage> {
 
   // 用于同步控制器和表单数据
   void _syncControllerWithForm() {
-    _usernameController.text = controller.uName;
-    _emailController.text = controller.uEmail;
-    _phoneController.text = controller.uPhone;
-    _passwordController.text = controller.uPassword;
-    _confirmPasswordController.text = controller.uConfirmPassword;
-    _gender = controller.uGender;
-    _selectedRoles = controller.uRole;
-    _isTeachSelectedSubject = controller.uTeachSubjects.isNotEmpty;
-    _isStudySelectedSubject = controller.uStudySubjects.isNotEmpty;
-    uBirthday = controller.uBirthday;
+    _usernameController.text = _registerController.uName;
+    _emailController.text = _registerController.uEmail;
+    _phoneController.text = _registerController.uPhone;
+    _passwordController.text = _registerController.uPassword;
+    _confirmPasswordController.text = _registerController.uConfirmPassword;
+    _gender = _registerController.uGender;
+    _selectedRoles = _registerController.uRole;
+    _isTeachSelectedSubject = _registerController.uTeachSubjects.isNotEmpty;
+    _isStudySelectedSubject = _registerController.uStudySubjects.isNotEmpty;
+    uBirthday = _registerController.uBirthday;
   }
 
   //邮箱正则表达式
@@ -121,7 +122,7 @@ class _RegisterPageState extends State<RegisterPage> {
   //验证邮箱
   void _validateEmail(String value) {
     setState(() {
-      controller.uEmail = value;
+      _registerController.uEmail = value;
       _isEmailValid = _emailRegex.hasMatch(value) || value.isEmpty;
     });
   }
@@ -129,7 +130,7 @@ class _RegisterPageState extends State<RegisterPage> {
   //验证电话号码
   void _validatePhone(String value) {
     setState(() {
-      controller.uPhone = value;
+      _registerController.uPhone = value;
       _isPhoneValid = _phoneRegex.hasMatch(value) || value.isEmpty;
     });
   }
@@ -137,7 +138,7 @@ class _RegisterPageState extends State<RegisterPage> {
   // 验证用户名
   void _validateUsername(String value) {
     setState(() {
-      controller.uName = value;
+      _registerController.uName = value;
       _isUsernameValid = _usernameRegex.hasMatch(value) || value.isEmpty;
     });
   }
@@ -167,7 +168,7 @@ class _RegisterPageState extends State<RegisterPage> {
       } else {
         _isConfirmPasswordValid = value == _passwordController.text;
         if (_isConfirmPasswordValid) {
-          controller.uPassword = value;
+          _registerController.uPassword = value;
         }
       }
     });
@@ -469,7 +470,7 @@ class _RegisterPageState extends State<RegisterPage> {
               onChanged: (value) {
                 setState(() {
                   _gender = value;
-                  controller.uGender = value!;
+                  _registerController.uGender = value!;
                   debugPrint('性别：$_gender');
                 });
               },
@@ -527,7 +528,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             // 将选择的日期保存到用户属性
                             uBirthday =
                                 '${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}';
-                            controller.uBirthday = uBirthday;
+                            _registerController.uBirthday = uBirthday;
                             debugPrint("选择的生日是: $uBirthday");
                           }
                         },
@@ -557,10 +558,10 @@ class _RegisterPageState extends State<RegisterPage> {
                         setState(() {
                           if (value == true) {
                             _selectedRoles.add(1);
-                            controller.uRole.add(1);
+                            _registerController.uRole.add(1);
                           } else {
                             _selectedRoles.remove(1);
-                            controller.uRole.remove(1);
+                            _registerController.uRole.remove(1);
                           }
                           debugPrint('选中的身份：$_selectedRoles');
                         });
@@ -577,10 +578,10 @@ class _RegisterPageState extends State<RegisterPage> {
                         setState(() {
                           if (value == true) {
                             _selectedRoles.add(2);
-                            controller.uRole.add(2);
+                            _registerController.uRole.add(2);
                           } else {
                             _selectedRoles.remove(2);
-                            controller.uRole.remove(2);
+                            _registerController.uRole.remove(2);
                           }
                           debugPrint('选中的身份：$_selectedRoles');
                         });
@@ -649,17 +650,16 @@ class _RegisterPageState extends State<RegisterPage> {
         //跳转到选择科目的界面
         OutlinedButton.icon(
           onPressed: () async {
-            final result = await Modular.to.pushNamed(
-              '/subjects',
-              arguments: {'isTeacher': false},
-            );
-            if (result != null && result is Map<String, dynamic>) {
-              setState(() {
-                _isStudySelectedSubject = result.isNotEmpty;
-                uStudySubjects = result;
-                controller.uStudySubjects = result;
-              });
-            }
+            // final result = await Modular.to.pushNamed(
+            //   '/subjects',
+            //   arguments: {'isTeacher': false},
+            // );
+            Modular.to.pushNamed('/subjects',arguments: {'isTeacher': false});
+            setState(() {
+              _isStudySelectedSubject =
+                  _registerController.uStudySubjects.isNotEmpty;
+              uStudySubjects = _registerController.uStudySubjects;
+            });
           },
           icon: const Icon(MdiIcons.pencil),
           label: const Text('选择科目'),
@@ -685,20 +685,19 @@ class _RegisterPageState extends State<RegisterPage> {
         //跳转到选择科目的界面
         OutlinedButton.icon(
           onPressed: () async {
-            // 使用await等待返回结果
-            final result = await Modular.to.pushNamed(
-              '/subjects',
-              arguments: {'isTeacher': true},
-            );
-            // 检查是否有返回数据
-            if (result != null && result is Map<String, dynamic>) {
-              // 更新状态，表示已选择学科
-              setState(() {
-                _isTeachSelectedSubject = result.isNotEmpty;
-                uTeachSubjects = result;
-                controller.uTeachSubjects = result;
-              });
-            }
+            // 使用await等待返回结果，废弃的await取得的路由返回结果
+            // final result = await Modular.to.pushNamed(
+            //   '/subjects',
+            //   arguments: {'isTeacher': true},
+            // );
+            Modular.to.pushNamed('/subjects',arguments: {'isTeacher': true});
+            // 直接使用注册控制类来获取选择的学科
+            // 更新状态，表示已选择学科
+            setState(() {
+              _isTeachSelectedSubject =
+                  _registerController.uTeachSubjects.isNotEmpty;
+              uTeachSubjects = _registerController.uTeachSubjects;
+            });
           },
           icon: const Icon(MdiIcons.pen),
           label: const Text('选择科目'),
