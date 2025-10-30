@@ -7,6 +7,7 @@ import 'register_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
+import 'package:tutoring_software/modules/account_manager/account_controller.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -42,6 +43,8 @@ class _RegisterPageState extends State<RegisterPage> {
       Modular.get<UserDataController>();
   //引入状态控制器
   final StatusController statusController = Modular.get<StatusController>();
+  //引入账号控制器
+  final AccountController accountController = Modular.get<AccountController>();
   //创建一个是否横屏的显示器
   bool _isLandscape = false;
 
@@ -314,12 +317,20 @@ class _RegisterPageState extends State<RegisterPage> {
         uTeachSubjects: uTeachSubjects,
         uStudySubjects: uStudySubjects,
       );
-      userDataController.saveUserData(userDataItem);
       // 登录状态设置为true
       statusController.addStatus(uid);
       // //查看登录状态
       // debugPrint("登录状态：${statusController.isLogin}\n登录用户ID：${statusController.uID}\n");
       // 显示成功消息
+      //如果电话号码不为空
+      if (uPhone.isNotEmpty) {
+        accountController.putPhoneNumberUID(uPhone, uid);
+      }
+      //改为如果uEmail不为空
+      if (uEmail.isNotEmpty) {
+        accountController.putEmailUID(uEmail, uid);
+      }
+      userDataController.saveUserData(userDataItem);
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('注册成功！数据已保存。')));
@@ -609,7 +620,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   debugPrint('教学科目: $uTeachSubjects');
                   // 调用保存用户数据到JSON文件的方法
                   await _saveUserData();
-                  debugPrint("登录状态：${statusController.isLogin},\n 登录ID：${statusController.uID}");
+                  debugPrint(
+                    "登录状态：${statusController.isLogin},\n 登录ID：${statusController.uID}",
+                  );
                 }
               },
               icon: const Icon(Icons.login),

@@ -70,23 +70,4 @@ abstract class _UserDataController with Store {
       rethrow;
     }
   }
-
-  // 通过邮箱或手机号查找用户
-  Future<UserDataItem?> findUserByAccount(String account) async {
-    try {
-      // 遍历所有用户数据查找匹配的邮箱或手机号
-      for (var key in storedUserDataBox.keys) {
-        UserDataItem? userData = storedUserDataBox.get(key);
-        if (userData != null &&
-            (userData.uEmail.toLowerCase() == account.toLowerCase() ||
-                userData.uPhone == account)) {
-          return userData;
-        }
-      }
-      return null;
-    } catch (e) {
-      print('通过账号查找用户失败: $e');
-      return null;
-    }
-  }
 }

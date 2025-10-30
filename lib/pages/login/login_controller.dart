@@ -21,10 +21,10 @@ abstract class _LoginController with Store{
   //对应的用户数据
   Map<String,dynamic> userData = {};
 
-  //查询account对应的数据
-  @action
-  Future<UserDataItem?> queryUserData(String account){
-    return userDataController.findUserByAccount(account);
-  }
+  // //查询account对应的数据
+  // @action
+  // Future<UserDataItem?> queryUserData(String account){
+  //   return userDataController.findUserByAccount(account);
+  // }
 
 }

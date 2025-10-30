@@ -3,6 +3,9 @@ import 'package:flutter_modular/flutter_modular.dart';
 
 import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
 import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
+import 'package:tutoring_software/modules/account_manager/account_controller.dart';
+import 'package:tutoring_software/modules/status/status_controller.dart';
+import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 
 class PasswordPage extends StatefulWidget {
   const PasswordPage({super.key});
@@ -18,6 +21,10 @@ String uPassword = '';
 class _PasswordPageState extends State<PasswordPage> {
   //此处的代码仅作为测试
   UserDataController userDataController = Modular.get<UserDataController>();
+  //通过邮箱和电话查找uID的控制类
+  AccountController accountController = Modular.get<AccountController>();
+  //登录状态控制器
+  StatusController statusController = Modular.get<StatusController>();
 
   bool showPassword = false; //是否显示密码的变量
   //两个控制器
@@ -48,6 +55,14 @@ class _PasswordPageState extends State<PasswordPage> {
           value.isEmpty) {
         // 邮箱或手机号格式正确
         _isAccountValid = true;
+        //如果匹配电话
+        if (_phoneRegex.hasMatch(value)) {
+          accountController.findPhoneNumberUID(value);
+        }
+        //如果匹配邮箱
+        else if (_emailRegex.hasMatch(value)) {
+          accountController.findEmailUID(value);
+        }
       } else {
         // 邮箱或手机号格式不正确
         // 显示错误提示
@@ -246,7 +261,7 @@ class _PasswordPageState extends State<PasswordPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             OutlinedButton.icon(
-              onPressed: () {
+              onPressed: () async {
                 //表单验证
                 if (_validateForm()) {
                   // 密码和账号的输出情况
@@ -256,6 +271,23 @@ class _PasswordPageState extends State<PasswordPage> {
                   //验证用户账户查找情况
                   debugPrint("此处为用户数据保存情况：");
                   userDataController.init();
+                  if (accountController.uID.isEmpty) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text("账号错误")));
+                  } else {
+                    UserDataItem? userDataItem = await userDataController.getUserData(accountController.uID);
+                    //改变登录状态
+                    statusController.addStatus(accountController.uID);
+                    if(userDataItem != null){
+                      debugPrint("登录成功:\n${userDataItem.toString()}");
+                    }else{
+                      ScaffoldMessenger.of(
+                        // ignore: use_build_context_synchronously
+                        context,
+                      ).showSnackBar(const SnackBar(content: Text("账号错误")));
+                    }
+                  }
                 }
               },
               icon: const Icon(Icons.login),

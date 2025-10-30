@@ -3,8 +3,6 @@ import 'package:path_provider/path_provider.dart';
 
 import "package:tutoring_software/modules/user_data/user_data_item.dart";
 import 'package:tutoring_software/modules/status/status.dart';
-import 'package:tutoring_software/modules/account_manager/email_item.dart';
-import 'package:tutoring_software/modules/account_manager/phone_number_item.dart';
 
 class GStorage {
   //存储用户相关的数据集
@@ -12,15 +10,13 @@ class GStorage {
   //存储这个用户登录状态的数据集
   static late Box<Status> statusBox;
   //存储手机号和电话号码的数据集
-  static late Box<PhoneNumberItem> phoneNumberBox;
-  static late Box<EmailItem> emailBox;
+  static late Box<String> phoneNumberBox;
+  static late Box<String> emailBox;
 
   //数据库初始化
   static Future init() async {
     Hive.registerAdapter(UserDataItemAdapter());
     Hive.registerAdapter(StatusAdapter());
-    Hive.registerAdapter(PhoneNumberItemAdapter());
-    Hive.registerAdapter(EmailItemAdapter());
     /*数据不重要的时候，直接删除数据库解决问题*/
     // await Hive.deleteBoxFromDisk('userData');
     // await Hive.deleteBoxFromDisk('status');
