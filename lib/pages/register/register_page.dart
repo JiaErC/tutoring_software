@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_material_design_icons/flutter_material_design_icons.dart";
 import "package:flutter_modular/flutter_modular.dart";
+import 'package:flutter/scheduler.dart';
 
 import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
 import 'register_controller.dart';
@@ -78,6 +79,7 @@ class _RegisterPageState extends State<RegisterPage> {
     super.didChangeDependencies();
     // 在依赖项变化时（例如从其他页面返回）重新同步数据
     _syncControllerWithForm();
+    accountController.clear();
   }
 
   //组件销毁的时候的提示
@@ -124,7 +126,21 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() {
       _registerController.uEmail = value;
       _isEmailValid = _emailRegex.hasMatch(value) || value.isEmpty;
+      accountController.findEmailUID(value);
     });
+    // 检查邮箱唯一性
+    if (_isEmailValid && value.isNotEmpty) {
+      accountController.findEmailUID(value).then((_) {
+        if (accountController.uID.isNotEmpty) {
+          // 使用SchedulerBinding添加post-frame回调来显示SnackBar
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('该邮箱已被注册')));
+          });
+        }
+      });
+    }
   }
 
   //验证电话号码
@@ -132,7 +148,21 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() {
       _registerController.uPhone = value;
       _isPhoneValid = _phoneRegex.hasMatch(value) || value.isEmpty;
+      accountController.findPhoneNumberUID(value);
     });
+    // 检查电话号码唯一性
+    if (_isPhoneValid && value.isNotEmpty) {
+      accountController.findPhoneNumberUID(value).then((_) {
+        if (accountController.uID.isNotEmpty) {
+          // 使用SchedulerBinding添加post-frame回调来显示SnackBar
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('该电话号码已被注册')));
+          });
+        }
+      });
+    }
   }
 
   // 验证用户名
@@ -619,22 +649,26 @@ class _RegisterPageState extends State<RegisterPage> {
                   debugPrint('身份: $uRole');
                   debugPrint('学习科目: $uStudySubjects');
                   debugPrint('教学科目: $uTeachSubjects');
-                  // 调用保存用户数据到JSON文件的方法
-                  await _saveUserData();
-                  debugPrint(
-                    "登录状态：${statusController.isLogin},\n 登录ID：${statusController.uID}",
-                  );
-                  setState(
-                    () =>
-                        //注册之后把注册页面清空
-                        _registerController.clearAllData(),
-                  );
+                  //如果注册的邮箱和电话号码存在，就不可以重复注册了
+                  if (accountController.uID.isEmpty) {
+                    // 调用保存用户数据到JSON文件的方法
+                    await _saveUserData();
+                    debugPrint(
+                      "登录状态：${statusController.isLogin},\n 登录ID：${statusController.uID}",
+                    );
+                    setState(
+                      () =>
+                          //注册之后把注册页面清空
+                          _registerController.clearAllData(),
+                    );
+                  }
                 }
               },
               icon: const Icon(Icons.login),
               label: const Text('确定'),
             ),
           ),
+          // _repeatedAccountPrompt(context),
           const SizedBox(height: 20),
         ],
       ),
@@ -722,4 +756,14 @@ class _RegisterPageState extends State<RegisterPage> {
       ],
     );
   }
+
+  //   Widget _repeatedAccountPrompt(BuildContext context) {
+  //     if (accountController.uID.isNotEmpty) {
+  //       ScaffoldMessenger.of(
+  //         context,
+  //       ).showSnackBar(const SnackBar(content: Text('该邮箱或电话号码已被注册')));
+  //     }
+  //     return const SizedBox(height: 20);
+  //   }
+  // }
 }

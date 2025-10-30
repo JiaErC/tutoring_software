@@ -18,11 +18,6 @@ abstract class _AccountController with Store {
   UserDataController userDataController =  Modular.get<UserDataController>();
 
   @observable
-  String phoneNumber = '';
-  @observable
-  String email = '';
-
-  @observable
   String uID = '';
 
   //存放电话号码以及uID
@@ -38,23 +33,29 @@ abstract class _AccountController with Store {
   }
 
   //通过电话号码来查找uID
+  @action
   Future<void> findPhoneNumberUID(String phoneNumber) async{
     uID = phoneNumberBox.get(phoneNumber) ?? '';
   }
 
   //通过邮箱来查找uID
+  @action
   Future<void> findEmailUID(String email) async{
     uID = emailBox.get(email) ?? '';
   }
 
   //删除账户
   @action
-  Future<void> deleteUser() async{
+  Future<void> deleteUser(String phoneNumber,String email) async{
     await userDataController.deleteUserData(uID);
     await phoneNumberBox.delete(phoneNumber);
     await emailBox.delete(email);
     uID = '';
-    phoneNumber = '';
-    email = '';
+  }
+
+  //清空控制器的数据
+  @action
+  void clear(){
+    uID = '';
   }
 }
