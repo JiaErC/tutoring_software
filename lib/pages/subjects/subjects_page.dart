@@ -32,6 +32,8 @@ class _SubjectsPageState extends State<SubjectsPage> {
 
   //存储选择科目的多少
   int _count = 0;
+  //各个学科大类有多少科目被选择
+  final Map<String, int> _subjectSelectedCounts = {};
 
   //存储解析之后的JSON文件
   Map<String, dynamic>? _subjectData;
@@ -80,6 +82,24 @@ class _SubjectsPageState extends State<SubjectsPage> {
         : _registerController.uStudySubjectsCount;
   }
 
+  //计算每个学科大类的科目被选择总数
+  void _calculateSubjectCounts() {
+    if (_selectedSubjects.isNotEmpty) {
+      _selectedSubjects.forEach((category, subcategories) {
+        int selectedCount = 0;
+        // 遍历每个大类下的所有小类
+        subcategories.forEach((subcategory, subjects) {
+          if (subjects is List) {
+            // 累加这个小类下已选择的科目数量
+            selectedCount += subjects.length;
+          }
+        });
+        // 存储这个大类下已选择的科目数量
+        _subjectSelectedCounts[category] = selectedCount;
+      });
+    }
+  }
+
   //创建一个按钮构建器，用来构建这个页面需要的控制按钮
   Widget _buildControlButton(String s, Color c, Function() f) {
     return GFButton(
@@ -123,6 +143,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
             Colors.redAccent,
             () => setState(() {
               _selectedSubjects.clear();
+              _count = 0;
               _isView = false;
             }),
           ),
@@ -221,7 +242,8 @@ class _SubjectsPageState extends State<SubjectsPage> {
             onPressed: () {
               setState(() {
                 _selectedCategory = s;
-                debugPrint(_selectedCategory);
+                _calculateSubjectCounts();
+                debugPrint("$_subjectSelectedCounts");
               });
             },
             icon: Icon(i, size: 18),
@@ -234,6 +256,14 @@ class _SubjectsPageState extends State<SubjectsPage> {
               color: Colors.black87,
             ),
             type: GFButtonType.transparent,
+            child: _subjectSelectedCounts.containsKey(s)
+                ? GFBadge(
+                    color: Colors.redAccent,
+                    shape: GFBadgeShape.circle,
+                    size: 20,
+                    child: Text(_subjectSelectedCounts[s]!.toString()),
+                  )
+                : null,
           )
         : SizedBox(
             height: 60,
@@ -241,20 +271,29 @@ class _SubjectsPageState extends State<SubjectsPage> {
               onPressed: () {
                 setState(() {
                   _selectedCategory = s;
-                  debugPrint(_selectedCategory);
+                  _calculateSubjectCounts();
+                  debugPrint("$_subjectSelectedCounts");
                 });
               },
               icon: Icon(i, size: 23), // 增加图标大小
               shape: GFButtonShape.square,
               fullWidthButton: true,
               text: s,
-              textStyle: TextStyle(
+              textStyle: TextStyle( 
                 fontSize: 20, // 增加文字大小
                 fontWeight: FontWeight.w700,
                 color: Colors.black87,
               ),
               type: GFButtonType.transparent,
               padding: EdgeInsets.all(12), // 添加内边距参数
+              child: _subjectSelectedCounts.containsKey(s)
+                  ? GFBadge(
+                      color: Colors.redAccent,
+                      shape: GFBadgeShape.circle,
+                      size: 20,
+                      child: Text(_subjectSelectedCounts[s]!.toString()),
+                    )
+                  : null,
             ),
           );
   }
