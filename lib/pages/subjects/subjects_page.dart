@@ -43,14 +43,6 @@ class _SubjectsPageState extends State<SubjectsPage> {
   void initState() {
     super.initState();
     _loadSubjectData();
-    //在这里获取注册控制类的信息
-    _selectedSubjects = _isTeacher
-        ? _registerController.uTeachSubjects
-        : _registerController.uStudySubjects;
-    //获取选择的学科数量
-    _count = _isTeacher
-        ? _registerController.uTeachSubjectsCount
-        : _registerController.uStudySubjectsCount;
   }
 
   Future<void> _loadSubjectData() async {
@@ -78,6 +70,14 @@ class _SubjectsPageState extends State<SubjectsPage> {
     // setState(() {
     //   isTeacher = args?['isTeacher'] ?? true;
     // });
+    //在这里获取注册控制类的信息
+    _selectedSubjects = _isTeacher
+        ? _registerController.uTeachSubjects
+        : _registerController.uStudySubjects;
+    //获取选择的学科数量
+    _count = _isTeacher
+        ? _registerController.uTeachSubjectsCount
+        : _registerController.uStudySubjectsCount;
   }
 
   //创建一个按钮构建器，用来构建这个页面需要的控制按钮

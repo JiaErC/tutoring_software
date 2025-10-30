@@ -654,11 +654,12 @@ class _RegisterPageState extends State<RegisterPage> {
             //   '/subjects',
             //   arguments: {'isTeacher': false},
             // );
-            Modular.to.pushNamed('/subjects',arguments: {'isTeacher': false});
+            await Modular.to.pushNamed('/subjects',arguments: {'isTeacher': false});
             setState(() {
               _isStudySelectedSubject =
                   _registerController.uStudySubjects.isNotEmpty;
               uStudySubjects = _registerController.uStudySubjects;
+              debugPrint('选择的学习科目：$uStudySubjects');
             });
           },
           icon: const Icon(MdiIcons.pencil),
@@ -690,13 +691,15 @@ class _RegisterPageState extends State<RegisterPage> {
             //   '/subjects',
             //   arguments: {'isTeacher': true},
             // );
-            Modular.to.pushNamed('/subjects',arguments: {'isTeacher': true});
+            /*使用await关键字来等待导航操作的完成，也就是等代码在导航到下一个页面并且返回之后，再执行接下来的代码*/
+            await Modular.to.pushNamed('/subjects',arguments: {'isTeacher': true});
             // 直接使用注册控制类来获取选择的学科
             // 更新状态，表示已选择学科
             setState(() {
               _isTeachSelectedSubject =
                   _registerController.uTeachSubjects.isNotEmpty;
               uTeachSubjects = _registerController.uTeachSubjects;
+              debugPrint('选择的教学科目：$uTeachSubjects');
             });
           },
           icon: const Icon(MdiIcons.pen),
