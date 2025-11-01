@@ -12,7 +12,7 @@ import com.tutoring_software.backend.uid_generate.UidGenerator;
 import com.tutoring_software.backend.uid_generate.exception.UidGenerateException;
 import com.tutoring_software.backend.uid_generate.BitsAllocator;
 import com.tutoring_software.backend.uid_generate.worker.WorkerIdAssigner;
-import com.tutoring_software.backend.uid_generate.utils.DateUtils;
+import com.tutoring_software.backend.uid_generate.utils.UidDateUtils;
 
 public class DefaultUidGenerator implements UidGenerator, InitializingBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultUidGenerator.class);
@@ -70,15 +70,15 @@ public class DefaultUidGenerator implements UidGenerator, InitializingBean {
         long workerIdBits = bitsAllocator.getWorkerIdBits();
         long sequenceBits = bitsAllocator.getSequenceBits();
 
-        // parse UID
+        //解析UID
         long sequence = (uid << (totalBits - sequenceBits)) >>> (totalBits - sequenceBits);
         long workerId = (uid << (timestampBits + signBits)) >>> (totalBits - workerIdBits);
         long deltaSeconds = uid >>> (workerIdBits + sequenceBits);
 
         Date thatTime = new Date(TimeUnit.SECONDS.toMillis(epochSeconds + deltaSeconds));
-        String thatTimeStr = DateUtils.formatByDateTimePattern(thatTime);
+        String thatTimeStr = UidDateUtils.formatByDateTimePattern(thatTime);
 
-        // format as string
+        //使用JSON格式返回解析结果
         return String.format("{\"UID\":\"%d\",\"timestamp\":\"%s\",\"workerId\":\"%d\",\"sequence\":\"%d\"}",
                 uid, thatTimeStr, workerId, sequence);
     }
@@ -156,7 +156,7 @@ public class DefaultUidGenerator implements UidGenerator, InitializingBean {
     public void setEpochStr(String epochStr) {
         if (StringUtils.isNotBlank(epochStr)) {
             this.epochStr = epochStr;
-            this.epochSeconds = TimeUnit.MILLISECONDS.toSeconds(DateUtils.parseByDayPattern(epochStr).getTime());
+            this.epochSeconds = TimeUnit.MILLISECONDS.toSeconds(UidDateUtils.parseByDayPattern(epochStr).getTime());
         }
     }
 }
