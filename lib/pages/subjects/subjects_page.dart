@@ -80,10 +80,13 @@ class _SubjectsPageState extends State<SubjectsPage> {
     _count = _isTeacher
         ? _registerController.uTeachSubjectsCount
         : _registerController.uStudySubjectsCount;
+    //获取选择的学科具体数量
+    _calculateSubjectCounts();
   }
 
   //计算每个学科大类的科目被选择总数
   void _calculateSubjectCounts() {
+    _subjectSelectedCounts.clear();
     if (_selectedSubjects.isNotEmpty) {
       _selectedSubjects.forEach((category, subcategories) {
         int selectedCount = 0;
@@ -117,7 +120,6 @@ class _SubjectsPageState extends State<SubjectsPage> {
   @override
   Widget build(BuildContext context) {
     _isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-
     return Scaffold(
       appBar: GFAppBar(
         leading: IconButton(
@@ -155,43 +157,47 @@ class _SubjectsPageState extends State<SubjectsPage> {
               Colors.green,
               () => setState(() => _isView = false),
             )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  clipBehavior: Clip.none, // 重要：允许角标溢出父容器
-                  children: [
-                    _buildControlButton(
-                      "查看",
-                      const Color.fromRGBO(251, 192, 45, 1),
-                      () => setState(() => _isView = true),
-                    ),
-                    // 使用 Positioned 精确定位角标
-                    Positioned(
-                      top: -2, // 向上偏移，使其部分在按钮外部
-                      right: -7, // 向右偏移
-                      child: GFBadge(
-                        color: Colors.redAccent,
-                        shape: GFBadgeShape.circle,
-                        size: 40,
-                        child: Text(_count.toString()),
+          : Container(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.none, // 重要：允许角标溢出父容器
+                    children: [
+                      _buildControlButton(
+                        "查看",
+                        const Color.fromRGBO(251, 192, 45, 1),
+                        () => setState(() => _isView = true),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 30),
-                _buildControlButton("确认", Colors.blueAccent, () {
-                  _isTeacher
-                      ? _registerController.uTeachSubjects = _selectedSubjects
-                      : _registerController.uStudySubjects = _selectedSubjects;
-                  //更新学科选择数量
-                  _isTeacher
-                      ? _registerController.uTeachSubjectsCount = _count
-                      : _registerController.uStudySubjectsCount = _count;
-                  Navigator.pop(context);
-                }),
-              ],
+                      // 使用 Positioned 精确定位角标
+                      Positioned(
+                        top: -2, // 向上偏移，使其部分在按钮外部
+                        right: -7, // 向右偏移
+                        child: GFBadge(
+                          color: Colors.redAccent,
+                          shape: GFBadgeShape.circle,
+                          size: 40,
+                          child: Text(_count.toString()),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 30),
+                  _buildControlButton("确认", Colors.blueAccent, () {
+                    _isTeacher
+                        ? _registerController.uTeachSubjects = _selectedSubjects
+                        : _registerController.uStudySubjects =
+                              _selectedSubjects;
+                    //更新学科选择数量
+                    _isTeacher
+                        ? _registerController.uTeachSubjectsCount = _count
+                        : _registerController.uStudySubjectsCount = _count;
+                    Navigator.pop(context);
+                  }),
+                ],
+              ),
             ),
       backgroundColor: Colors.white,
       body: _isLandscape
@@ -237,16 +243,41 @@ class _SubjectsPageState extends State<SubjectsPage> {
 
   //封装按钮，横屏的时候的按钮和竖屏时候的按钮不一样
   Widget _buildButton(String s, IconData i) {
+    //当前类别已选择数量
+    int categoryCount = _subjectSelectedCounts.containsKey(s)
+        ? _subjectSelectedCounts[s]!
+        : 0;
+
+    // 统一使用Stack布局的按钮内容
+    Widget buttonContent = Stack(
+      clipBehavior: Clip.none, // 允许内容溢出
+      children: [
+        // 主要按钮内容
+        Icon(i, size: _isLandscape ? 18 : 23),
+        // 徽章（如果有数量）
+        if (categoryCount > 0)
+          Positioned(
+            top: -7,
+            right: -17,
+            child: GFBadge(
+              color: Colors.redAccent,
+              shape: GFBadgeShape.circle,
+              size:40,
+              child: Text(categoryCount.toString()),
+            ),
+          ),
+      ],
+    );
+
     return _isLandscape
-        ? GFButton(
+        ? GFButtonBadge(
             onPressed: () {
               setState(() {
                 _selectedCategory = s;
-                _calculateSubjectCounts();
                 debugPrint("$_subjectSelectedCounts");
               });
             },
-            icon: Icon(i, size: 18),
+            icon: buttonContent,
             shape: GFButtonShape.square,
             fullWidthButton: true,
             text: s,
@@ -256,44 +287,27 @@ class _SubjectsPageState extends State<SubjectsPage> {
               color: Colors.black87,
             ),
             type: GFButtonType.transparent,
-            child: _subjectSelectedCounts.containsKey(s)
-                ? GFBadge(
-                    color: Colors.redAccent,
-                    shape: GFBadgeShape.circle,
-                    size: 20,
-                    child: Text(_subjectSelectedCounts[s]!.toString()),
-                  )
-                : null,
           )
         : SizedBox(
             height: 60,
-            child: GFButton(
+            child: GFButtonBadge(
               onPressed: () {
                 setState(() {
                   _selectedCategory = s;
-                  _calculateSubjectCounts();
                   debugPrint("$_subjectSelectedCounts");
                 });
               },
-              icon: Icon(i, size: 23), // 增加图标大小
+              icon: buttonContent, // 增加图标大小
               shape: GFButtonShape.square,
               fullWidthButton: true,
               text: s,
-              textStyle: TextStyle( 
+              textStyle: TextStyle(
                 fontSize: 20, // 增加文字大小
                 fontWeight: FontWeight.w700,
                 color: Colors.black87,
               ),
               type: GFButtonType.transparent,
               padding: EdgeInsets.all(12), // 添加内边距参数
-              child: _subjectSelectedCounts.containsKey(s)
-                  ? GFBadge(
-                      color: Colors.redAccent,
-                      shape: GFBadgeShape.circle,
-                      size: 20,
-                      child: Text(_subjectSelectedCounts[s]!.toString()),
-                    )
-                  : null,
             ),
           );
   }
@@ -434,6 +448,8 @@ class _SubjectsPageState extends State<SubjectsPage> {
               _removeSubject(_selectedCategory!, subject, s);
             }
           }
+          //同时计算科目
+          _calculateSubjectCounts();
         });
       },
       text: s,
