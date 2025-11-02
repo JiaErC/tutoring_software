@@ -12,17 +12,25 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String uid = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: GFButton(
-          text: "获取UID",
-          onPressed: () {
-            ApiController apiController = Modular.get<ApiController>();
-            apiController.getUid();
-          },
+        child: Column(
+          children: [
+            GFButton(
+              text: "获取UID",
+              onPressed: () {
+                setState(() {
+                  ApiController apiController = Modular.get<ApiController>();
+                  uid = apiController.getUid() as String;
+                });
+              },
+            ),
+            Text(uid),
+          ],
         ),
       ),
     );

@@ -1,10 +1,14 @@
 import 'dart:convert';
-import 'dart:io';
+// import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class ApiController {
+  //配置虚拟机的IP地址
+  static const String vmIpAddress = '192.168.18.255';
+  static const String backendPort = '8080';
+
   // 获取后端生成的UID
   Future<String> getUid() async {
     try {
@@ -29,7 +33,7 @@ class ApiController {
 
   //生成UID
   Future<Map<String, dynamic>> _generateUid() async {
-    // 根据不同平台选择不同的URL
+    /* 根据不同平台选择不同的URL
     String baseUrl;
     if (Platform.isWindows) {
       // Windows环境使用localhost
@@ -40,12 +44,26 @@ class ApiController {
     } else {
       // 默认使用localhost
       baseUrl = 'http://localhost:8080';
-    }
-    final response = await http.get(Uri.parse('$baseUrl/api/uid/generate'));
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to generate UID');
+    }*/
+    //直接连接到虚拟机IP地址
+    final String baseUrl = 'http://$vmIpAddress:$backendPort';
+   try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/uid/generate'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        debugPrint('API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
+        throw Exception('Failed to generate UID: HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('网络请求异常: $e');
+      throw Exception('网络连接失败，请检查虚拟机IP和网络设置: $e');
     }
   }
 }
