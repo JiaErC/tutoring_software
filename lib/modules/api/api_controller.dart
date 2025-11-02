@@ -6,7 +6,11 @@ import 'package:http/http.dart' as http;
 
 class ApiController {
   //配置虚拟机的IP地址
-  static const String vmIpAddress = '192.168.18.128';
+  // static const String vmIpAddress = '192.168.18.128';
+  // static const String backendPort = '8080';
+
+  //配置阿里云的IP地址
+  static const String vmIpAddress = '8.140.216.239';
   static const String backendPort = '8080';
 
   // 获取后端生成的UID
