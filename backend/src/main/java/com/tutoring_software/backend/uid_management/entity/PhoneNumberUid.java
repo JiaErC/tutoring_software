@@ -18,4 +18,32 @@ public class PhoneNumberUid {
 
     // 构造函数
     public PhoneNumberUid() {}
+    public PhoneNumberUid(String phoneNumber, Long uid){
+        this.phoneNumber = phoneNumber;
+        this.uid = uid;
+    }
+    //getter和setter
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public Long getUid() {
+        return uid;
+    }
+
+    public void setUid(Long uid) {
+        this.uid = uid;
+    }
 }
