@@ -2,6 +2,8 @@ package com.tutoring_software.backend.uid_management.controller;
 
 import com.tutoring_software.backend.uid_management.entity.PhoneNumberUid;
 import com.tutoring_software.backend.uid_management.service.PhoneNumberUidService;
+import com.tutoring_software.backend.uid_management.Result;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,31 +91,5 @@ public class PhoneNumberUidController {
             LOGGER.error("Error deleting by phone number", e);
             return Result.error("Internal server error");
         }
-    }
-
-    // 统一响应结果封装类
-    public static class Result<T> {
-        private int code;
-        private String message;
-        private T data;
-
-        private Result(int code, String message, T data) {
-            this.code = code;
-            this.message = message;
-            this.data = data;
-        }
-
-        public static <T> Result<T> success(T data) {
-            return new Result<>(200, "Success", data);
-        }
-
-        public static <T> Result<T> error(String message) {
-            return new Result<>(500, message, null);
-        }
-
-        // Getters
-        public int getCode() { return code; }
-        public String getMessage() { return message; }
-        public T getData() { return data; }
     }
 }

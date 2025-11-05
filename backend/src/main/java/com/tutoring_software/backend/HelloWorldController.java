@@ -17,8 +17,8 @@ public class HelloWorldController {
 
     @GetMapping("/hello")
     public String helloWorld() {
-        String phoneNumber = "13812345678";
-        Long uid = 123456L;
+        String phoneNumber = "133124448678";
+        Long uid = 12336633L;
         try {
             boolean success = phoneNumberUidService.savePhoneNumberUid(phoneNumber, uid);
             if (success) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 import 'package:tutoring_software/modules/api/api_controller.dart';
 
@@ -13,6 +14,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String uid = "";
+  bool isSearched = true;
+
+  //绑定api控制类
+  ApiController apiController = Modular.get<ApiController>();
+
+  //创建phonenumber控制器
+  final TextEditingController phoneNumberController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,9 +52,40 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             Text(uid),
+            const SizedBox(height: 20),
+            TextField(
+              controller: phoneNumberController,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(MdiIcons.phone),
+                border: const UnderlineInputBorder(),
+                labelText: '电话号码',
+                suffixIcon: IconButton(
+                  onPressed: () async {
+                    uid = await apiController.getUidByPhone(
+                      phoneNumberController.text,
+                    );
+                    setState(
+                      () => debugPrint(
+                        "电话号码:${phoneNumberController.text}获取UID:$uid",
+                      ),
+                    );
+                  },
+                  icon: const Icon(MdiIcons.accountBox),
+                ),
+                errorText: null,
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  // 记得在组件销毁时释放控制器资源
+  @override
+  void dispose() {
+    phoneNumberController.dispose();
+    super.dispose();
   }
 }
