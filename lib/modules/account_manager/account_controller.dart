@@ -1,4 +1,3 @@
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 

@@ -3,7 +3,6 @@ import 'package:mobx/mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
-import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 
 part 'login_controller.g.dart';
 

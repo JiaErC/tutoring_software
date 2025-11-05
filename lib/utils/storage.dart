@@ -1,5 +1,4 @@
 import "package:hive/hive.dart";
-import 'package:path_provider/path_provider.dart';
 
 import "package:tutoring_software/modules/user_data/user_data_item.dart";
 import 'package:tutoring_software/modules/status/status.dart';
