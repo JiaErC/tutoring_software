@@ -276,12 +276,13 @@ class _PasswordPageState extends State<PasswordPage> {
                       context,
                     ).showSnackBar(const SnackBar(content: Text("账号错误")));
                   } else {
-                    UserDataItem? userDataItem = await userDataController.getUserData(accountController.uID);
-                    //改变登录状态
-                    statusController.addStatus(accountController.uID);
-                    if(userDataItem != null){
+                    UserDataItem? userDataItem = await userDataController
+                        .getUserData(accountController.uID);
+                    if (userDataItem != null) {
+                      //改变登录状态
+                      statusController.setStatus(userDataItem);
                       debugPrint("登录成功:\n${userDataItem.toString()}");
-                    }else{
+                    } else {
                       ScaffoldMessenger.of(
                         // ignore: use_build_context_synchronously
                         context,

@@ -4,6 +4,7 @@ import "package:flutter_modular/flutter_modular.dart";
 import 'package:flutter/scheduler.dart';
 
 import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
+import 'package:tutoring_software/modules/api/api_controller.dart';
 import 'register_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
@@ -47,6 +48,9 @@ class _RegisterPageState extends State<RegisterPage> {
   final StatusController statusController = Modular.get<StatusController>();
   //引入账号控制器
   final AccountController accountController = Modular.get<AccountController>();
+  //引入网络控制器
+  final ApiController apiController = Modular.get<ApiController>();
+  
   //创建一个是否横屏的显示器
   bool _isLandscape = false;
 
@@ -335,7 +339,7 @@ class _RegisterPageState extends State<RegisterPage> {
   // 在_RegisterPageState类中添加保存用户数据到JSON文件的方法
   Future<void> _saveUserData() async {
     try {
-      final String uid = DateTime.now().millisecondsSinceEpoch.toString();
+      final String uid = await apiController.getUid();
       final userDataItem = UserDataItem(
         uID: uid,
         uName: uName,
@@ -349,7 +353,7 @@ class _RegisterPageState extends State<RegisterPage> {
         uStudySubjects: uStudySubjects,
       );
       // 登录状态设置为true
-      statusController.addStatus(uid);
+      statusController.setStatus(userDataItem);
       // //查看登录状态
       // debugPrint("登录状态：${statusController.isLogin}\n登录用户ID：${statusController.uID}\n");
       // 显示成功消息

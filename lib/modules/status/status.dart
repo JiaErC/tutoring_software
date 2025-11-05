@@ -1,6 +1,8 @@
 //记录这个软件的登录情况
 import "package:hive/hive.dart";
 
+import 'package:tutoring_software/modules/user_data/user_data_item.dart';
+
 part 'status.g.dart';
 
 //定义用户项目的键值
@@ -37,7 +39,27 @@ class Status {
     this.uPhone = "",
     this.uRole = "",
     this.uBirthday = "",
-    this.uTeachSubjects =const  {},
+    this.uTeachSubjects = const {},
     this.uStudySubjects = const {},
   });
+
+  //从UserDataItem中的命名构造函数
+  Status.fromUserDataItem(UserDataItem item) {
+    isLogin = true;
+    uID = item.uID;
+    uName = item.uName;
+    uGender = item.uGender;
+    uEmail = item.uEmail;
+    uPhone = item.uPhone;
+    uRole = item.uRole;
+    uBirthday = item.uBirthday;
+    uTeachSubjects = item.uTeachSubjects;
+    uStudySubjects = item.uStudySubjects;
+  }
+
+  //toString方法
+  @override
+  String toString() {
+    return "isLogin: $isLogin, uID: $uID, uName: $uName, uGender: $uGender, uEmail: $uEmail, uPhone: $uPhone, uRole: $uRole, uBirthday: $uBirthday, uTeachSubjects: $uTeachSubjects, uStudySubjects: $uStudySubjects";
+  }
 }
