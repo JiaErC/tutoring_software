@@ -221,21 +221,12 @@ class _RegisterPageState extends State<RegisterPage> {
       return isValid;
     }
 
-    // 验证邮箱
-    if (!_isEmailValid || _emailController.text.isEmpty) {
+    // 验证邮箱和电话号码
+    if ((!_isEmailValid || _emailController.text.isEmpty)&&(!_isPhoneValid || _phoneController.text.isEmpty)) {
       isValid = false;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('请输入有效的邮箱地址')));
-      return isValid;
-    }
-
-    // 验证电话号码
-    if (!_isPhoneValid || _phoneController.text.isEmpty) {
-      isValid = false;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('请输入有效的手机号码')));
+      ).showSnackBar(const SnackBar(content: Text('请输入邮箱或者电话号码')));
       return isValid;
     }
 
