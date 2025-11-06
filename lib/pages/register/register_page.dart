@@ -4,7 +4,6 @@ import "package:flutter_modular/flutter_modular.dart";
 import 'package:flutter/scheduler.dart';
 
 import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
-import 'package:tutoring_software/modules/api/api_controller.dart';
 import 'register_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
@@ -48,8 +47,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final StatusController statusController = Modular.get<StatusController>();
   //引入账号控制器
   final AccountController accountController = Modular.get<AccountController>();
-  //引入网络控制器
-  final ApiController apiController = Modular.get<ApiController>();
   
   //创建一个是否横屏的显示器
   bool _isLandscape = false;
@@ -221,21 +218,12 @@ class _RegisterPageState extends State<RegisterPage> {
       return isValid;
     }
 
-    // 验证邮箱
-    if (!_isEmailValid || _emailController.text.isEmpty) {
+    // 验证邮箱和电话号码
+    if ((!_isEmailValid || _emailController.text.isEmpty)&&(!_isPhoneValid || _phoneController.text.isEmpty)) {
       isValid = false;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('请输入有效的邮箱地址')));
-      return isValid;
-    }
-
-    // 验证电话号码
-    if (!_isPhoneValid || _phoneController.text.isEmpty) {
-      isValid = false;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('请输入有效的手机号码')));
+      ).showSnackBar(const SnackBar(content: Text('请输入邮箱或者电话号码')));
       return isValid;
     }
 
@@ -339,7 +327,7 @@ class _RegisterPageState extends State<RegisterPage> {
   // 在_RegisterPageState类中添加保存用户数据到JSON文件的方法
   Future<void> _saveUserData() async {
     try {
-      final String uid = await apiController.getUid();
+      final String uid = await accountController.getUid();
       final userDataItem = UserDataItem(
         uID: uid,
         uName: uName,

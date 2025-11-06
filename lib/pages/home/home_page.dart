@@ -3,7 +3,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
-import 'package:tutoring_software/modules/api/api_controller.dart';
+import 'package:tutoring_software/modules/account_manager/account_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,7 +17,7 @@ class _HomePageState extends State<HomePage> {
   bool isSearched = true;
 
   //绑定api控制类
-  ApiController apiController = Modular.get<ApiController>();
+  AccountController accountController = Modular.get<AccountController>();
 
   //创建phonenumber控制器
   final TextEditingController phoneNumberController = TextEditingController();
@@ -34,9 +34,8 @@ class _HomePageState extends State<HomePage> {
               onPressed: () async {
                 // 1. 将回调标记为 async
                 try {
-                  ApiController apiController = Modular.get<ApiController>();
                   // 2. 使用 await 等待异步操作完成
-                  String result = await apiController.getUid();
+                  String result = await accountController.getUid();
                   // 3. 只有在获取到结果后才调用 setState 更新UI
                   setState(() {
                     uid = result;
@@ -62,7 +61,7 @@ class _HomePageState extends State<HomePage> {
                 labelText: '电话号码',
                 suffixIcon: IconButton(
                   onPressed: () async {
-                    uid = await apiController.getUidByPhone(
+                    uid = await accountController.getUidByPhone(
                       phoneNumberController.text,
                     );
                     setState(
