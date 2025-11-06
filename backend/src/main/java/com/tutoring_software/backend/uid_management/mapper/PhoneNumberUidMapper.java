@@ -9,8 +9,8 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface PhoneNumberUidMapper extends BaseMapper<PhoneNumberUid> {
     // 可以添加自定义SQL方法
-    @Select("SELECT * FROM phone_number_uid WHERE phone_number = #{phoneNumber}")
+    @Select("SELECT * FROM phone_number_id WHERE phone_number = #{phoneNumber}")
     PhoneNumberUid selectByPhoneNumber(String phoneNumber);
-    @Select("SELECT * FROM phone_number_uid WHERE uid = #{uid}")
+    @Select("SELECT * FROM phone_number_id WHERE id = #{uid}")
     PhoneNumberUid selectByUid(Long uid);
 }
