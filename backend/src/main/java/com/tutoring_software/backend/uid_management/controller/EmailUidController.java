@@ -62,7 +62,7 @@ public class EmailUidController {
         }
     }
 
-    @PostMapping
+    @PostMapping("/save")
     public Result<EmailUid> saveEmailUid(@RequestParam String email, @RequestParam Long uid) {
         try {
             boolean success = emailUidService.saveEmailUid(email, uid);

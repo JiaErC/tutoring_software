@@ -47,7 +47,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final StatusController statusController = Modular.get<StatusController>();
   //引入账号控制器
   final AccountController accountController = Modular.get<AccountController>();
-  
+
   //创建一个是否横屏的显示器
   bool _isLandscape = false;
 
@@ -219,7 +219,8 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     // 验证邮箱和电话号码
-    if ((!_isEmailValid || _emailController.text.isEmpty)&&(!_isPhoneValid || _phoneController.text.isEmpty)) {
+    if ((!_isEmailValid || _emailController.text.isEmpty) &&
+        (!_isPhoneValid || _phoneController.text.isEmpty)) {
       isValid = false;
       ScaffoldMessenger.of(
         context,
@@ -347,7 +348,21 @@ class _RegisterPageState extends State<RegisterPage> {
       // 显示成功消息
       //如果电话号码不为空
       if (uPhone.isNotEmpty) {
-        accountController.putPhoneNumberUID(uPhone, uid);
+        try {
+          final message = await accountController.putPhoneNumberUid(
+            uPhone,
+            uid,
+          );
+          // 处理成功情况
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
+        } catch (e) {
+          // 处理错误情况
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
+        }
       }
       //改为如果uEmail不为空
       if (uEmail.isNotEmpty) {

@@ -120,9 +120,56 @@ abstract class _AccountController with Store {
   }
 
   //存放电话号码以及uID
+  // @action
+  // void putPhoneNumberUID(String phoneNumber, String uID) {
+  //   phoneNumberBox.put(phoneNumber, uID);
+  // }
+  // 假设您已经有了phoneNumber和uid
+// try {
+//   final message = await accountController.savePhoneNumberUid(phoneNumber, uid);
+//   // 处理成功情况
+//   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+// } catch (e) {
+//   // 处理错误情况
+//   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+// }
   @action
-  void putPhoneNumberUID(String phoneNumber, String uID) {
-    phoneNumberBox.put(phoneNumber, uID);
+  Future<String> putPhoneNumberUid(String phoneNumber, String uid) async {
+    try {
+      // 将String类型的uid转换为Long类型
+      final longUid = int.parse(uid);
+      
+    // 正确的实现方式：使用URL查询参数传递参数
+    final response = await http
+        .post(
+          // 使用Uri构造器正确添加查询参数
+          Uri.parse('$baseUrl/api/phone-uid/save')
+              .replace(queryParameters: {
+                'phoneNumber': phoneNumber,
+                'uid': longUid.toString()
+              }),
+          headers: {'Content-Type': 'application/json'},
+          // 注意：这里不再需要body参数
+        )
+        .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final result = jsonDecode(response.body);
+        if (result['code'] == 200) {
+          debugPrint('电话号码$phoneNumber和UID$uid保存成功');
+          return result['data']; // 返回成功信息
+        } else {
+          debugPrint('保存失败: ${result['message']}');
+          throw Exception('保存失败: ${result['message']}');
+        }
+      } else {
+        debugPrint('API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
+        throw Exception('保存电话号码和UID失败: HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error saving phone number and UID: $e');
+      rethrow;
+    }
   }
 
   //通过邮箱来存放uID

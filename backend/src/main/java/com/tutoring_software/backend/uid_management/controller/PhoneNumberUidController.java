@@ -48,7 +48,7 @@ public class PhoneNumberUidController {
         }
     }
 
-    @PostMapping
+    @PostMapping("/save")
     public Result<String> savePhoneNumberUid(@RequestParam String phoneNumber, @RequestParam Long uid) {
         try {
             boolean success = phoneNumberUidService.savePhoneNumberUid(phoneNumber, uid);
