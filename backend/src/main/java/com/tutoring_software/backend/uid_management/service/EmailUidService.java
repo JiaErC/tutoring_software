@@ -1,6 +1,7 @@
 package com.tutoring_software.backend.uid_management.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+
 import com.tutoring_software.backend.uid_management.entity.EmailUid;
 
 public interface EmailUidService extends IService<EmailUid> {
