@@ -53,6 +53,8 @@ public class PhoneNumberUidController {
         try {
             boolean success = phoneNumberUidService.savePhoneNumberUid(phoneNumber, uid);
             if (success) {
+                //打印成功信息
+                LOGGER.info("Successfully saved PhoneNumberUid: phoneNumber={}, uid={}", phoneNumber, uid);
                 return Result.success("Save successful");
             } else {
                 return Result.error("Save failed");

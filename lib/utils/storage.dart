@@ -20,6 +20,7 @@ class GStorage {
     // await Hive.deleteBoxFromDisk('userData');
     // await Hive.deleteBoxFromDisk('status');
     userDataBox = await Hive.openBox('userData');
+    userDataBox.clear();
     statusBox = await Hive.openBox('status');
     phoneNumberBox = await Hive.openBox('phoneNumber');
     emailBox = await Hive.openBox('email');

@@ -67,6 +67,8 @@ public class EmailUidController {
         try {
             boolean success = emailUidService.saveEmailUid(email, uid);
             if (success) {
+                //打印成功信息
+                LOGGER.info("Successfully saved EmailUid: email={}, uid={}", email, uid);
                 return Result.success(new EmailUid(email, uid));
             } else {
                 return Result.error("Save failed");
