@@ -366,7 +366,18 @@ class _RegisterPageState extends State<RegisterPage> {
       }
       //改为如果uEmail不为空
       if (uEmail.isNotEmpty) {
-        accountController.putEmailUID(uEmail, uid);
+        try {
+          final message = await accountController.putEmailUid(uEmail, uid);
+          // 处理成功情况
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
+        } catch (e) {
+          // 处理错误情况
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
+        }
       }
       userDataController.saveUserData(userDataItem);
       ScaffoldMessenger.of(

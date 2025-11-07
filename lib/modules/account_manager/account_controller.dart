@@ -119,45 +119,33 @@ abstract class _AccountController with Store {
     }
   }
 
-  //存放电话号码以及uID
-  // @action
-  // void putPhoneNumberUID(String phoneNumber, String uID) {
-  //   phoneNumberBox.put(phoneNumber, uID);
-  // }
-  // 假设您已经有了phoneNumber和uid
-// try {
-//   final message = await accountController.savePhoneNumberUid(phoneNumber, uid);
-//   // 处理成功情况
-//   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-// } catch (e) {
-//   // 处理错误情况
-//   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-// }
+  //存放电话号码
   @action
   Future<String> putPhoneNumberUid(String phoneNumber, String uid) async {
     try {
       // 将String类型的uid转换为Long类型
       final longUid = int.parse(uid);
-      
-    // 正确的实现方式：使用URL查询参数传递参数
-    final response = await http
-        .post(
-          // 使用Uri构造器正确添加查询参数
-          Uri.parse('$baseUrl/api/phone-uid/save')
-              .replace(queryParameters: {
+
+      // 正确的实现方式：使用URL查询参数传递参数
+      final response = await http
+          .post(
+            // 使用Uri构造器正确添加查询参数
+            Uri.parse('$baseUrl/api/phone-uid/save').replace(
+              queryParameters: {
                 'phoneNumber': phoneNumber,
-                'uid': longUid.toString()
-              }),
-          headers: {'Content-Type': 'application/json'},
-          // 注意：这里不再需要body参数
-        )
-        .timeout(const Duration(seconds: 10));
+                'uid': longUid.toString(),
+              },
+            ),
+            headers: {'Content-Type': 'application/json'},
+            // 注意：这里不再需要body参数
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
         if (result['code'] == 200) {
           debugPrint('电话号码$phoneNumber和UID$uid保存成功');
-          return result['data']; // 返回成功信息
+          return result['data'].toString(); // 返回成功信息
         } else {
           debugPrint('保存失败: ${result['message']}');
           throw Exception('保存失败: ${result['message']}');
@@ -172,11 +160,83 @@ abstract class _AccountController with Store {
     }
   }
 
-  //通过邮箱来存放uID
+  //把邮箱存放到后端
   @action
-  void putEmailUID(String email, String uID) {
-    emailBox.put(email, uID);
+  Future<String> putEmailUid(String email, String uid) async {
+    try {
+      // 将String类型的uid转换为Long类型
+      final longUid = int.parse(uid);
+
+      // 正确的实现方式：使用URL查询参数传递参数
+      final response = await http
+          .post(
+            // 使用Uri构造器正确添加查询参数
+            Uri.parse('$baseUrl/api/email-uid/save').replace(
+              queryParameters: {
+                'email': email,
+                'uid': longUid.toString(),
+              },
+            ),
+            headers: {'Content-Type': 'application/json'},
+            // 注意：这里不再需要body参数
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final result = jsonDecode(response.body);
+        if (result['code'] == 200) {
+          debugPrint('邮箱$email和UID$uid保存成功');
+          return result['data'].toString(); // 返回成功信息
+        } else {
+          debugPrint('保存失败: ${result['message']}');
+          throw Exception('保存失败: ${result['message']}');
+        }
+      } else {
+        debugPrint('API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
+        throw Exception('保存邮箱和UID失败: HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error saving email and UID: $e');
+      rethrow;
+    }
   }
+
+  //在后端通过邮箱查找uID
+  @action
+  Future<String> getUidByEmail(String email) async {
+    try {
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl/api/email-uid/by-email/$email'),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final result = jsonDecode(response.body);
+        if (result['code'] == 200) {
+          final String uid = result['data']['uid'].toString();
+          debugPrint('通过邮箱$email获取到了UID: $uid');
+          return uid;
+        } else {
+          throw Exception('通过邮箱$email获取UID失败: ${result['message']}');
+        }
+      } else {
+        debugPrint('API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
+        throw Exception(
+          'Failed to get UID by email: HTTP ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      debugPrint('Error: $e');
+      rethrow;
+    }
+  }
+  // //通过邮箱来存放uID
+  // @action
+  // void putEmailUID(String email, String uID) {
+  //   emailBox.put(email, uID);
+  // }
 
   //通过电话号码来查找uID
   @action

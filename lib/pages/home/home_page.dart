@@ -21,6 +21,7 @@ class _HomePageState extends State<HomePage> {
 
   //创建phonenumber控制器
   final TextEditingController phoneNumberController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +76,30 @@ class _HomePageState extends State<HomePage> {
                 errorText: null,
               ),
             ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(MdiIcons.email),
+                border: const UnderlineInputBorder(),
+                labelText: '邮箱',
+                suffixIcon: IconButton(
+                  onPressed: () async {
+                    uid = await accountController.getUidByEmail(
+                      emailController.text,
+                    );
+                    setState(
+                      () => debugPrint(
+                        "邮箱:${emailController.text}获取UID:$uid",
+                      ),
+                    );
+                  },
+                  icon: const Icon(MdiIcons.accountBox),
+                ),
+                errorText: null,
+              ),
+            )
           ],
         ),
       ),
