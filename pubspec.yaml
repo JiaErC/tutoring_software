@@ -43,6 +43,8 @@ dependencies:
   hive: ^2.2.3
   json_annotation: ^4.9.0
   mobx_codegen: ^2.7.0
+  http: ^1.5.0
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
@@ -100,4 +102,5 @@ flutter:
   # see https://flutter.dev/to/font-from-package
   assets:
     - lib/data/images/1.png
+    #json文件
     - lib/data/subjects_data.json

@@ -11,6 +11,7 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+.vscode/
 
 # IntelliJ related
 *.iml
@@ -32,6 +33,8 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+/lib/data/user_data.json
+*.g.dart
 
 # Symbolication related
 app.*.symbols
