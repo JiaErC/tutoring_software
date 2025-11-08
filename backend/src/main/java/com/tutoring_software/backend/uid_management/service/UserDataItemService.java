@@ -9,7 +9,7 @@ public interface UserDataItemService extends IService<UserDataItem> {
     UserDataItem getByUid(Long uid);
     //保存用户数据
     boolean saveUserDataItem(Long uid,String username ,String phoneNumber,String email,String role,String gender,String birthday
-    ,String password);
+    ,String password,String teachingSubjects,String learningSubjects);
     //设置生日、性别、用户名
 //    boolean updateBirthday(Long uid, String birthday);
 //    boolean updateGender(Long uid, String gender);

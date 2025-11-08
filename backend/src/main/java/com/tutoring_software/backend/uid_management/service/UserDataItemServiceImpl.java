@@ -19,9 +19,9 @@ public class UserDataItemServiceImpl extends ServiceImpl<UserDataItemMapper, Use
     }
     @Override
     public boolean saveUserDataItem(Long uid,String username ,String phoneNumber,String email,String role,String gender,String birthday
-    ,String password) {
-        UserDataItem existing = getByUid(uid);
-        UserDataItem userDataItem = new UserDataItem(uid,username,phoneNumber,email,role,gender,birthday,password);;
+    ,String password,String teachingSubjects,String learningSubjects) {
+        UserDataItem userDataItem = new UserDataItem(uid,username,phoneNumber,email,role,gender,
+                birthday,password,teachingSubjects,learningSubjects);
         return save(userDataItem);
     }
 }

@@ -13,7 +13,6 @@ part 'account_controller.g.dart';
 class AccountController = _AccountController with _$AccountController;
 
 abstract class _AccountController with Store {
-
   //使用UserDataController
   UserDataController userDataController = Modular.get<UserDataController>();
 
@@ -103,6 +102,7 @@ abstract class _AccountController with Store {
   }
 
   //存放电话号码
+  //通过路由匹配来完成的存储
   @action
   Future<String> savePhoneNumberUid(String phoneNumber, String uid) async {
     try {
@@ -155,10 +155,7 @@ abstract class _AccountController with Store {
           .post(
             // 使用Uri构造器正确添加查询参数
             Uri.parse('$baseUrl/api/email-uid/save').replace(
-              queryParameters: {
-                'email': email,
-                'uid': longUid.toString(),
-              },
+              queryParameters: {'email': email, 'uid': longUid.toString()},
             ),
             headers: {'Content-Type': 'application/json'},
             // 注意：这里不再需要body参数
@@ -215,11 +212,6 @@ abstract class _AccountController with Store {
       rethrow;
     }
   }
-  // //通过邮箱来存放uID
-  // @action
-  // void putEmailUID(String email, String uID) {
-  //   emailBox.put(email, uID);
-  // }
 
   // //删除账户
   // @action

@@ -19,6 +19,8 @@ public class UserDataItem {
     // 身份 varchar(15) 不可为空
     //性别 varchar(10) 不可为空
     // 密码 varchar(40) 不可为空
+    // 教学科目 varchar(1000) 可以为空
+    // 学习科目 varchar(1000) 可以为空
     @TableField("uid")
     private Long uid;
     @TableField("username")
@@ -35,8 +37,16 @@ public class UserDataItem {
     private String gender = "隐藏";
     @TableField("password")
     private String password;
+    @TableField("teaching_subjects")
+    private String teachingSubjects ;
+    @TableField("learning_subjects")
+    private String learningSubjects ;
     public UserDataItem(){}
-    public UserDataItem(Long uid, String username, String phoneNumber, String email, String birthday, String role, String gender, String password) {
+    public UserDataItem(
+            Long uid, String username, String phoneNumber,
+            String email, String birthday, String role,
+            String gender, String password,
+            String teachingSubjects, String learningSubjects) {
         this.uid = uid;
         this.username = username;
         this.phoneNumber = phoneNumber;
@@ -45,6 +55,8 @@ public class UserDataItem {
         this.role = role;
         this.gender = gender;
         this.password = password;
+        this.teachingSubjects = teachingSubjects;
+        this.learningSubjects = learningSubjects;
     }
 
     //getter 和 setter
@@ -101,5 +113,17 @@ public class UserDataItem {
     }
     public void setPassword(String password) {
         this.password = password;
+    }
+    public String getTeachingSubjects() {
+        return teachingSubjects;
+    }
+    public void setTeachingSubjects(String teachingSubjects) {
+        this.teachingSubjects = teachingSubjects;
+    }
+    public String getLearningSubjects() {
+        return learningSubjects;
+    }
+    public void setLearningSubjects(String learningSubjects) {
+        this.learningSubjects = learningSubjects;
     }
 }
