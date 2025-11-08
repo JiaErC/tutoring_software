@@ -127,11 +127,11 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() {
       _registerController.uEmail = value;
       _isEmailValid = _emailRegex.hasMatch(value) || value.isEmpty;
-      accountController.findEmailUID(value);
+      accountController.getUidByEmail(value);
     });
     // 检查邮箱唯一性
     if (_isEmailValid && value.isNotEmpty) {
-      accountController.findEmailUID(value).then((_) {
+      accountController.getUidByEmail(value).then((_) {
         if (accountController.uID.isNotEmpty) {
           // 使用SchedulerBinding添加post-frame回调来显示SnackBar
           SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -149,11 +149,11 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() {
       _registerController.uPhone = value;
       _isPhoneValid = _phoneRegex.hasMatch(value) || value.isEmpty;
-      accountController.findPhoneNumberUID(value);
+      accountController.getUidByPhone(value);
     });
     // 检查电话号码唯一性
     if (_isPhoneValid && value.isNotEmpty) {
-      accountController.findPhoneNumberUID(value).then((_) {
+      accountController.getUidByPhone(value).then((_) {
         if (accountController.uID.isNotEmpty) {
           // 使用SchedulerBinding添加post-frame回调来显示SnackBar
           SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -349,7 +349,7 @@ class _RegisterPageState extends State<RegisterPage> {
       //如果电话号码不为空
       if (uPhone.isNotEmpty) {
         try {
-          final message = await accountController.putPhoneNumberUid(
+          final message = await accountController.savePhoneNumberUid(
             uPhone,
             uid,
           );
@@ -367,7 +367,7 @@ class _RegisterPageState extends State<RegisterPage> {
       //改为如果uEmail不为空
       if (uEmail.isNotEmpty) {
         try {
-          final message = await accountController.putEmailUid(uEmail, uid);
+          final message = await accountController.saveEmailUid(uEmail, uid);
           // 处理成功情况
           ScaffoldMessenger.of(
             context,

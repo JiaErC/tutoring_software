@@ -49,19 +49,28 @@ class _PasswordPageState extends State<PasswordPage> {
 
   //验证账号
   void _validateAccount(String value) {
-    setState(() {
+    setState(() async {
       if (_emailRegex.hasMatch(value) ||
           _phoneRegex.hasMatch(value) ||
           value.isEmpty) {
         // 邮箱或手机号格式正确
         _isAccountValid = true;
-        //如果匹配电话
-        if (_phoneRegex.hasMatch(value)) {
-          accountController.findPhoneNumberUID(value);
-        }
-        //如果匹配邮箱
-        else if (_emailRegex.hasMatch(value)) {
-          accountController.findEmailUID(value);
+        late String uid;
+        //如果uid没有赋值就返回错误信息
+        try {
+          //如果匹配电话
+          if (_phoneRegex.hasMatch(value)) {
+            uid = await accountController.getUidByPhone(value).toString();
+          }
+          //如果匹配邮箱
+          else if (_emailRegex.hasMatch(value)) {
+            uid = await accountController.getUidByEmail(value).toString();
+          }
+          if (uid.isEmpty) {
+            throw Exception("账号没有注册");
+          } 
+        } catch (e) {
+          debugPrint("$e");
         }
       } else {
         // 邮箱或手机号格式不正确

@@ -5,7 +5,6 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
-import 'package:tutoring_software/utils/storage.dart';
 import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
 import 'package:tutoring_software/modules/api/api_settings.dart';
 
@@ -14,9 +13,6 @@ part 'account_controller.g.dart';
 class AccountController = _AccountController with _$AccountController;
 
 abstract class _AccountController with Store {
-  //打开电话号码和邮箱的盒子
-  var phoneNumberBox = GStorage.phoneNumberBox;
-  var emailBox = GStorage.emailBox;
 
   //使用UserDataController
   UserDataController userDataController = Modular.get<UserDataController>();
@@ -55,19 +51,6 @@ abstract class _AccountController with Store {
 
   //内部生成uID，从后端生成
   Future<Map<String, dynamic>> _generateUid() async {
-    /* 根据不同平台选择不同的URL
-    String baseUrl;
-    if (Platform.isWindows) {
-      // Windows环境使用localhost
-      baseUrl = 'http://localhost:8080';
-    } else if (Platform.isAndroid) {
-      // Android环境使用10.0.2.2
-      baseUrl = 'http://10.0.2.2:8080';
-    } else {
-      // 默认使用localhost
-      baseUrl = 'http://localhost:8080';
-    }*/
-    //直接连接到虚拟机IP地址
     try {
       final response = await http
           .get(
@@ -121,7 +104,7 @@ abstract class _AccountController with Store {
 
   //存放电话号码
   @action
-  Future<String> putPhoneNumberUid(String phoneNumber, String uid) async {
+  Future<String> savePhoneNumberUid(String phoneNumber, String uid) async {
     try {
       // 将String类型的uid转换为Long类型
       final longUid = int.parse(uid);
@@ -162,7 +145,7 @@ abstract class _AccountController with Store {
 
   //把邮箱存放到后端
   @action
-  Future<String> putEmailUid(String email, String uid) async {
+  Future<String> saveEmailUid(String email, String uid) async {
     try {
       // 将String类型的uid转换为Long类型
       final longUid = int.parse(uid);
@@ -238,26 +221,14 @@ abstract class _AccountController with Store {
   //   emailBox.put(email, uID);
   // }
 
-  //通过电话号码来查找uID
-  @action
-  Future<void> findPhoneNumberUID(String phoneNumber) async {
-    uID = phoneNumberBox.get(phoneNumber) ?? '';
-  }
-
-  //通过邮箱来查找uID
-  @action
-  Future<void> findEmailUID(String email) async {
-    uID = emailBox.get(email) ?? '';
-  }
-
-  //删除账户
-  @action
-  Future<void> deleteUser(String phoneNumber, String email) async {
-    await userDataController.deleteUserData(uID);
-    await phoneNumberBox.delete(phoneNumber);
-    await emailBox.delete(email);
-    uID = '';
-  }
+  // //删除账户
+  // @action
+  // Future<void> deleteUser(String phoneNumber, String email) async {
+  //   await userDataController.deleteUserData(uID);
+  //   await phoneNumberBox.delete(phoneNumber);
+  //   await emailBox.delete(email);
+  //   uID = '';
+  // }
 
   //清空控制器的数据
   @action

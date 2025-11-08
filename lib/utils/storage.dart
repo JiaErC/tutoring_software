@@ -19,11 +19,11 @@ class GStorage {
     /*数据不重要的时候，直接删除数据库解决问题*/
     // await Hive.deleteBoxFromDisk('userData');
     // await Hive.deleteBoxFromDisk('status');
+    // await Hive.deleteBoxFromDisk('phoneNumber');
+    // await Hive.deleteBoxFromDisk('email');
     userDataBox = await Hive.openBox('userData');
-    userDataBox.clear();
+    // userDataBox.clear();
     statusBox = await Hive.openBox('status');
-    phoneNumberBox = await Hive.openBox('phoneNumber');
-    emailBox = await Hive.openBox('email');
 
     //如果登录状态盒子为空，就添加一个默认的登录状态
     if (statusBox.isEmpty) {
