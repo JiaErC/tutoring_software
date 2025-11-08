@@ -22,17 +22,6 @@ abstract class _UserDataController with Store {
     debugPrint(temp.toString());
   }
 
-  // 添加或更新用户数据
-  // void saveUserData(UserDataItem userData) async {
-  //   try {
-  //     await storedUserDataBox.put(userData.uID, userData);
-  //   } catch (e) {
-  //     print("保存用户数据失败: $e");
-  //     rethrow;
-  //   }
-  //   debugPrint("保存用户数据成功");
-  // }
-
   //存放用户信息
   @action
   Future<String> saveUserData(UserDataItem u) async {

@@ -65,8 +65,8 @@ class UserDataItem {
     uPassword = u['password'];
     try {
       uTeachSubjects =
-          u['teachSubjects'] != null && u['teachSubjects'].isNotEmpty
-          ? jsonDecode(u['teachSubjects']) as Map<String, dynamic>
+          u['teachingSubjects'] != null && u['teachingSubjects'].isNotEmpty
+          ? jsonDecode(u['teachingSubjects']) as Map<String, dynamic>
           : {};
     } catch (e) {
       print('解析教学科目失败: $e');
@@ -74,8 +74,8 @@ class UserDataItem {
     }
     try {
       uStudySubjects =
-          u['studySubjects'] != null && u['studySubjects'].isNotEmpty
-          ? jsonDecode(u['studySubjects']) as Map<String, dynamic>
+          u['learningSubjects'] != null && u['learningSubjects'].isNotEmpty
+          ? jsonDecode(u['learningSubjects']) as Map<String, dynamic>
           : {};
     } catch (e) {
       print('解析学习科目失败: $e');
