@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import "package:flutter_material_design_icons/flutter_material_design_icons.dart";
 import 'package:getwidget/getwidget.dart';
+import 'package:flutter_modular/flutter_modular.dart';
+
+import 'package:tutoring_software/pages/register/register_controller.dart';
 
 class SubjectsPage extends StatefulWidget {
   const SubjectsPage({super.key});
@@ -13,6 +16,10 @@ class SubjectsPage extends StatefulWidget {
 }
 
 class _SubjectsPageState extends State<SubjectsPage> {
+  //引入注册用户信息模块来持久化
+  final RegisterController _registerController =
+      Modular.get<RegisterController>();
+
   //判断是老师还是学生
   bool _isTeacher = true;
   //判断是否横屏
@@ -23,11 +30,16 @@ class _SubjectsPageState extends State<SubjectsPage> {
   //是否查看
   bool _isView = false;
 
+  //存储选择科目的多少
+  int _count = 0;
+  //各个学科大类有多少科目被选择
+  final Map<String, int> _subjectSelectedCounts = {};
+
   //存储解析之后的JSON文件
   Map<String, dynamic>? _subjectData;
   String? _selectedCategory; //记录选中的学科大类
   //存储选择的学科
-  final Map<String, dynamic> _selectedSubjects = {};
+  Map<String, dynamic> _selectedSubjects = {};
 
   @override
   void initState() {
@@ -60,6 +72,35 @@ class _SubjectsPageState extends State<SubjectsPage> {
     // setState(() {
     //   isTeacher = args?['isTeacher'] ?? true;
     // });
+    //在这里获取注册控制类的信息
+    _selectedSubjects = _isTeacher
+        ? _registerController.uTeachSubjects
+        : _registerController.uStudySubjects;
+    //获取选择的学科数量
+    _count = _isTeacher
+        ? _registerController.uTeachSubjectsCount
+        : _registerController.uStudySubjectsCount;
+    //获取选择的学科具体数量
+    _calculateSubjectCounts();
+  }
+
+  //计算每个学科大类的科目被选择总数
+  void _calculateSubjectCounts() {
+    _subjectSelectedCounts.clear();
+    if (_selectedSubjects.isNotEmpty) {
+      _selectedSubjects.forEach((category, subcategories) {
+        int selectedCount = 0;
+        // 遍历每个大类下的所有小类
+        subcategories.forEach((subcategory, subjects) {
+          if (subjects is List) {
+            // 累加这个小类下已选择的科目数量
+            selectedCount += subjects.length;
+          }
+        });
+        // 存储这个大类下已选择的科目数量
+        _subjectSelectedCounts[category] = selectedCount;
+      });
+    }
   }
 
   //创建一个按钮构建器，用来构建这个页面需要的控制按钮
@@ -79,13 +120,21 @@ class _SubjectsPageState extends State<SubjectsPage> {
   @override
   Widget build(BuildContext context) {
     _isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-
     return Scaffold(
       appBar: GFAppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           tooltip: "返回上一页",
-          onPressed: () => Navigator.pop(context, _selectedSubjects), // 返回上一级路由
+          onPressed: () {
+            _isTeacher
+                ? _registerController.uTeachSubjects = _selectedSubjects
+                : _registerController.uStudySubjects = _selectedSubjects;
+            // 更新选择的学科数量
+            _isTeacher
+                ? _registerController.uTeachSubjectsCount = _count
+                : _registerController.uStudySubjectsCount = _count;
+            Navigator.pop(context);
+          }, // 返回上一级路由
         ),
         title: _isTeacher ? const Text("选择教学科目") : const Text("选择学习科目"),
         actions: <Widget>[
@@ -96,6 +145,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
             Colors.redAccent,
             () => setState(() {
               _selectedSubjects.clear();
+              _count = 0;
               _isView = false;
             }),
           ),
@@ -107,21 +157,47 @@ class _SubjectsPageState extends State<SubjectsPage> {
               Colors.green,
               () => setState(() => _isView = false),
             )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                _buildControlButton(
-                  "查看",
-                  const Color.fromRGBO(251, 192, 45, 1),
-                  () => setState(() => _isView = true),
-                ),
-                const SizedBox(width: 30),
-                _buildControlButton(
-                  "确认",
-                  Colors.blueAccent,
-                  () => Navigator.pop(context, _selectedSubjects),
-                ),
-              ],
+          : Container(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.none, // 重要：允许角标溢出父容器
+                    children: [
+                      _buildControlButton(
+                        "查看",
+                        const Color.fromRGBO(251, 192, 45, 1),
+                        () => setState(() => _isView = true),
+                      ),
+                      // 使用 Positioned 精确定位角标
+                      Positioned(
+                        top: -2, // 向上偏移，使其部分在按钮外部
+                        right: -7, // 向右偏移
+                        child: GFBadge(
+                          color: Colors.redAccent,
+                          shape: GFBadgeShape.circle,
+                          size: 40,
+                          child: Text(_count.toString()),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 30),
+                  _buildControlButton("确认", Colors.blueAccent, () {
+                    _isTeacher
+                        ? _registerController.uTeachSubjects = _selectedSubjects
+                        : _registerController.uStudySubjects =
+                              _selectedSubjects;
+                    //更新学科选择数量
+                    _isTeacher
+                        ? _registerController.uTeachSubjectsCount = _count
+                        : _registerController.uStudySubjectsCount = _count;
+                    Navigator.pop(context);
+                  }),
+                ],
+              ),
             ),
       backgroundColor: Colors.white,
       body: _isLandscape
@@ -167,15 +243,41 @@ class _SubjectsPageState extends State<SubjectsPage> {
 
   //封装按钮，横屏的时候的按钮和竖屏时候的按钮不一样
   Widget _buildButton(String s, IconData i) {
+    //当前类别已选择数量
+    int categoryCount = _subjectSelectedCounts.containsKey(s)
+        ? _subjectSelectedCounts[s]!
+        : 0;
+
+    // 统一使用Stack布局的按钮内容
+    Widget buttonContent = Stack(
+      clipBehavior: Clip.none, // 允许内容溢出
+      children: [
+        // 主要按钮内容
+        Icon(i, size: _isLandscape ? 18 : 23),
+        // 徽章（如果有数量）
+        if (categoryCount > 0)
+          Positioned(
+            top: -7,
+            right: -17,
+            child: GFBadge(
+              color: Colors.redAccent,
+              shape: GFBadgeShape.circle,
+              size:40,
+              child: Text(categoryCount.toString()),
+            ),
+          ),
+      ],
+    );
+
     return _isLandscape
-        ? GFButton(
+        ? GFButtonBadge(
             onPressed: () {
               setState(() {
                 _selectedCategory = s;
-                debugPrint(_selectedCategory);
+                debugPrint("$_subjectSelectedCounts");
               });
             },
-            icon: Icon(i, size: 18),
+            icon: buttonContent,
             shape: GFButtonShape.square,
             fullWidthButton: true,
             text: s,
@@ -188,14 +290,14 @@ class _SubjectsPageState extends State<SubjectsPage> {
           )
         : SizedBox(
             height: 60,
-            child: GFButton(
+            child: GFButtonBadge(
               onPressed: () {
                 setState(() {
                   _selectedCategory = s;
-                  debugPrint(_selectedCategory);
+                  debugPrint("$_subjectSelectedCounts");
                 });
               },
-              icon: Icon(i, size: 23), // 增加图标大小
+              icon: buttonContent, // 增加图标大小
               shape: GFButtonShape.square,
               fullWidthButton: true,
               text: s,
@@ -311,6 +413,14 @@ class _SubjectsPageState extends State<SubjectsPage> {
   //小科目菜单
   //制作小科目按钮
   Widget _buildSubButton(String s, String subject) {
+    //判断按钮是否被选中
+    bool isSelected = false;
+    if (_selectedCategory != null &&
+        _selectedSubjects.containsKey(_selectedCategory) &&
+        _selectedSubjects[_selectedCategory]!.containsKey(subject) &&
+        _selectedSubjects[_selectedCategory]![subject].contains(s)) {
+      isSelected = true;
+    }
     return GFButton(
       onPressed: () {
         if (_selectedCategory == null) {
@@ -325,11 +435,21 @@ class _SubjectsPageState extends State<SubjectsPage> {
           // 然后安全地操作内部Map
           if (!_selectedSubjects[_selectedCategory]!.containsKey(subject)) {
             _selectedSubjects[_selectedCategory]![subject] = [s];
-            debugPrint("Fuck select $subject$s");
+            _count++;
+            debugPrint("select $subject$s");
           } else {
-            _selectedSubjects[_selectedCategory]![subject].add(s);
-            debugPrint("Fuck select $subject$s");
+            //如果不包含s，就添加
+            if (!_selectedSubjects[_selectedCategory]![subject].contains(s)) {
+              _selectedSubjects[_selectedCategory]![subject].add(s);
+              _count++;
+              debugPrint("select $subject$s");
+            } //否则删除
+            else {
+              _removeSubject(_selectedCategory!, subject, s);
+            }
           }
+          //同时计算科目
+          _calculateSubjectCounts();
         });
       },
       text: s,
@@ -338,7 +458,9 @@ class _SubjectsPageState extends State<SubjectsPage> {
         fontWeight: FontWeight.bold,
         fontSize: 14,
       ),
-      color: Color.fromARGB(255, 0x64, 0xb5, 0xf5), //ff64b5f5
+      color: isSelected
+          ? Colors.grey
+          : Color.fromARGB(255, 0x64, 0xb5, 0xf5), //ff64b5f5
       shape: GFButtonShape.square,
     );
   }
@@ -437,6 +559,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
       _selectedSubjects[category]![subCategory]!.remove(subject);
       if (_selectedSubjects[category]![subCategory]!.isEmpty) {
         _removeSubCategory(category, subCategory);
+        _count--;
       }
     });
   }

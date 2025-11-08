@@ -1,9 +1,14 @@
 import "package:flutter/material.dart";
 import "package:flutter_material_design_icons/flutter_material_design_icons.dart";
 import "package:flutter_modular/flutter_modular.dart";
+import 'package:flutter/scheduler.dart';
 
 import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
 import 'register_controller.dart';
+import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
+import 'package:tutoring_software/modules/user_data/user_data_item.dart';
+import 'package:tutoring_software/modules/status/status_controller.dart';
+import 'package:tutoring_software/modules/account_manager/account_controller.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -33,7 +38,16 @@ Map<String, dynamic> uStudySubjects = {};
 
 class _RegisterPageState extends State<RegisterPage> {
   //引入注册控制器
-  final RegisterController controller = Modular.get<RegisterController>();
+  final RegisterController _registerController =
+      Modular.get<RegisterController>();
+  //引入用户数据控制器
+  final UserDataController userDataController =
+      Modular.get<UserDataController>();
+  //引入状态控制器
+  final StatusController statusController = Modular.get<StatusController>();
+  //引入账号控制器
+  final AccountController accountController = Modular.get<AccountController>();
+
   //创建一个是否横屏的显示器
   bool _isLandscape = false;
 
@@ -58,7 +72,7 @@ class _RegisterPageState extends State<RegisterPage> {
     super.initState();
     // 初始化时同步数据
     _syncControllerWithForm();
-    _gender = controller.uGender;
+    _gender = _registerController.uGender;
   }
 
   @override
@@ -66,6 +80,7 @@ class _RegisterPageState extends State<RegisterPage> {
     super.didChangeDependencies();
     // 在依赖项变化时（例如从其他页面返回）重新同步数据
     _syncControllerWithForm();
+    accountController.clear();
   }
 
   //组件销毁的时候的提示
@@ -81,16 +96,16 @@ class _RegisterPageState extends State<RegisterPage> {
 
   // 用于同步控制器和表单数据
   void _syncControllerWithForm() {
-    _usernameController.text = controller.uName;
-    _emailController.text = controller.uEmail;
-    _phoneController.text = controller.uPhone;
-    _passwordController.text = controller.uPassword;
-    _confirmPasswordController.text = controller.uConfirmPassword;
-    _gender = controller.uGender;
-    _selectedRoles = controller.uRole;
-    _isTeachSelectedSubject = controller.uTeachSubjects.isNotEmpty;
-    _isStudySelectedSubject = controller.uStudySubjects.isNotEmpty;
-    uBirthday = controller.uBirthday;
+    _usernameController.text = _registerController.uName;
+    _emailController.text = _registerController.uEmail;
+    _phoneController.text = _registerController.uPhone;
+    _passwordController.text = _registerController.uPassword;
+    _confirmPasswordController.text = _registerController.uConfirmPassword;
+    _gender = _registerController.uGender;
+    _selectedRoles = _registerController.uRole;
+    _isTeachSelectedSubject = _registerController.uTeachSubjects.isNotEmpty;
+    _isStudySelectedSubject = _registerController.uStudySubjects.isNotEmpty;
+    uBirthday = _registerController.uBirthday;
   }
 
   //邮箱正则表达式
@@ -110,23 +125,51 @@ class _RegisterPageState extends State<RegisterPage> {
   //验证邮箱
   void _validateEmail(String value) {
     setState(() {
-      controller.uEmail = value;
+      _registerController.uEmail = value;
       _isEmailValid = _emailRegex.hasMatch(value) || value.isEmpty;
+      accountController.getUidByEmail(value);
     });
+    // 检查邮箱唯一性
+    if (_isEmailValid && value.isNotEmpty) {
+      accountController.getUidByEmail(value).then((_) {
+        if (accountController.uID.isNotEmpty) {
+          // 使用SchedulerBinding添加post-frame回调来显示SnackBar
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('该邮箱已被注册')));
+          });
+        }
+      });
+    }
   }
 
   //验证电话号码
   void _validatePhone(String value) {
     setState(() {
-      controller.uPhone = value;
+      _registerController.uPhone = value;
       _isPhoneValid = _phoneRegex.hasMatch(value) || value.isEmpty;
+      accountController.getUidByPhone(value);
     });
+    // 检查电话号码唯一性
+    if (_isPhoneValid && value.isNotEmpty) {
+      accountController.getUidByPhone(value).then((_) {
+        if (accountController.uID.isNotEmpty) {
+          // 使用SchedulerBinding添加post-frame回调来显示SnackBar
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('该电话号码已被注册')));
+          });
+        }
+      });
+    }
   }
 
   // 验证用户名
   void _validateUsername(String value) {
     setState(() {
-      controller.uName = value;
+      _registerController.uName = value;
       _isUsernameValid = _usernameRegex.hasMatch(value) || value.isEmpty;
     });
   }
@@ -156,7 +199,7 @@ class _RegisterPageState extends State<RegisterPage> {
       } else {
         _isConfirmPasswordValid = value == _passwordController.text;
         if (_isConfirmPasswordValid) {
-          controller.uPassword = value;
+          _registerController.uPassword = value;
         }
       }
     });
@@ -175,21 +218,13 @@ class _RegisterPageState extends State<RegisterPage> {
       return isValid;
     }
 
-    // 验证邮箱
-    if (!_isEmailValid || _emailController.text.isEmpty) {
+    // 验证邮箱和电话号码
+    if ((!_isEmailValid || _emailController.text.isEmpty) &&
+        (!_isPhoneValid || _phoneController.text.isEmpty)) {
       isValid = false;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('请输入有效的邮箱地址')));
-      return isValid;
-    }
-
-    // 验证电话号码
-    if (!_isPhoneValid || _phoneController.text.isEmpty) {
-      isValid = false;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('请输入有效的手机号码')));
+      ).showSnackBar(const SnackBar(content: Text('请输入邮箱或者电话号码')));
       return isValid;
     }
 
@@ -288,6 +323,74 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
           );
+  }
+
+  // 在_RegisterPageState类中添加保存用户数据到JSON文件的方法
+  Future<void> _saveUserData() async {
+    try {
+      final String uid = await accountController.getUid();
+      final userDataItem = UserDataItem(
+        uID: uid,
+        uName: uName,
+        uEmail: uEmail,
+        uPassword: uPassword,
+        uPhone: uPhone,
+        uBirthday: uBirthday,
+        uGender: uGender.toString(), // 转换为字符串
+        uRole: uRole.toList().join(','), // 转换为逗号分隔的字符串
+        uTeachSubjects: uTeachSubjects,
+        uStudySubjects: uStudySubjects,
+      );
+      // 登录状态设置为true
+      statusController.setStatus(userDataItem);
+      // //查看登录状态
+      // debugPrint("登录状态：${statusController.isLogin}\n登录用户ID：${statusController.uID}\n");
+      // 显示成功消息
+      //如果电话号码不为空
+      if (uPhone.isNotEmpty) {
+        try {
+          final message = await accountController.savePhoneNumberUid(
+            uPhone,
+            uid,
+          );
+          // 处理成功情况
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
+        } catch (e) {
+          // 处理错误情况
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
+        }
+      }
+      //改为如果uEmail不为空
+      if (uEmail.isNotEmpty) {
+        try {
+          final message = await accountController.saveEmailUid(uEmail, uid);
+          // 处理成功情况
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
+        } catch (e) {
+          // 处理错误情况
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(e.toString())));
+        }
+      }
+      userDataController.saveUserData(userDataItem);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('注册成功！数据已保存。')));
+      // 注册成功后导航到登录页面或首页
+      Modular.to.pushReplacementNamed('/login');
+    } catch (e) {
+      print('保存用户数据失败: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('注册失败，请重试。')));
+    }
   }
 
   @override
@@ -415,7 +518,7 @@ class _RegisterPageState extends State<RegisterPage> {
               onChanged: (value) {
                 setState(() {
                   _gender = value;
-                  controller.uGender = value!;
+                  _registerController.uGender = value!;
                   debugPrint('性别：$_gender');
                 });
               },
@@ -473,7 +576,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             // 将选择的日期保存到用户属性
                             uBirthday =
                                 '${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}';
-                            controller.uBirthday = uBirthday;
+                            _registerController.uBirthday = uBirthday;
                             debugPrint("选择的生日是: $uBirthday");
                           }
                         },
@@ -503,10 +606,10 @@ class _RegisterPageState extends State<RegisterPage> {
                         setState(() {
                           if (value == true) {
                             _selectedRoles.add(1);
-                            controller.uRole.add(1);
+                            _registerController.uRole.add(1);
                           } else {
                             _selectedRoles.remove(1);
-                            controller.uRole.remove(1);
+                            _registerController.uRole.remove(1);
                           }
                           debugPrint('选中的身份：$_selectedRoles');
                         });
@@ -523,10 +626,10 @@ class _RegisterPageState extends State<RegisterPage> {
                         setState(() {
                           if (value == true) {
                             _selectedRoles.add(2);
-                            controller.uRole.add(2);
+                            _registerController.uRole.add(2);
                           } else {
                             _selectedRoles.remove(2);
-                            controller.uRole.remove(2);
+                            _registerController.uRole.remove(2);
                           }
                           debugPrint('选中的身份：$_selectedRoles');
                         });
@@ -550,7 +653,7 @@ class _RegisterPageState extends State<RegisterPage> {
           //确定按钮
           Center(
             child: OutlinedButton.icon(
-              onPressed: () {
+              onPressed: () async {
                 //表单验证
                 if (_validateForm()) {
                   // 将表单数据赋值给用户属性
@@ -564,12 +667,26 @@ class _RegisterPageState extends State<RegisterPage> {
                   debugPrint('身份: $uRole');
                   debugPrint('学习科目: $uStudySubjects');
                   debugPrint('教学科目: $uTeachSubjects');
+                  //如果注册的邮箱和电话号码存在，就不可以重复注册了
+                  if (accountController.uID.isEmpty) {
+                    // 调用保存用户数据到JSON文件的方法
+                    await _saveUserData();
+                    debugPrint(
+                      "登录状态：${statusController.isLogin},\n 登录ID：${statusController.uID}",
+                    );
+                    setState(
+                      () =>
+                          //注册之后把注册页面清空
+                          _registerController.clearAllData(),
+                    );
+                  }
                 }
               },
               icon: const Icon(Icons.login),
               label: const Text('确定'),
             ),
           ),
+          // _repeatedAccountPrompt(context),
           const SizedBox(height: 20),
         ],
       ),
@@ -590,17 +707,20 @@ class _RegisterPageState extends State<RegisterPage> {
         //跳转到选择科目的界面
         OutlinedButton.icon(
           onPressed: () async {
-            final result = await Modular.to.pushNamed(
+            // final result = await Modular.to.pushNamed(
+            //   '/subjects',
+            //   arguments: {'isTeacher': false},
+            // );
+            await Modular.to.pushNamed(
               '/subjects',
               arguments: {'isTeacher': false},
             );
-            if (result != null && result is Map<String, dynamic>) {
-              setState(() {
-                _isStudySelectedSubject = result.isNotEmpty;
-                uStudySubjects = result;
-                controller.uStudySubjects = result;
-              });
-            }
+            setState(() {
+              _isStudySelectedSubject =
+                  _registerController.uStudySubjects.isNotEmpty;
+              uStudySubjects = _registerController.uStudySubjects;
+              debugPrint('选择的学习科目：$uStudySubjects');
+            });
           },
           icon: const Icon(MdiIcons.pencil),
           label: const Text('选择科目'),
@@ -626,20 +746,24 @@ class _RegisterPageState extends State<RegisterPage> {
         //跳转到选择科目的界面
         OutlinedButton.icon(
           onPressed: () async {
-            // 使用await等待返回结果
-            final result = await Modular.to.pushNamed(
+            // 使用await等待返回结果，废弃的await取得的路由返回结果
+            // final result = await Modular.to.pushNamed(
+            //   '/subjects',
+            //   arguments: {'isTeacher': true},
+            // );
+            /*使用await关键字来等待导航操作的完成，也就是等代码在导航到下一个页面并且返回之后，再执行接下来的代码*/
+            await Modular.to.pushNamed(
               '/subjects',
               arguments: {'isTeacher': true},
             );
-            // 检查是否有返回数据
-            if (result != null && result is Map<String, dynamic>) {
-              // 更新状态，表示已选择学科
-              setState(() {
-                _isTeachSelectedSubject = result.isNotEmpty;
-                uTeachSubjects = result;
-                controller.uTeachSubjects = result;
-              });
-            }
+            // 直接使用注册控制类来获取选择的学科
+            // 更新状态，表示已选择学科
+            setState(() {
+              _isTeachSelectedSubject =
+                  _registerController.uTeachSubjects.isNotEmpty;
+              uTeachSubjects = _registerController.uTeachSubjects;
+              debugPrint('选择的教学科目：$uTeachSubjects');
+            });
           },
           icon: const Icon(MdiIcons.pen),
           label: const Text('选择科目'),
@@ -650,4 +774,14 @@ class _RegisterPageState extends State<RegisterPage> {
       ],
     );
   }
+
+  //   Widget _repeatedAccountPrompt(BuildContext context) {
+  //     if (accountController.uID.isNotEmpty) {
+  //       ScaffoldMessenger.of(
+  //         context,
+  //       ).showSnackBar(const SnackBar(content: Text('该邮箱或电话号码已被注册')));
+  //     }
+  //     return const SizedBox(height: 20);
+  //   }
+  // }
 }

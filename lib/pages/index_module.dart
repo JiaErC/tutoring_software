@@ -23,6 +23,7 @@ import 'package:tutoring_software/pages/my/settings/settings_module.dart';
 import 'package:tutoring_software/pages/register/register_module.dart';
 import 'package:tutoring_software/pages/subjects/subjects_module.dart';
 import 'package:tutoring_software/pages/register/register_controller.dart';
+import 'package:tutoring_software/pages/login/login_controller.dart';
 
 //目的是定义整个软件的路由
 class IndexModule extends Module {
@@ -41,6 +42,7 @@ class IndexModule extends Module {
     // i.addSingleton(MyController.new);
     // i.addSingleton(ShadersController.new);
     i.addSingleton(RegisterController.new);
+    i.addSingleton(LoginController.new);
   }
 
   @override
@@ -83,9 +85,9 @@ class IndexModule extends Module {
     // r.module("/video", module: VideoModule());
     // /// The route need [ BangumiItem ] as argument.
     // r.module("/info", module: InfoModule());
-    r.module("/subjects", module: SubjectsModule());//科目路由
-    r.module("/settings", module: SettingsModule());//设置路由
-    r.module("/register",module:RegisterModule());//注册路由
+    r.module("/subjects", module: SubjectsModule()); //科目路由
+    r.module("/settings", module: SettingsModule()); //设置路由
+    r.module("/register", module: RegisterModule()); //注册路由
     // r.module("/search", module: SearchModule());
   }
 }
