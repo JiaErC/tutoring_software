@@ -22,9 +22,12 @@ public class UserDataItemController {
     private UserDataItemService userDataItemService;
 
     @GetMapping("/get/{uid}")
-    public Result<UserDataItem> getByUid(@PathVariable Long uid){
+    public Result<UserDataItem> getByUid(@PathVariable String uid){
+        //把uid转换为Long类型
+        Long uidLong = Long.parseLong(uid);
+        LOGGER.info("需要查询的uid为:{}",uidLong);
         try{
-            UserDataItem result = userDataItemService.getByUid(uid);
+            UserDataItem result = userDataItemService.getByUid(uidLong);
             if (result != null) {
                 return Result.success(result);
             }else{

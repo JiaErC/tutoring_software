@@ -15,7 +15,7 @@ public class UserDataItemServiceImpl extends ServiceImpl<UserDataItemMapper, Use
 
     @Override
     public UserDataItem getByUid(Long uid) {
-        return baseMapper.selectById(uid);
+        return baseMapper.getByUid(uid);
     }
     @Override
     public boolean saveUserDataItem(Long uid,String username ,String phoneNumber,String email,String role,String gender,String birthday

@@ -71,6 +71,7 @@ abstract class _AccountController with Store {
   }
 
   //通过电话号码访问到UID
+  @action
   Future<String> getUidByPhone(String phoneNumber) async {
     try {
       final response = await http
@@ -85,7 +86,8 @@ abstract class _AccountController with Store {
         if (result['code'] == 200) {
           final String uid = result['data']['uid'].toString();
           debugPrint('通过电话号码$phoneNumber获取到了UID: $uid');
-          return uid;
+          uID = uid;
+          return uID;
         } else {
           throw Exception('通过电话号码获取UID失败: ${result['message']}');
         }
@@ -197,7 +199,8 @@ abstract class _AccountController with Store {
         if (result['code'] == 200) {
           final String uid = result['data']['uid'].toString();
           debugPrint('通过邮箱$email获取到了UID: $uid');
-          return uid;
+          uID = uid;
+          return uID;
         } else {
           throw Exception('通过邮箱$email获取UID失败: ${result['message']}');
         }

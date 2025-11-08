@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import "package:hive/hive.dart";
 
 part 'user_data_item.g.dart';
@@ -51,6 +53,38 @@ class UserDataItem {
     required this.uStudySubjects,
   });
 
+  //通过后端返回的backend来构造数据
+  UserDataItem.fromBackend(Map<String, dynamic> u) {
+    uID = u['uid'].toString();
+    uName = u['username'];
+    uPhone = u['phoneNumber'];
+    uEmail = u['email'];
+    uBirthday = u['birthday'];
+    uGender = u['gender'];
+    uRole = u['role'];
+    uPassword = u['password'];
+    try {
+      uTeachSubjects =
+          u['teachSubjects'] != null && u['teachSubjects'].isNotEmpty
+          ? jsonDecode(u['teachSubjects']) as Map<String, dynamic>
+          : {};
+    } catch (e) {
+      print('解析教学科目失败: $e');
+      uTeachSubjects = {};
+    }
+    try {
+      uStudySubjects =
+          u['studySubjects'] != null && u['studySubjects'].isNotEmpty
+          ? jsonDecode(u['studySubjects']) as Map<String, dynamic>
+          : {};
+    } catch (e) {
+      print('解析学习科目失败: $e');
+      uStudySubjects = {};
+      // uSignature = u['signature'];
+      // uLocation = u['location'];
+      // contacts = u['contacts'];
+    }
+  }
   // 添加toString方法以输出详细属性
   @override
   String toString() {

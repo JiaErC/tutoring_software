@@ -40,6 +40,9 @@ abstract class _UserDataController with Store {
       // 将String类型的uid转换为Long类型
       final longUid = int.parse(u.uID);
 
+      //把数据放到盒子中
+      await storedUserDataBox.put(u.uID, u);
+
       // 构建请求体数据，确保字段名称与后端匹配
       final requestBody = {
         'uid': longUid,
@@ -85,14 +88,74 @@ abstract class _UserDataController with Store {
   }
 
   //根据用户的ID获取用户的数据
-  Future<UserDataItem?> getUserData(String uID) async {
+  // Future<UserDataItem?> getUserData(String uID) async {
+  //   try {
+  //     UserDataItem? userData = storedUserDataBox.get(uID);
+  //     return userData;
+  //   } catch (e) {
+  //     print('获取用户数据失败: $e');
+  //     return null;
+  //   }
+  // }
+
+  Future<UserDataItem?> getUserData(String uid) async {
+    //打印uID
+    debugPrint('获取用户数据: $uid');
+
     try {
-      UserDataItem? userData = storedUserDataBox.get(uID);
-      return userData;
+      // 添加UID类型验证和转换逻辑
+      if (uid.isEmpty) {
+        throw Exception('UID不能为空');
+      }
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl/api/user-data-item/get/$uid'),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        final result = jsonDecode(response.body);
+        if (result['code'] == 200) {
+          debugPrint('获取用户数据成功: ${result['message']}');
+          return UserDataItem.fromBackend(result['data']);
+        } else {
+          debugPrint('获取用户数据失败: ${result['message']}');
+          throw Exception('获取失败:${result['message']}');
+        }
+      } else {
+        debugPrint('API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
+        throw Exception('获取用户数据失败: HTTP ${response.statusCode}');
+      }
     } catch (e) {
-      print('获取用户数据失败: $e');
-      return null;
+      rethrow;
     }
+    //     try {
+    //   final response = await http
+    //       .get(
+    //         Uri.parse('$baseUrl/api/email-uid/by-email/$email'),
+    //         headers: {'Content-Type': 'application/json'},
+    //       )
+    //       .timeout(const Duration(seconds: 10));
+
+    //   if (response.statusCode == 200) {
+    //     final result = jsonDecode(response.body);
+    //     if (result['code'] == 200) {
+    //       final String uid = result['data']['uid'].toString();
+    //       debugPrint('通过邮箱$email获取到了UID: $uid');
+    //       return uid;
+    //     } else {
+    //       throw Exception('通过邮箱$email获取UID失败: ${result['message']}');
+    //     }
+    //   } else {
+    //     debugPrint('API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
+    //     throw Exception(
+    //       'Failed to get UID by email: HTTP ${response.statusCode}',
+    //     );
+    //   }
+    // } catch (e) {
+    //   debugPrint('Error: $e');
+    //   rethrow;
+    // }
   }
 
   // 检查用户是否已存在

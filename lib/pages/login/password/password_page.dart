@@ -49,35 +49,38 @@ class _PasswordPageState extends State<PasswordPage> {
 
   //验证账号
   void _validateAccount(String value) {
-    setState(() async {
+    // 在setState外部执行异步操作，避免UI卡顿
+    _fetchUid(value);
+
+    setState(() {
       if (_emailRegex.hasMatch(value) ||
           _phoneRegex.hasMatch(value) ||
           value.isEmpty) {
         // 邮箱或手机号格式正确
         _isAccountValid = true;
-        late String uid;
-        //如果uid没有赋值就返回错误信息
-        try {
-          //如果匹配电话
-          if (_phoneRegex.hasMatch(value)) {
-            uid = await accountController.getUidByPhone(value).toString();
-          }
-          //如果匹配邮箱
-          else if (_emailRegex.hasMatch(value)) {
-            uid = await accountController.getUidByEmail(value).toString();
-          }
-          if (uid.isEmpty) {
-            throw Exception("账号没有注册");
-          } 
-        } catch (e) {
-          debugPrint("$e");
-        }
       } else {
         // 邮箱或手机号格式不正确
         // 显示错误提示
         _isAccountValid = false;
       }
     });
+  }
+
+  //获取UID
+  Future<void> _fetchUid(String value) async {
+    try {
+      if (_phoneRegex.hasMatch(value)) {
+        await accountController.getUidByPhone(value);
+      } else if (_emailRegex.hasMatch(value)) {
+        await accountController.getUidByEmail(value);
+      }
+      // 可以在这里添加额外的UI反馈，比如显示"验证成功"或清除错误提示
+    } catch (e) {
+      debugPrint('获取UID失败: $e');
+      // 确保在发生错误时清空uID
+      accountController.uID = '';
+      // 可以添加UI反馈，比如显示错误消息
+    }
   }
 
   //验证密码
@@ -278,24 +281,30 @@ class _PasswordPageState extends State<PasswordPage> {
                   debugPrint("账号：$uAccount");
                   debugPrint("密码：$uPassword");
                   //验证用户账户查找情况
-                  debugPrint("此处为用户数据保存情况：");
-                  userDataController.init();
                   if (accountController.uID.isEmpty) {
                     ScaffoldMessenger.of(
                       context,
                     ).showSnackBar(const SnackBar(content: Text("账号错误")));
                   } else {
-                    UserDataItem? userDataItem = await userDataController
-                        .getUserData(accountController.uID);
-                    if (userDataItem != null) {
-                      //改变登录状态
-                      statusController.setStatus(userDataItem);
-                      debugPrint("登录成功:\n${userDataItem.toString()}");
-                    } else {
+                    try {
+                      UserDataItem? userDataItem = await userDataController
+                          .getUserData(accountController.uID);
+                      if (userDataItem != null) {
+                        //改变登录状态
+                        statusController.setStatus(userDataItem);
+                        debugPrint("登录成功:\n${userDataItem.toString()}");
+                      } else {
+                        ScaffoldMessenger.of(
+                          // ignore: use_build_context_synchronously
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text("账号错误")));
+                      }
+                    } catch (e) {
+                      // 捕获并处理"UID not found"等异常
+                      debugPrint('登录异常: $e');
                       ScaffoldMessenger.of(
-                        // ignore: use_build_context_synchronously
                         context,
-                      ).showSnackBar(const SnackBar(content: Text("账号错误")));
+                      ).showSnackBar(SnackBar(content: Text("$e")));
                     }
                   }
                 }
