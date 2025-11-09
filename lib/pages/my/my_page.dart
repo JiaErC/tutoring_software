@@ -45,7 +45,9 @@ PiliPlus分析
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:getwidget/getwidget.dart';
+
 import 'package:tutoring_software/bean/widgets/edge_box.dart';
+import 'package:tutoring_software/modules/status/status_controller.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});

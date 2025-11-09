@@ -13,6 +13,8 @@ class AppModule extends Module {
     i.addSingleton(StatusController.new);
     i.addSingleton(UserDataController.new);
     i.addSingleton(AccountController.new);
+    //状态控制模块初始化
+    i.get<StatusController>().init();
   }
 
   @override
