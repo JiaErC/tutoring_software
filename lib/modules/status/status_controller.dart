@@ -28,6 +28,12 @@ abstract class _StatusController with Store {
   String uEmail = "";
   @observable
   String uRole = "";
+  //学习的科目和教学的科目
+  @observable
+  Map<String, dynamic> uStudySubjects = {};
+  @observable
+  Map<String, dynamic> uTeachSubjects = {};
+  
 
   //初始化，从盒子中获得登录状态和uID
   void init() {
@@ -39,6 +45,8 @@ abstract class _StatusController with Store {
     uPhone = status.uPhone;
     uEmail = status.uEmail;
     uRole = status.uRole;
+    uStudySubjects = status.uStudySubjects;
+    uTeachSubjects = status.uTeachSubjects;
     debugPrint("\n\n\n${status.toString()}");
   }
 

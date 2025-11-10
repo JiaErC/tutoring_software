@@ -6,6 +6,7 @@ import 'package:getwidget/getwidget.dart';
 import 'package:tutoring_software/bean/widgets/edge_box.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/pages/my/my_controller.dart';
+import 'package:tutoring_software/bean/widgets/arrow_button_painter.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -24,6 +25,9 @@ class _MyPageState extends State<MyPage> {
   bool get _isLogin => myController.isLogin;
   //获取当前用户角色
   bool get _isStudent => myController.isStudent;
+  //获取当前用户教学的学科信息
+  Map<String, dynamic> get _subjects => myController.subjects;
+  bool get _isSelectedSubjects => _subjects.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +41,7 @@ class _MyPageState extends State<MyPage> {
               children: [_userAvatar(context), _buildingButtonArea(context)],
             ),
           ),
+          //这里放置学科显示组件
         ],
       ),
     );
@@ -169,7 +174,7 @@ class _MyPageState extends State<MyPage> {
                 setState(() {
                   // 注意：这里只是为了演示UI变化，实际切换身份的逻辑需要根据您的业务需求实现
                   // 可能需要调用statusController中的方法来更新用户角色
-                  if(_isLogin)myController.switchIdentity();
+                  if (_isLogin) myController.switchIdentity();
                   debugPrint(
                     _isLogin
                         ? "切换身份：${_isStudent ? '学生 -> 老师' : '老师 -> 学生'}"
@@ -245,33 +250,50 @@ class _MyPageState extends State<MyPage> {
           ),
         ),
       ),
-
-      // GFButton(
-      //   onPressed: () => debugPrint("点击切换身份按钮"),
-      //   fullWidthButton: true,
-      //   type: GFButtonType.outline,
-      //   shape: GFButtonShape.square,
-      //   color: Colors.blue.shade50,
-      //   splashColor: Colors.blue.shade100,
-      //   focusColor: Colors.blue.shade400,
-      //   highlightColor: Colors.blue.shade100,
-      //   text: "当前身份：学生",
-      //   textStyle: TextStyle(
-      //     color: Colors.black,
-      //     fontSize: 24,
-      //     height: 1.2,
-      //   ),
-      //   child: Row(
-      //     mainAxisAlignment: MainAxisAlignment.center,
-      //     children: [
-      //       Icon(Icons.school, size: 20),
-      //       SizedBox(width: 8),
-      //       Text("点击切换为老师"),
-      //       SizedBox(width: 8),
-      //       Icon(Icons.swap_horiz, size: 20),
-      //     ],
-      //   ),
-      // ),
     );
   }
+
+  //接下来制作显示老师或者学生学习的各个学科
+  Widget _buildSubjects() {
+    return Column(children: []);
+  }
+
+  //箭头形状显示选择的学科大类
+  List<Widget> _buildBigSubjects() {
+    List<Widget> list = [];
+    _subjects.forEach((bigSubject, smallSubjects) {
+      // list.add();
+    });
+    return list;
+  }
+
+  //小学科按钮
+  List<Widget> _buildSmallSubjects(bs) {
+    List<Widget> list = [];
+    Map<String, dynamic> bigSubject = _subjects[bs];
+    return list;
+  }
+
+  //   @override
+  // Widget build(BuildContext context) {
+  //   return GestureDetector(
+  //     onTap: onPressed,
+  //     child: CustomPaint(
+  //       painter: ArrowButtonPainter(backgroundColor),
+  //       child: Container(
+  //         padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+  //         alignment: Alignment.centerLeft,
+  //         height: 48,
+  //         width: MediaQuery.of(context).size.width * 0.7, // 按钮宽度
+  //         child: Text(
+  //           label,
+  //           style: TextStyle(
+  //             color: labelColor,
+  //             fontWeight: FontWeight.bold,
+  //             fontSize: 16,
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
 }

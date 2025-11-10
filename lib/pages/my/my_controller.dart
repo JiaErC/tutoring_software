@@ -14,18 +14,29 @@ abstract class _MyController with Store {
   //检查是否是老师
   @observable
   bool isStudent = true;
+  //老师或者学生学习的科目
+  @observable
+  Map<String, dynamic> subjects = {};
 
   //获取状态控制器
   final statusController = Modular.get<StatusController>();
 
   @action
-  void init(){
+  void init() {
     isLogin = statusController.isLogin;
-    isStudent = statusController.uRole.contains("1") ? true : false;
+    if (isLogin) {
+      isStudent = statusController.uRole.contains("1") ? true : false;
+      subjects = isStudent
+          ? statusController.uStudySubjects
+          : statusController.uTeachSubjects;
+    }
   }
 
   @action
-  void switchIdentity(){
+  void switchIdentity() {
     isStudent = !isStudent;
+    subjects = isStudent
+        ? statusController.uStudySubjects
+        : statusController.uTeachSubjects;
   }
 }
