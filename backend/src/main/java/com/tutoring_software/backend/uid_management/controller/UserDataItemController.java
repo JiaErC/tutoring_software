@@ -1,7 +1,6 @@
 package com.tutoring_software.backend.uid_management.controller;
 
 import com.tutoring_software.backend.uid_management.Result;
-import com.tutoring_software.backend.uid_management.entity.PhoneNumberUid;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.Logger;

@@ -57,6 +57,13 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
+  //获取状态控制器
+  final StatusController statusController = Modular.get<StatusController>();
+  //是否已经登录
+  bool get _isLogin => statusController.isLogin;
+  //是否是老师
+  bool get _isStudent => statusController.uRole.contains("1") ? true : false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,7 +83,7 @@ class _MyPageState extends State<MyPage> {
 
   Widget _userAvatar(context) {
     return Expanded(
-      flex: 1,
+      flex: 2,
       child: GFCard(
         titlePosition: GFPosition.start,
         color: Colors.transparent,
@@ -89,8 +96,10 @@ class _MyPageState extends State<MyPage> {
               radius: 20,
             ),
           ),
-          titleText: "点击头像登录",
-          subTitleText: "这里是联系方式",
+          titleText: _isLogin ? statusController.uName : "点击头像登录",
+          subTitleText: _isLogin
+              ? "电话号码:${statusController.uPhone}\n邮箱:${statusController.uEmail}"
+              : "这里是联系方式",
         ),
         content: Text("这里是简介"),
         //buttonBar:这里存放标签和联系方式
@@ -112,7 +121,7 @@ class _MyPageState extends State<MyPage> {
   /*代码来源于PiliPlus*/
   Widget _settingButton(context) {
     return Expanded(
-      flex: 1,
+      flex: 2,
       child: EdgeBox(
         margin: EdgeInsets.only(right: 20, top: 10),
         child: Align(
@@ -169,48 +178,112 @@ class _MyPageState extends State<MyPage> {
   //显示学生和老师身份标签切换的区域
   Widget _identityTagArea(context) {
     return Expanded(
-      flex: 2,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 10, bottom: 5),
-            child: Text("身份设置", style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          EdgeBox(
-            margin: EdgeInsets.only(right: 50, left: 20, top: 10, bottom: 15),
-            child: Tooltip(
-              message: "点击可切换学生/老师身份",
-              child: GFButton(
-                onPressed: () => debugPrint("点击切换身份按钮"),
-                fullWidthButton: true,
-                type: GFButtonType.outline,
-                shape: GFButtonShape.square,
-                color: Colors.blue.shade50,
-                splashColor: Colors.blue.shade100,
-                focusColor: Colors.blue.shade400,
-                highlightColor: Colors.blue.shade100,
-                text: "当前身份：学生",
-                textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 24,
-                  height: 1.2,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.school, size: 20),
-                    SizedBox(width: 8),
-                    Text("点击切换为老师"),
-                    SizedBox(width: 8),
-                    Icon(Icons.swap_horiz, size: 20),
-                  ],
-                ),
+      flex: 1,
+      child: EdgeBox(
+        margin: EdgeInsets.only(right: 50, left: 20, top: 10, bottom: 15),
+        child: Tooltip(
+          message: "点击可切换学生/老师身份",
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            decoration: BoxDecoration(
+              color: _isStudent ? Colors.green.shade100 : Colors.red.shade100,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: _isStudent ? Colors.green.shade500 : Colors.red.shade500,
+                width: 2,
+              ),
+            ),
+            child: MaterialButton(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              onPressed: () {
+                // 这里添加切换身份的逻辑
+                setState(() {
+                  // 注意：这里只是为了演示UI变化，实际切换身份的逻辑需要根据您的业务需求实现
+                  // 可能需要调用statusController中的方法来更新用户角色
+                  debugPrint("切换身份：${_isStudent ? '学生 -> 老师' : '老师 -> 学生'}");
+                  // 实际应用中应该是类似这样的调用：
+                  // statusController.switchUserRole();
+                });
+              },
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // 使用AnimatedSwitcher实现图标切换动画
+                  AnimatedSwitcher(
+                    duration: Duration(milliseconds: 300),
+                    transitionBuilder: (child, animation) {
+                      return RotationTransition(turns: animation, child: child);
+                    },
+                    child: Icon(
+                      _isStudent ? Icons.school : Icons.person,
+                      key: ValueKey<bool>(_isStudent),
+                      color: _isStudent
+                          ? Colors.green.shade600
+                          : Colors.red.shade600,
+                      size: 20,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  // 使用AnimatedSwitcher实现文本切换动画
+                  AnimatedSwitcher(
+                    duration: Duration(milliseconds: 300),
+                    child: Text(
+                      _isStudent ? '学生' : '老师',
+                      key: ValueKey<bool>(_isStudent),
+                      style: TextStyle(
+                        color: _isStudent
+                            ? Colors.green.shade600
+                            : Colors.red.shade600,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  // 添加一个交换图标
+                  Icon(
+                    Icons.swap_horiz,
+                    color: _isStudent
+                        ? Colors.green.shade600
+                        : Colors.red.shade600,
+                    size: 16,
+                  ),
+                ],
               ),
             ),
           ),
-        ],
+        ),
       ),
+
+      // GFButton(
+      //   onPressed: () => debugPrint("点击切换身份按钮"),
+      //   fullWidthButton: true,
+      //   type: GFButtonType.outline,
+      //   shape: GFButtonShape.square,
+      //   color: Colors.blue.shade50,
+      //   splashColor: Colors.blue.shade100,
+      //   focusColor: Colors.blue.shade400,
+      //   highlightColor: Colors.blue.shade100,
+      //   text: "当前身份：学生",
+      //   textStyle: TextStyle(
+      //     color: Colors.black,
+      //     fontSize: 24,
+      //     height: 1.2,
+      //   ),
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.center,
+      //     children: [
+      //       Icon(Icons.school, size: 20),
+      //       SizedBox(width: 8),
+      //       Text("点击切换为老师"),
+      //       SizedBox(width: 8),
+      //       Icon(Icons.swap_horiz, size: 20),
+      //     ],
+      //   ),
+      // ),
     );
   }
 }

@@ -18,6 +18,16 @@ abstract class _StatusController with Store {
   bool isLogin = false;
   @observable
   String uID = "";
+  //用户名
+  @observable
+  String uName = "";
+  //联系方式
+  @observable
+  String uPhone = "";
+  @observable 
+  String uEmail = "";
+  @observable
+  String uRole = "";
 
   //初始化，从盒子中获得登录状态和uID
   void init() {
@@ -25,6 +35,10 @@ abstract class _StatusController with Store {
     var status = statusBox.values.toList()[0];
     isLogin = status.isLogin;
     uID = status.uID;
+    uName = status.uName;
+    uPhone = status.uPhone;
+    uEmail = status.uEmail;
+    uRole = status.uRole;
     debugPrint("\n\n\n${status.toString()}");
   }
 
