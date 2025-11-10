@@ -1,48 +1,5 @@
-/*
-PiliPlus分析
-核心功能
-构建页面UI骨架
-
-使用Column作为根布局容器，实现垂直方向的组件排列
-包含顶部操作栏、用户信息区、功能区和收藏区等主要模块
-响应式状态管理
-
-通过Obx组件监听控制器中的响应式数据变化（如用户信息、加载状态等）
-当数据更新时，自动重新渲染相关UI组件
-用户交互实现
-
-集成下拉刷新功能(refreshIndicator)，触发controller.onRefresh方法
-为各个可点击元素（如头像、按钮等）绑定相应的回调函数
-页面结构详解
-顶部操作栏(_buildHeaderActions)
-
-包含搜索、无痕模式切换、账号模式切换、主题切换、设置等操作按钮
-按钮根据条件动态显示（如非首页时显示搜索按钮）
-用户信息区(_buildUserInfo)
-
-显示用户头像、用户名、会员状态
-展示硬币数量、经验值和经验条
-提供统计数据（动态、关注、粉丝数量）
-头像区域点击触发登录功能(controller.onLogin)
-功能操作区(_buildActions)
-
-根据控制器中的list动态生成快捷操作按钮
-每个按钮包含图标和文字标签
-收藏夹区域(_buildFav)
-
-显示收藏夹入口和数量
-根据加载状态显示不同UI（加载中、加载成功、加载失败）
-加载成功时水平滚动展示收藏夹列表
-技术实现特点
-混入AutomaticKeepAliveClientMixin确保页面切换时保持状态
-使用Material设计风格的组件和布局
-主题适配通过Theme.of(context)获取当前主题并应用到UI元素
-列表滚动优化使用ListView配合AlwaysScrollableScrollPhysics确保良好的滚动体验
-加载状态管理通过switch语句处理不同的加载状态（Loading、Success、Error）
-这个build方法是典型的Flutter声明式UI构建方式，通过组合不同的Widget和状态管理，创建出功能完整的个人中心页面。
-*/
-
 import 'package:flutter/material.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:getwidget/getwidget.dart';
 
@@ -186,10 +143,18 @@ class _MyPageState extends State<MyPage> {
           child: AnimatedContainer(
             duration: Duration(milliseconds: 300),
             decoration: BoxDecoration(
-              color: _isStudent ? Colors.green.shade100 : Colors.red.shade100,
+              color: _isLogin
+                  ? _isStudent
+                        ? Colors.green.shade100
+                        : Colors.red.shade100
+                  : Colors.black26,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: _isStudent ? Colors.green.shade500 : Colors.red.shade500,
+                color: _isLogin
+                    ? _isStudent
+                          ? Colors.green.shade500
+                          : Colors.red.shade500
+                    : Colors.white,
                 width: 2,
               ),
             ),
@@ -200,7 +165,11 @@ class _MyPageState extends State<MyPage> {
                 setState(() {
                   // 注意：这里只是为了演示UI变化，实际切换身份的逻辑需要根据您的业务需求实现
                   // 可能需要调用statusController中的方法来更新用户角色
-                  debugPrint("切换身份：${_isStudent ? '学生 -> 老师' : '老师 -> 学生'}");
+                  debugPrint(
+                    _isLogin
+                        ? "切换身份：${_isStudent ? '学生 -> 老师' : '老师 -> 学生'}"
+                        : '请先登录',
+                  );
                   // 实际应用中应该是类似这样的调用：
                   // statusController.switchUserRole();
                 });
@@ -218,11 +187,17 @@ class _MyPageState extends State<MyPage> {
                       return RotationTransition(turns: animation, child: child);
                     },
                     child: Icon(
-                      _isStudent ? Icons.school : Icons.person,
+                      _isLogin
+                          ? _isStudent
+                                ? Icons.school
+                                : Icons.person
+                          : Icons.lock,
                       key: ValueKey<bool>(_isStudent),
-                      color: _isStudent
-                          ? Colors.green.shade600
-                          : Colors.red.shade600,
+                      color: _isLogin
+                          ? _isStudent
+                                ? Colors.green.shade600
+                                : Colors.red.shade600
+                          : Colors.black87,
                       size: 20,
                     ),
                   ),
@@ -231,12 +206,18 @@ class _MyPageState extends State<MyPage> {
                   AnimatedSwitcher(
                     duration: Duration(milliseconds: 300),
                     child: Text(
-                      _isStudent ? '学生' : '老师',
+                      _isLogin
+                          ? _isStudent
+                                ? '学生'
+                                : '老师'
+                          : '请先登录',
                       key: ValueKey<bool>(_isStudent),
                       style: TextStyle(
-                        color: _isStudent
-                            ? Colors.green.shade600
-                            : Colors.red.shade600,
+                        color: _isLogin
+                            ? _isStudent
+                                  ? Colors.green.shade600
+                                  : Colors.red.shade600
+                            : Colors.black87,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -245,10 +226,12 @@ class _MyPageState extends State<MyPage> {
                   SizedBox(width: 8),
                   // 添加一个交换图标
                   Icon(
-                    Icons.swap_horiz,
-                    color: _isStudent
-                        ? Colors.green.shade600
-                        : Colors.red.shade600,
+                    _isLogin ? Icons.swap_horiz : MdiIcons.login,
+                    color: _isLogin
+                        ? _isStudent
+                              ? Colors.green.shade600
+                              : Colors.red.shade600
+                        : Colors.black,
                     size: 16,
                   ),
                 ],
