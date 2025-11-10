@@ -16,7 +16,7 @@ class NavigationBarState extends ChangeNotifier {
   int _selectedIndex = 0; //导航的索引
   // bool _isHide = false; //导航是否隐藏，true为隐藏
   // bool _isBottom = false; //导航栏是否在底部，true为底部
-  final bool _isTop = false; //导航栏是否在顶部，true位顶部
+  bool _isTop = false; //导航栏是否在顶部，true位顶部
 
   //只读属性
   int get selectedIndex => _selectedIndex;

@@ -27,11 +27,6 @@ abstract class _RegisterController with Store {
   //确认密码字段
   @observable
   String uConfirmPassword = '';
-  //这里是选择了多少学科的数量
-  @observable
-  int uTeachSubjectsCount = 0;
-  @observable
-  int uStudySubjectsCount = 0;
 
   //清空方法，用来清空表单数据
   @action
@@ -43,11 +38,9 @@ abstract class _RegisterController with Store {
     uConfirmPassword = '';
     uGender = 0;
     uBirthday = '';
-    uRole.clear();
-    uTeachSubjects.clear();
-    uStudySubjects.clear();
-    uTeachSubjectsCount = 0;
-    uStudySubjectsCount = 0;
+    uRole = {};
+    uTeachSubjects = {};
+    uStudySubjects = {};
   }
 
   // 更新角色选择

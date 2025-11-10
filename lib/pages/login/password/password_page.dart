@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
-import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
-import 'package:tutoring_software/modules/account_manager/account_controller.dart';
-import 'package:tutoring_software/modules/status/status_controller.dart';
-import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 
 class PasswordPage extends StatefulWidget {
   const PasswordPage({super.key});
@@ -19,13 +15,6 @@ String uAccount = '';
 String uPassword = '';
 
 class _PasswordPageState extends State<PasswordPage> {
-  //此处的代码仅作为测试
-  UserDataController userDataController = Modular.get<UserDataController>();
-  //通过邮箱和电话查找uID的控制类
-  AccountController accountController = Modular.get<AccountController>();
-  //登录状态控制器
-  StatusController statusController = Modular.get<StatusController>();
-
   bool showPassword = false; //是否显示密码的变量
   //两个控制器
   final TextEditingController _userAccountController = TextEditingController();
@@ -49,9 +38,6 @@ class _PasswordPageState extends State<PasswordPage> {
 
   //验证账号
   void _validateAccount(String value) {
-    // 在setState外部执行异步操作，避免UI卡顿
-    _fetchUid(value);
-
     setState(() {
       if (_emailRegex.hasMatch(value) ||
           _phoneRegex.hasMatch(value) ||
@@ -64,23 +50,6 @@ class _PasswordPageState extends State<PasswordPage> {
         _isAccountValid = false;
       }
     });
-  }
-
-  //获取UID
-  Future<void> _fetchUid(String value) async {
-    try {
-      if (_phoneRegex.hasMatch(value)) {
-        await accountController.getUidByPhone(value);
-      } else if (_emailRegex.hasMatch(value)) {
-        await accountController.getUidByEmail(value);
-      }
-      // 可以在这里添加额外的UI反馈，比如显示"验证成功"或清除错误提示
-    } catch (e) {
-      debugPrint('获取UID失败: $e');
-      // 确保在发生错误时清空uID
-      accountController.uID = '';
-      // 可以添加UI反馈，比如显示错误消息
-    }
   }
 
   //验证密码
@@ -273,40 +242,13 @@ class _PasswordPageState extends State<PasswordPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             OutlinedButton.icon(
-              onPressed: () async {
+              onPressed: () {
                 //表单验证
                 if (_validateForm()) {
                   // 密码和账号的输出情况
                   _assignFormDataToUserProperties();
                   debugPrint("账号：$uAccount");
                   debugPrint("密码：$uPassword");
-                  //验证用户账户查找情况
-                  if (accountController.uID.isEmpty) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(const SnackBar(content: Text("账号错误")));
-                  } else {
-                    try {
-                      UserDataItem? userDataItem = await userDataController
-                          .getUserData(accountController.uID);
-                      if (userDataItem != null) {
-                        //改变登录状态
-                        statusController.setStatus(userDataItem);
-                        debugPrint("登录成功:\n${userDataItem.toString()}");
-                      } else {
-                        ScaffoldMessenger.of(
-                          // ignore: use_build_context_synchronously
-                          context,
-                        ).showSnackBar(const SnackBar(content: Text("账号错误")));
-                      }
-                    } catch (e) {
-                      // 捕获并处理"UID not found"等异常
-                      debugPrint('登录异常: $e');
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text("$e")));
-                    }
-                  }
                 }
               },
               icon: const Icon(Icons.login),
