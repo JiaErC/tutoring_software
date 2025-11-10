@@ -5,6 +5,7 @@ import 'package:getwidget/getwidget.dart';
 
 import 'package:tutoring_software/bean/widgets/edge_box.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
+import 'package:tutoring_software/pages/my/my_controller.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -16,10 +17,13 @@ class MyPage extends StatefulWidget {
 class _MyPageState extends State<MyPage> {
   //获取状态控制器
   final StatusController statusController = Modular.get<StatusController>();
-  //是否已经登录
-  bool get _isLogin => statusController.isLogin;
-  //是否是老师
-  bool get _isStudent => statusController.uRole.contains("1") ? true : false;
+  //获取MyController
+  final MyController myController = Modular.get<MyController>();
+
+  //获取登录状态和是否为老师
+  bool get _isLogin => myController.isLogin;
+  //获取当前用户角色
+  bool get _isStudent => myController.isStudent;
 
   @override
   Widget build(BuildContext context) {
@@ -165,6 +169,7 @@ class _MyPageState extends State<MyPage> {
                 setState(() {
                   // 注意：这里只是为了演示UI变化，实际切换身份的逻辑需要根据您的业务需求实现
                   // 可能需要调用statusController中的方法来更新用户角色
+                  if(_isLogin)myController.switchIdentity();
                   debugPrint(
                     _isLogin
                         ? "切换身份：${_isStudent ? '学生 -> 老师' : '老师 -> 学生'}"
@@ -192,7 +197,7 @@ class _MyPageState extends State<MyPage> {
                                 ? Icons.school
                                 : Icons.person
                           : Icons.lock,
-                      key: ValueKey<bool>(_isStudent),
+                      key: ValueKey<String>('icon_\${_isStudent}'),
                       color: _isLogin
                           ? _isStudent
                                 ? Colors.green.shade600
@@ -211,7 +216,7 @@ class _MyPageState extends State<MyPage> {
                                 ? '学生'
                                 : '老师'
                           : '请先登录',
-                      key: ValueKey<bool>(_isStudent),
+                      key: ValueKey<String>('text_\${_isStudent}'), // 修改为唯一的key
                       style: TextStyle(
                         color: _isLogin
                             ? _isStudent
