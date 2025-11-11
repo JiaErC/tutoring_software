@@ -6,7 +6,6 @@ import 'package:getwidget/getwidget.dart';
 import 'package:tutoring_software/bean/widgets/edge_box.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/pages/my/my_controller.dart';
-import 'package:tutoring_software/bean/widgets/arrow_button_painter.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -25,9 +24,12 @@ class _MyPageState extends State<MyPage> {
   bool get _isLogin => myController.isLogin;
   //获取当前用户角色
   bool get _isStudent => myController.isStudent;
-  //获取当前用户教学的学科信息
+  //获取当前用户教学的学科信息，选了什么学科，还有是否选择了学科
   Map<String, dynamic> get _subjects => myController.subjects;
   bool get _isSelectedSubjects => _subjects.isNotEmpty;
+  //每个大学科的选择情况
+  Map<String, bool> get _isViewSubjects =>
+      _subjects.map((key, value) => MapEntry(key, true));
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +40,31 @@ class _MyPageState extends State<MyPage> {
           SizedBox(
             height: 200,
             child: Row(
-              children: [_userAvatar(context), _buildingButtonArea(context)],
+              children: [
+                _userAvatar(context),
+                _buildingButtonArea(context),
+                _isLogin
+                    ? _isSelectedSubjects
+                          ? _buildSubjects()
+                          : SizedBox.shrink()
+                    : SizedBox.shrink(),
+              ],
             ),
           ),
           //这里放置学科显示组件
         ],
       ),
     );
+  }
+
+  //文字边框的颜色设置
+  Color _getRoleColor() {
+    return _isStudent ? Colors.green.shade600 : Colors.red.shade600;
+  }
+
+  //背景的颜色设置
+  Color _getBackgroundColor() {
+    return _isStudent ? Colors.green.shade100 : Colors.red.shade100;
   }
 
   Widget _userAvatar(context) {
@@ -78,7 +98,11 @@ class _MyPageState extends State<MyPage> {
     return Expanded(
       flex: 1,
       child: Column(
-        children: [_settingButton(context), _identityTagArea(context)],
+        children: [
+          _settingButton(context),
+          _identityTagArea(context),
+          _buildSubjects(),
+        ],
       ),
     );
   }
@@ -152,18 +176,10 @@ class _MyPageState extends State<MyPage> {
           child: AnimatedContainer(
             duration: Duration(milliseconds: 300),
             decoration: BoxDecoration(
-              color: _isLogin
-                  ? _isStudent
-                        ? Colors.green.shade100
-                        : Colors.red.shade100
-                  : Colors.black26,
+              color: _isLogin ? _getBackgroundColor() : Colors.black26,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: _isLogin
-                    ? _isStudent
-                          ? Colors.green.shade500
-                          : Colors.red.shade500
-                    : Colors.white,
+                color: _isLogin ? _getRoleColor() : Colors.white,
                 width: 2,
               ),
             ),
@@ -203,11 +219,7 @@ class _MyPageState extends State<MyPage> {
                                 : Icons.person
                           : Icons.lock,
                       key: ValueKey<String>('icon_\${_isStudent}'),
-                      color: _isLogin
-                          ? _isStudent
-                                ? Colors.green.shade600
-                                : Colors.red.shade600
-                          : Colors.black87,
+                      color: _isLogin ? _getRoleColor() : Colors.black87,
                       size: 20,
                     ),
                   ),
@@ -223,11 +235,7 @@ class _MyPageState extends State<MyPage> {
                           : '请先登录',
                       key: ValueKey<String>('text_\${_isStudent}'), // 修改为唯一的key
                       style: TextStyle(
-                        color: _isLogin
-                            ? _isStudent
-                                  ? Colors.green.shade600
-                                  : Colors.red.shade600
-                            : Colors.black87,
+                        color: _isLogin ? _getRoleColor() : Colors.black87,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -237,11 +245,7 @@ class _MyPageState extends State<MyPage> {
                   // 添加一个交换图标
                   Icon(
                     _isLogin ? Icons.swap_horiz : MdiIcons.login,
-                    color: _isLogin
-                        ? _isStudent
-                              ? Colors.green.shade600
-                              : Colors.red.shade600
-                        : Colors.black,
+                    color: _isLogin ? _getRoleColor() : Colors.black,
                     size: 16,
                   ),
                 ],
@@ -255,14 +259,39 @@ class _MyPageState extends State<MyPage> {
 
   //接下来制作显示老师或者学生学习的各个学科
   Widget _buildSubjects() {
-    return Column(children: []);
+    return Column(children: _buildBigSubjects());
   }
 
   //箭头形状显示选择的学科大类
   List<Widget> _buildBigSubjects() {
     List<Widget> list = [];
     _subjects.forEach((bigSubject, smallSubjects) {
-      // list.add();
+      list.add(
+        GestureDetector(
+          onTap: () {
+            setState(
+              () =>
+                  //点击展开child的学科栏目
+                  _isViewSubjects[bigSubject] = !_isViewSubjects[bigSubject]!,
+            );
+          },
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            decoration: BoxDecoration(
+              color: _getBackgroundColor(),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.zero,
+                bottomLeft: Radius.zero,
+                topRight: Radius.zero,
+                bottomRight: Radius.circular(20),
+              ),
+            ),
+            child: _isViewSubjects[bigSubject]!
+                ? Column(children: _buildSmallSubjects(smallSubjects))
+                : SizedBox.shrink(), //这里是学科栏目
+          ),
+        ),
+      );
     });
     return list;
   }
@@ -270,7 +299,67 @@ class _MyPageState extends State<MyPage> {
   //小学科按钮
   List<Widget> _buildSmallSubjects(bs) {
     List<Widget> list = [];
-    Map<String, dynamic> bigSubject = _subjects[bs];
+    bs.forEach((smallSubject, value) {
+      list.add(
+        Row(
+          children:
+              <Widget>[
+                AnimatedContainer(
+                  duration: Duration(milliseconds: 300),
+                  decoration: BoxDecoration(
+                    color: _getBackgroundColor(),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.zero,
+                      bottomLeft: Radius.zero,
+                      topRight: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
+                    ),
+                    border: Border.all(color: _getRoleColor(), width: 2),
+                  ),
+                  child: AnimatedSwitcher(
+                    duration: Duration(milliseconds: 300),
+                    child: Text(
+                      smallSubject,
+                      key: ValueKey<String>(
+                        'text_\${smallSubject}',
+                      ), // 修改为唯一的key
+                      style: TextStyle(
+                        color: _getRoleColor(),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ] + //添加了小学科
+              [..._buildLastSubjects(smallSubject)],
+        ),
+      );
+    });
+    return list;
+  }
+
+  //获取每个科目
+  List<Widget> _buildLastSubjects(ss) {
+    List<Widget> list = [];
+    ss.forEach((s) {
+      list.add(
+        GFButton(
+          onPressed: () {},
+          type: GFButtonType.outline,
+          shape: GFButtonShape.pills,
+          color: _getBackgroundColor(),
+          child: Text(
+            s,
+            style: TextStyle(
+              color: _getRoleColor(),
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      );
+    });
     return list;
   }
 
