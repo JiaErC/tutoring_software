@@ -25,6 +25,8 @@ import 'package:tutoring_software/pages/subjects/subjects_module.dart';
 import 'package:tutoring_software/pages/register/register_controller.dart';
 import 'package:tutoring_software/pages/teacher_info/teacher_info_module.dart';
 import 'package:tutoring_software/pages/teacher_evaluation/teacher_evaluation_module.dart';
+import 'package:tutoring_software/pages/learning_analysis/learning_analysis_module.dart';
+import 'package:tutoring_software/pages/test_scoring/test_scoring_module.dart';
 
 //目的是定义整个软件的路由
 class IndexModule extends Module {
