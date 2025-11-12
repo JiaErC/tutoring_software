@@ -9,8 +9,8 @@ class GStorage {
   //存储这个用户登录状态的数据集
   static late Box<Status> statusBox;
   //存储手机号和电话号码的数据集
-  static late Box<String> phoneNumberBox;
-  static late Box<String> emailBox;
+  // static late Box<String> phoneNumberBox;
+  // static late Box<String> emailBox;
 
   //数据库初始化
   static Future init() async {
