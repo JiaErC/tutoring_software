@@ -1,5 +1,6 @@
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';  
 
 import 'package:tutoring_software/modules/status/status.dart';
 import 'package:tutoring_software/utils/storage.dart';
@@ -46,10 +47,11 @@ abstract class _StatusController with Store {
     uRole = status.uRole;
     uStudySubjects = status.uStudySubjects;
     uTeachSubjects = status.uTeachSubjects;
-    debugPrint("\n\n\n${status.toString()}");
+    debugPrint("\n\n\n修改了${status.toString()}");
   }
 
   //退出登录，也就是直接删除登录状态
+  @action
   void deleteStatus() {
     statusBox.clear();
     statusBox.add(Status(isLogin: false));
@@ -57,10 +59,13 @@ abstract class _StatusController with Store {
   }
 
   //用户登录或者注册，也就是直接修改
-  void setStatus(UserDataItem u) {
-    statusBox.clear();
+  @action
+  Future<void> setStatus(UserDataItem u) async {
+    // 方法1：完全重写statusBox（推荐）
+    await statusBox.close();
+    await Hive.deleteBoxFromDisk('status');
+    statusBox = await Hive.openBox('status');
     statusBox.add(Status.fromUserDataItem(u));
-    debugPrint("\n\n\n修改了，${statusBox.values.toList()[0].toString()}");
     init();
   }
 }
