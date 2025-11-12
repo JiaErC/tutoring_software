@@ -24,7 +24,7 @@ abstract class _StatusController with Store {
   //联系方式
   @observable
   String uPhone = "";
-  @observable 
+  @observable
   String uEmail = "";
   @observable
   String uRole = "";
@@ -33,7 +33,6 @@ abstract class _StatusController with Store {
   Map<String, dynamic> uStudySubjects = {};
   @observable
   Map<String, dynamic> uTeachSubjects = {};
-  
 
   //初始化，从盒子中获得登录状态和uID
   void init() {
@@ -61,6 +60,7 @@ abstract class _StatusController with Store {
   void setStatus(UserDataItem u) {
     statusBox.clear();
     statusBox.add(Status.fromUserDataItem(u));
+    debugPrint("\n\n\n${statusBox.values.toList()[0].toString()}");
     init();
   }
 }

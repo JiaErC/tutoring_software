@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:flutter_modular/flutter_modular.dart';
@@ -332,7 +334,7 @@ class _MyPageState extends State<MyPage> {
                   ),
                 ),
               ] + //添加了小学科
-              [..._buildLastSubjects(smallSubject)],
+              [..._buildLastSubjects(value)],
         ),
       );
     });
@@ -362,27 +364,4 @@ class _MyPageState extends State<MyPage> {
     });
     return list;
   }
-
-  //   @override
-  // Widget build(BuildContext context) {
-  //   return GestureDetector(
-  //     onTap: onPressed,
-  //     child: CustomPaint(
-  //       painter: ArrowButtonPainter(backgroundColor),
-  //       child: Container(
-  //         padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-  //         alignment: Alignment.centerLeft,
-  //         height: 48,
-  //         width: MediaQuery.of(context).size.width * 0.7, // 按钮宽度
-  //         child: Text(
-  //           label,
-  //           style: TextStyle(
-  //             color: labelColor,
-  //             fontWeight: FontWeight.bold,
-  //             fontSize: 16,
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
 }
