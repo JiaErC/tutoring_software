@@ -7,6 +7,6 @@ class LearningAnalysisModule extends Module {
   @override
   void routes(r) {
     r.child("/", child: (_) => const LearningAnalysisPage());
-    r.child("/preview", child: (_) => const TestPaperPreviewPage());
+    r.child("/preview", child: (_) => TestPaperPreviewPage(testPaper: r.args.data));
   }
 }

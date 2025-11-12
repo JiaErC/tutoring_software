@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tutoring_software/data/generated_test_data.dart';
+import 'package:tutoring_software/data/test_scoring_data.dart';
 
 class TestPaperPreviewPage extends StatelessWidget {
   final GeneratedTestPaper testPaper;
@@ -110,7 +111,7 @@ class TestPaperPreviewPage extends StatelessWidget {
     );
   }
 
-  Widget _buildQuestionCard(TestQuestion question, int number) {
+  Widget _buildQuestionCard(dynamic question, int number) {
     return Card(
       elevation: 3,
       margin: const EdgeInsets.only(bottom: 16),
