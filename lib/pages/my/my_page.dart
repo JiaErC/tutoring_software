@@ -30,31 +30,30 @@ class _MyPageState extends State<MyPage> {
   Map<String, dynamic> get _subjects => myController.subjects;
   bool get _isSelectedSubjects => _subjects.isNotEmpty;
   //每个大学科的选择情况
-  Map<String, bool> get _isViewSubjects =>
-      _subjects.map((key, value) => MapEntry(key, true));
-
+  Map<String, bool> get _isViewSubjects => myController.isViewSubjects;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          SizedBox(
-            height: 200,
-            child: Row(
-              children: [
-                _userAvatar(context),
-                _buildingButtonArea(context),
-                _isLogin
-                    ? _isSelectedSubjects
-                          ? _buildSubjects()
-                          : SizedBox.shrink()
-                    : SizedBox.shrink(),
-              ],
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 200,
+              child: Row(
+                children: [_userAvatar(context), _buildingButtonArea(context)],
+              ),
             ),
-          ),
-          //这里放置学科显示组件
-        ],
+            const SizedBox(height: 20),
+            //这里放置学科显示组件
+            _isLogin
+                ? _isSelectedSubjects
+                      ? _buildSubjects()
+                      : SizedBox.shrink()
+                : SizedBox.shrink(),
+          ],
+        ),
       ),
     );
   }
@@ -100,11 +99,7 @@ class _MyPageState extends State<MyPage> {
     return Expanded(
       flex: 1,
       child: Column(
-        children: [
-          _settingButton(context),
-          _identityTagArea(context),
-          _buildSubjects(),
-        ],
+        children: [_settingButton(context), _identityTagArea(context)],
       ),
     );
   }
@@ -261,37 +256,68 @@ class _MyPageState extends State<MyPage> {
 
   //接下来制作显示老师或者学生学习的各个学科
   Widget _buildSubjects() {
-    return Column(children: _buildBigSubjects());
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      alignment: Alignment.centerLeft,
+      child: Column(children: _buildBigSubjects()),
+    );
   }
 
   //箭头形状显示选择的学科大类
   List<Widget> _buildBigSubjects() {
     List<Widget> list = [];
     _subjects.forEach((bigSubject, smallSubjects) {
+      debugPrint("是否展开：${_isViewSubjects[bigSubject]}");
       list.add(
-        GestureDetector(
-          onTap: () {
-            setState(
-              () =>
-                  //点击展开child的学科栏目
-                  _isViewSubjects[bigSubject] = !_isViewSubjects[bigSubject]!,
-            );
-          },
-          child: AnimatedContainer(
-            duration: Duration(milliseconds: 300),
-            decoration: BoxDecoration(
-              color: _getBackgroundColor(),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.zero,
-                bottomLeft: Radius.zero,
-                topRight: Radius.zero,
-                bottomRight: Radius.circular(20),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AnimatedContainer(
+              duration: Duration(milliseconds: 150),
+              width: 200,
+              height: 40,
+              decoration: BoxDecoration(
+                color: _getBackgroundColor(),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.zero,
+                  bottomLeft: Radius.zero,
+                  topRight: Radius.zero,
+                  bottomRight: Radius.circular(20),
+                ),
+                border: Border.all(color: _getRoleColor(), width: 2),
+              ),
+              child: TextButton(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      bigSubject,
+                      style: TextStyle(
+                        color: _getRoleColor(),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(width: 8), // 文本和图标之间的间距
+                    Icon(
+                      (_isViewSubjects[bigSubject] ?? true)
+                          ? Icons.arrow_drop_down
+                          : Icons.arrow_right,
+                      color: _getRoleColor(),
+                      size: 40,
+                    ),
+                  ],
+                ),
+                onPressed: () => setState(() {
+                  debugPrint("是否展开：${_isViewSubjects[bigSubject]}");
+                  myController.switchViewSubjects(bigSubject);
+                }),
               ),
             ),
-            child: _isViewSubjects[bigSubject]!
+            _isViewSubjects[bigSubject] ?? true
                 ? Column(children: _buildSmallSubjects(smallSubjects))
                 : SizedBox.shrink(), //这里是学科栏目
-          ),
+          ],
         ),
       );
     });
@@ -303,38 +329,41 @@ class _MyPageState extends State<MyPage> {
     List<Widget> list = [];
     bs.forEach((smallSubject, value) {
       list.add(
-        Row(
-          children:
-              <Widget>[
-                AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  decoration: BoxDecoration(
-                    color: _getBackgroundColor(),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.zero,
-                      bottomLeft: Radius.zero,
-                      topRight: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    ),
-                    border: Border.all(color: _getRoleColor(), width: 2),
+        Container(
+          margin: EdgeInsets.only(bottom: 8),
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: <Widget>[
+              AnimatedContainer(
+                margin: EdgeInsets.only(top: 4),
+                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                duration: Duration(milliseconds: 300),
+                decoration: BoxDecoration(
+                  color: _getBackgroundColor(),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.zero,
+                    bottomLeft: Radius.zero,
+                    topRight: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
                   ),
-                  child: AnimatedSwitcher(
-                    duration: Duration(milliseconds: 300),
-                    child: Text(
-                      smallSubject,
-                      key: ValueKey<String>(
-                        'text_\${smallSubject}',
-                      ), // 修改为唯一的key
-                      style: TextStyle(
-                        color: _getRoleColor(),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                  border: Border.all(color: _getRoleColor(), width: 2),
+                ),
+                child: AnimatedSwitcher(
+                  duration: Duration(milliseconds: 300),
+                  child: Text(
+                    smallSubject,
+                    key: ValueKey<String>('text_\${smallSubject}'), // 修改为唯一的key
+                    style: TextStyle(
+                      color: _getRoleColor(),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
                   ),
                 ),
-              ] + //添加了小学科
-              [..._buildLastSubjects(value)],
+              ),
+              _buildLastSubjects(value),
+            ], //添加了小学科
+          ),
         ),
       );
     });
@@ -342,26 +371,36 @@ class _MyPageState extends State<MyPage> {
   }
 
   //获取每个科目
-  List<Widget> _buildLastSubjects(ss) {
+  Widget _buildLastSubjects(ss) {
     List<Widget> list = [];
     ss.forEach((s) {
       list.add(
-        GFButton(
-          onPressed: () {},
-          type: GFButtonType.outline,
-          shape: GFButtonShape.pills,
-          color: _getBackgroundColor(),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: _getBackgroundColor(), width: 2),
+          ),
           child: Text(
             s,
             style: TextStyle(
               color: _getRoleColor(),
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.normal,
               fontSize: 16,
             ),
           ),
         ),
       );
     });
-    return list;
+    //返回一个有边框的Container容器
+    return Container(
+      margin: EdgeInsets.only(left: 5),
+      padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+      decoration: BoxDecoration(
+        border: Border.all(color: _getRoleColor(), width: 2),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(children: list),
+      ),
+    );
   }
 }

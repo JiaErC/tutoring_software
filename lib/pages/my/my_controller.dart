@@ -17,6 +17,8 @@ abstract class _MyController with Store {
   //老师或者学生学习的科目
   @observable
   Map<String, dynamic> subjects = {};
+  @observable
+  Map<String, bool> isViewSubjects = {};
 
   //获取状态控制器
   final statusController = Modular.get<StatusController>();
@@ -29,6 +31,8 @@ abstract class _MyController with Store {
       subjects = isStudent
           ? statusController.uStudySubjects
           : statusController.uTeachSubjects;
+      isViewSubjects = subjects.map((key, value) => MapEntry(key, true));
+      debugPrint("\nisViewSubjects是$isViewSubjects\n");
     }
   }
 
@@ -38,5 +42,15 @@ abstract class _MyController with Store {
     subjects = isStudent
         ? statusController.uStudySubjects
         : statusController.uTeachSubjects;
+    isViewSubjects = subjects.map((key, value) => MapEntry(key, true));
+    debugPrint("\nisViewSubjects是$isViewSubjects\n");
+  }
+
+  @action
+  void switchViewSubjects(String s) {
+    // 添加空值检查，避免对null使用!操作符
+    if (isViewSubjects.containsKey(s)) {
+      isViewSubjects[s] = !isViewSubjects[s]!;
+    }
   }
 }
