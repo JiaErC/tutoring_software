@@ -1,51 +1,15 @@
-/*
-PiliPlus分析
-核心功能
-构建页面UI骨架
-
-使用Column作为根布局容器，实现垂直方向的组件排列
-包含顶部操作栏、用户信息区、功能区和收藏区等主要模块
-响应式状态管理
-
-通过Obx组件监听控制器中的响应式数据变化（如用户信息、加载状态等）
-当数据更新时，自动重新渲染相关UI组件
-用户交互实现
-
-集成下拉刷新功能(refreshIndicator)，触发controller.onRefresh方法
-为各个可点击元素（如头像、按钮等）绑定相应的回调函数
-页面结构详解
-顶部操作栏(_buildHeaderActions)
-
-包含搜索、无痕模式切换、账号模式切换、主题切换、设置等操作按钮
-按钮根据条件动态显示（如非首页时显示搜索按钮）
-用户信息区(_buildUserInfo)
-
-显示用户头像、用户名、会员状态
-展示硬币数量、经验值和经验条
-提供统计数据（动态、关注、粉丝数量）
-头像区域点击触发登录功能(controller.onLogin)
-功能操作区(_buildActions)
-
-根据控制器中的list动态生成快捷操作按钮
-每个按钮包含图标和文字标签
-收藏夹区域(_buildFav)
-
-显示收藏夹入口和数量
-根据加载状态显示不同UI（加载中、加载成功、加载失败）
-加载成功时水平滚动展示收藏夹列表
-技术实现特点
-混入AutomaticKeepAliveClientMixin确保页面切换时保持状态
-使用Material设计风格的组件和布局
-主题适配通过Theme.of(context)获取当前主题并应用到UI元素
-列表滚动优化使用ListView配合AlwaysScrollableScrollPhysics确保良好的滚动体验
-加载状态管理通过switch语句处理不同的加载状态（Loading、Success、Error）
-这个build方法是典型的Flutter声明式UI构建方式，通过组合不同的Widget和状态管理，创建出功能完整的个人中心页面。
-*/
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:mobx/mobx.dart';
+import 'package:provider/provider.dart';
+
 import 'package:tutoring_software/bean/widgets/edge_box.dart';
+import 'package:tutoring_software/modules/status/status_controller.dart';
+import 'package:tutoring_software/pages/my/my_controller.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -55,26 +19,103 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
+  //获取状态控制器
+  final StatusController statusController = Modular.get<StatusController>();
+  //获取MyController
+  final MyController myController = Modular.get<MyController>();
+
+  // 存储reaction的disposer
+  ReactionDisposer? _loginReaction;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 在首帧渲染后初始化
+      _initializeController();
+    });
+  }
+
+  void _initializeController() {
+    try {
+      // 初始化MyController，同步StatusController的状态
+      myController.init();
+
+      // 设置reaction来监听登录状态变化
+      _loginReaction = reaction((_) => statusController.isLogin, (
+        bool isLoggedIn,
+      ) {
+        // 使用setState确保UI更新
+        setState(() {
+          // 当登录状态变化时，重新初始化MyController
+          myController.init();
+          debugPrint('登录状态变化: $isLoggedIn');
+        });
+      });
+    } catch (e) {
+      debugPrint('初始化控制器失败: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    // 安全地清理reaction，检查是否为null
+    if (_loginReaction != null) {
+      _loginReaction!();
+    }
+    super.dispose();
+  }
+
+  //获取登录状态和是否为老师
+  bool get _isLogin => myController.isLogin;
+  //获取当前用户角色
+  bool get _isStudent => myController.isStudent;
+  //获取当前用户教学的学科信息，选了什么学科，还有是否选择了学科
+  Map<String, dynamic> get _subjects => myController.subjects;
+  bool get _isSelectedSubjects => _subjects.isNotEmpty;
+  //每个大学科的选择情况
+  Map<String, bool> get _isViewSubjects => myController.isViewSubjects;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          SizedBox(
-            height: 200,
-            child: Row(
-              children: [_userAvatar(context), _buildingButtonArea(context)],
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 200,
+              child: Row(
+                children: [_userAvatar(context), _buildingButtonArea(context)],
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            //这里放置学科显示组件
+            _isLogin
+                ? _isSelectedSubjects
+                      ? _buildSubjects()
+                      : SizedBox.shrink()
+                : SizedBox.shrink(),
+          ],
+        ),
       ),
     );
   }
 
+  //文字边框的颜色设置
+  Color _getRoleColor() {
+    return _isStudent ? Colors.green.shade600 : Colors.red.shade600;
+  }
+
+  //背景的颜色设置
+  Color _getBackgroundColor() {
+    return _isStudent ? Colors.green.shade100 : Colors.red.shade100;
+  }
+
   Widget _userAvatar(context) {
     return Expanded(
-      flex: 1,
+      flex: 2,
       child: GFCard(
         titlePosition: GFPosition.start,
         color: Colors.transparent,
@@ -87,8 +128,10 @@ class _MyPageState extends State<MyPage> {
               radius: 20,
             ),
           ),
-          titleText: "点击头像登录",
-          subTitleText: "这里是联系方式",
+          titleText: _isLogin ? statusController.uName : "点击头像登录",
+          subTitleText: _isLogin
+              ? "电话号码:${statusController.uPhone}\n邮箱:${statusController.uEmail}"
+              : "这里是联系方式",
         ),
         content: Text("这里是简介"),
         //buttonBar:这里存放标签和联系方式
@@ -110,7 +153,7 @@ class _MyPageState extends State<MyPage> {
   /*代码来源于PiliPlus*/
   Widget _settingButton(context) {
     return Expanded(
-      flex: 1,
+      flex: 2,
       child: EdgeBox(
         margin: EdgeInsets.only(right: 20, top: 10),
         child: Align(
@@ -167,47 +210,246 @@ class _MyPageState extends State<MyPage> {
   //显示学生和老师身份标签切换的区域
   Widget _identityTagArea(context) {
     return Expanded(
-      flex: 2,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 10, bottom: 5),
-            child: Text("身份设置", style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          EdgeBox(
-            margin: EdgeInsets.only(right: 50, left: 20, top: 10, bottom: 15),
-            child: Tooltip(
-              message: "点击可切换学生/老师身份",
-              child: GFButton(
-                onPressed: () => debugPrint("点击切换身份按钮"),
-                fullWidthButton: true,
-                type: GFButtonType.outline,
-                shape: GFButtonShape.square,
-                color: Colors.blue.shade50,
-                splashColor: Colors.blue.shade100,
-                focusColor: Colors.blue.shade400,
-                highlightColor: Colors.blue.shade100,
-                text: "当前身份：学生",
-                textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 24,
-                  height: 1.2,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.school, size: 20),
-                    SizedBox(width: 8),
-                    Text("点击切换为老师"),
-                    SizedBox(width: 8),
-                    Icon(Icons.swap_horiz, size: 20),
-                  ],
-                ),
+      flex: 1,
+      child: EdgeBox(
+        margin: EdgeInsets.only(right: 50, left: 20, top: 10, bottom: 15),
+        child: Tooltip(
+          message: "点击可切换学生/老师身份",
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            decoration: BoxDecoration(
+              color: _isLogin ? _getBackgroundColor() : Colors.black26,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: _isLogin ? _getRoleColor() : Colors.white,
+                width: 2,
+              ),
+            ),
+            child: MaterialButton(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              onPressed: () {
+                // 这里添加切换身份的逻辑
+                setState(() {
+                  // 注意：这里只是为了演示UI变化，实际切换身份的逻辑需要根据您的业务需求实现
+                  // 可能需要调用statusController中的方法来更新用户角色
+                  if (_isLogin) myController.switchIdentity();
+                  debugPrint(
+                    _isLogin
+                        ? "切换身份：${_isStudent ? '学生 -> 老师' : '老师 -> 学生'}"
+                        : '请先登录',
+                  );
+                  // 实际应用中应该是类似这样的调用：
+                  // statusController.switchUserRole();
+                });
+              },
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // 使用AnimatedSwitcher实现图标切换动画
+                  AnimatedSwitcher(
+                    duration: Duration(milliseconds: 300),
+                    transitionBuilder: (child, animation) {
+                      return RotationTransition(turns: animation, child: child);
+                    },
+                    child: Icon(
+                      _isLogin
+                          ? _isStudent
+                                ? Icons.school
+                                : Icons.person
+                          : Icons.lock,
+                      key: ValueKey<String>('icon_\${_isStudent}'),
+                      color: _isLogin ? _getRoleColor() : Colors.black87,
+                      size: 20,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  // 使用AnimatedSwitcher实现文本切换动画
+                  AnimatedSwitcher(
+                    duration: Duration(milliseconds: 300),
+                    child: Text(
+                      _isLogin
+                          ? _isStudent
+                                ? '学生'
+                                : '老师'
+                          : '请先登录',
+                      key: ValueKey<String>('text_\${_isStudent}'), // 修改为唯一的key
+                      style: TextStyle(
+                        color: _isLogin ? _getRoleColor() : Colors.black87,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  // 添加一个交换图标
+                  Icon(
+                    _isLogin ? Icons.swap_horiz : MdiIcons.login,
+                    color: _isLogin ? _getRoleColor() : Colors.black,
+                    size: 16,
+                  ),
+                ],
               ),
             ),
           ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  //接下来制作显示老师或者学生学习的各个学科
+  Widget _buildSubjects() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 40),
+      alignment: Alignment.centerLeft,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _buildBigSubjects(),
+      ),
+    );
+  }
+
+  //箭头形状显示选择的学科大类
+  List<Widget> _buildBigSubjects() {
+    List<Widget> list = [];
+    _subjects.forEach((bigSubject, smallSubjects) {
+      debugPrint("是否展开：${_isViewSubjects[bigSubject]}");
+      list.add(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AnimatedContainer(
+              margin: EdgeInsets.only(top:6),
+              duration: Duration(milliseconds: 150),
+              width: 200,
+              height: 40,
+              decoration: BoxDecoration(
+                color: _getBackgroundColor(),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.zero,
+                  bottomLeft: Radius.zero,
+                  topRight: Radius.zero,
+                  bottomRight: Radius.circular(20),
+                ),
+                border: Border.all(color: _getRoleColor(), width: 2),
+              ),
+              child: TextButton(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      bigSubject,
+                      style: TextStyle(
+                        color: _getRoleColor(),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(width: 8), // 文本和图标之间的间距
+                    Icon(
+                      (_isViewSubjects[bigSubject] ?? true)
+                          ? Icons.arrow_drop_down
+                          : Icons.arrow_right,
+                      color: _getRoleColor(),
+                      size: 40,
+                    ),
+                  ],
+                ),
+                onPressed: () => setState(() {
+                  debugPrint("是否展开：${_isViewSubjects[bigSubject]}");
+                  myController.switchViewSubjects(bigSubject);
+                }),
+              ),
+            ),
+            _isViewSubjects[bigSubject] ?? true
+                ? Column(children: _buildSmallSubjects(smallSubjects))
+                : SizedBox.shrink(), //这里是学科栏目
+          ],
+        ),
+      );
+    });
+    return list;
+  }
+
+  //小学科按钮
+  List<Widget> _buildSmallSubjects(bs) {
+    List<Widget> list = [];
+    bs.forEach((smallSubject, value) {
+      list.add(
+        Container(
+          margin: EdgeInsets.only(bottom: 8),
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: <Widget>[
+              AnimatedContainer(
+                margin: EdgeInsets.only(top: 4),
+                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                duration: Duration(milliseconds: 300),
+                decoration: BoxDecoration(
+                  color: _getBackgroundColor(),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.zero,
+                    bottomLeft: Radius.zero,
+                    topRight: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                  border: Border.all(color: _getRoleColor(), width: 2),
+                ),
+                child: AnimatedSwitcher(
+                  duration: Duration(milliseconds: 300),
+                  child: Text(
+                    smallSubject,
+                    key: ValueKey<String>('text_\${smallSubject}'), // 修改为唯一的key
+                    style: TextStyle(
+                      color: _getRoleColor(),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+              _buildLastSubjects(value),
+            ], //添加了小学科
+          ),
+        ),
+      );
+    });
+    return list;
+  }
+
+  //获取每个科目
+  Widget _buildLastSubjects(ss) {
+    List<Widget> list = [];
+    ss.forEach((s) {
+      list.add(
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            border: Border.all(color: _getBackgroundColor(), width: 2),
+          ),
+          child: Text(
+            s,
+            style: TextStyle(
+              color: _getRoleColor(),
+              fontWeight: FontWeight.normal,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      );
+    });
+    //返回一个有边框的Container容器
+    return Container(
+      margin: EdgeInsets.only(left: 5),
+      padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+      decoration: BoxDecoration(
+        border: Border.all(color: _getRoleColor(), width: 2),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(children: list),
       ),
     );
   }
