@@ -302,9 +302,12 @@ class _MyPageState extends State<MyPage> {
   //接下来制作显示老师或者学生学习的各个学科
   Widget _buildSubjects() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 40),
       alignment: Alignment.centerLeft,
-      child: Column(children: _buildBigSubjects()),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _buildBigSubjects(),
+      ),
     );
   }
 
@@ -318,6 +321,7 @@ class _MyPageState extends State<MyPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AnimatedContainer(
+              margin: EdgeInsets.only(top:6),
               duration: Duration(milliseconds: 150),
               width: 200,
               height: 40,
@@ -421,6 +425,7 @@ class _MyPageState extends State<MyPage> {
     ss.forEach((s) {
       list.add(
         Container(
+          margin: EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             border: Border.all(color: _getBackgroundColor(), width: 2),
           ),
