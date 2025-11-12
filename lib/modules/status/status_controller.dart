@@ -36,9 +36,8 @@ abstract class _StatusController with Store {
   Map<String, dynamic> uTeachSubjects = {};
 
   //初始化，从盒子中获得登录状态和uID
-  void init() {
+  void init(Status status) {
     //status的第一个元素就是登录状态
-    var status = statusBox.values.toList()[0];
     isLogin = status.isLogin;
     uID = status.uID;
     uName = status.uName;
@@ -54,18 +53,18 @@ abstract class _StatusController with Store {
   @action
   void deleteStatus() {
     statusBox.clear();
-    statusBox.add(Status(isLogin: false));
-    init();
+    Status newStatus = Status(isLogin: false);
+    statusBox.add(newStatus);
+    init(newStatus);
   }
 
   //用户登录或者注册，也就是直接修改
   @action
   Future<void> setStatus(UserDataItem u) async {
     // 方法1：完全重写statusBox（推荐）
-    await statusBox.close();
-    await Hive.deleteBoxFromDisk('status');
-    statusBox = await Hive.openBox('status');
-    statusBox.add(Status.fromUserDataItem(u));
-    init();
+    statusBox.clear();
+    Status newStatus = Status.fromUserDataItem(u);  
+    statusBox.add(newStatus);
+    init(newStatus);
   }
 }

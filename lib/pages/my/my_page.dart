@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:mobx/mobx.dart';
+import 'package:provider/provider.dart';
 
 import 'package:tutoring_software/bean/widgets/edge_box.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
@@ -21,6 +23,49 @@ class _MyPageState extends State<MyPage> {
   final StatusController statusController = Modular.get<StatusController>();
   //获取MyController
   final MyController myController = Modular.get<MyController>();
+
+  // 存储reaction的disposer
+  ReactionDisposer? _loginReaction;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 在首帧渲染后初始化
+      _initializeController();
+    });
+  }
+
+  void _initializeController() {
+    try {
+      // 初始化MyController，同步StatusController的状态
+      myController.init();
+
+      // 设置reaction来监听登录状态变化
+      _loginReaction = reaction((_) => statusController.isLogin, (
+        bool isLoggedIn,
+      ) {
+        // 使用setState确保UI更新
+        setState(() {
+          // 当登录状态变化时，重新初始化MyController
+          myController.init();
+          debugPrint('登录状态变化: $isLoggedIn');
+        });
+      });
+    } catch (e) {
+      debugPrint('初始化控制器失败: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    // 安全地清理reaction，检查是否为null
+    if (_loginReaction != null) {
+      _loginReaction!();
+    }
+    super.dispose();
+  }
 
   //获取登录状态和是否为老师
   bool get _isLogin => myController.isLogin;
