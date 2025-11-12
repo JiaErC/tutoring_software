@@ -19,22 +19,95 @@ class _HomePageState extends State<HomePage> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                '家教服务',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                ),
-              ),
-              const SizedBox(height: 30),
-              if (_isTeacher) ...[
-                // 教师功能模块
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
                 const Text(
-                  '教师功能',
+                  '家教服务',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
+                const SizedBox(height: 30),
+                if (_isTeacher) ...[
+                  // 教师功能模块
+                  const Text(
+                    '教师功能',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // 跳转到学情分析页面
+                        Modular.to.pushNamed('/learning_analysis');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        '分析学生学情',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // 跳转到试卷评阅页面
+                        Modular.to.pushNamed('/test_scoring');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('评测试卷', style: TextStyle(fontSize: 18)),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // 跳转到查看评价页面
+                        Modular.to.pushNamed('/view_evaluations');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('查看评价', style: TextStyle(fontSize: 18)),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                ],
+                // 学生功能模块
+                const Text(
+                  '学生功能',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -47,8 +120,8 @@ class _HomePageState extends State<HomePage> {
                   height: 60,
                   child: ElevatedButton(
                     onPressed: () {
-                      // 跳转到学情分析页面
-                      Modular.to.pushNamed('/learning_analysis');
+                      // 跳转到教师基本信息页面
+                      Modular.to.pushNamed('/teacher_info');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
@@ -58,7 +131,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     child: const Text(
-                      '分析学生学情',
+                      '查看老师基本信息',
                       style: TextStyle(fontSize: 18),
                     ),
                   ),
@@ -69,8 +142,8 @@ class _HomePageState extends State<HomePage> {
                   height: 60,
                   child: ElevatedButton(
                     onPressed: () {
-                      // 跳转到试卷评阅页面
-                      Modular.to.pushNamed('/test_scoring');
+                      // 跳转到教师评价页面
+                      Modular.to.pushNamed('/teacher_evaluation');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
@@ -79,90 +152,11 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      '评测试卷',
-                      style: TextStyle(fontSize: 18),
-                    ),
+                    child: const Text('评价教师', style: TextStyle(fontSize: 18)),
                   ),
                 ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 60,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // 跳转到查看评价页面
-                      Modular.to.pushNamed('/view_evaluations');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      '查看评价',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 30),
               ],
-              // 学生功能模块
-              const Text(
-                '学生功能',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                height: 60,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // 跳转到教师基本信息页面
-                    Modular.to.pushNamed('/teacher_info');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    '查看老师基本信息',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                height: 60,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // 跳转到教师评价页面
-                    Modular.to.pushNamed('/teacher_evaluation');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    '评价教师',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
