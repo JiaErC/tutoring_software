@@ -324,8 +324,7 @@ class _RegisterPageState extends State<RegisterPage> {
         uTeachSubjects: uTeachSubjects,
         uStudySubjects: uStudySubjects,
       );
-      // 登录状态设置为true
-      statusController.setStatus(userDataItem);
+      // 登录状态设置更新
       // //查看登录状态
       // debugPrint("登录状态：${statusController.isLogin}\n登录用户ID：${statusController.uID}\n");
       // 显示成功消息
@@ -363,6 +362,7 @@ class _RegisterPageState extends State<RegisterPage> {
         }
       }
       userDataController.saveUserData(userDataItem);
+      statusController.setStatus(userDataItem);
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('注册成功！数据已保存。')));

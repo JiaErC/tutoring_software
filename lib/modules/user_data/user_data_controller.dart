@@ -25,6 +25,13 @@ abstract class _UserDataController with Store {
   //存放用户信息
   @action
   Future<String> saveUserData(UserDataItem u) async {
+    // debugPrint('保存用户学科数据 - 教学: ${u.uTeachSubjects}');
+    // debugPrint('保存用户学科数据 - 学习: ${u.uStudySubjects}');
+    //打印经过jsonEncode之后的数据
+    String teachSubjects = jsonEncode(u.uTeachSubjects);
+    String studySubjects = jsonEncode(u.uStudySubjects);
+    // debugPrint('保存用户学科数据 - 教学 JSON: $teachSubjects');
+    // debugPrint('保存用户学科数据 - 学习 JSON: $studySubjects');
     try {
       // 将String类型的uid转换为Long类型
       final longUid = int.parse(u.uID);
@@ -43,9 +50,14 @@ abstract class _UserDataController with Store {
         'gender': u.uGender,
         'password': u.uPassword,
         // 将Map类型转换为JSON字符串
-        'teachingSubjects': jsonEncode(u.uTeachSubjects),
-        'learningSubjects': jsonEncode(u.uStudySubjects),
+        // 修改字段名为后端期望的名称，并添加额外的非空检查
+        'teachSubjects': teachSubjects,
+        'studySubjects': studySubjects
       };
+      //检查是否在构建时期产生了错误
+      debugPrint(
+        "请求的学科，教学的学科，学习学科：$teachSubjects $studySubjects\n\n",
+      );
 
       //通过URI来传递信息
       final response = await http

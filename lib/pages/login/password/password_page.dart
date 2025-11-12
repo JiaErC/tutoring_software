@@ -293,6 +293,9 @@ class _PasswordPageState extends State<PasswordPage> {
                         //改变登录状态
                         statusController.setStatus(userDataItem);
                         debugPrint("登录成功:\n${userDataItem.toString()}");
+                        //返回到上一个页面
+                        Modular.to.pushReplacementNamed("/tab/my");
+                        //同时更新
                       } else {
                         ScaffoldMessenger.of(
                           // ignore: use_build_context_synchronously
