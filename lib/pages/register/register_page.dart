@@ -30,6 +30,7 @@ String uName = '';
 String uEmail = '';
 String uPhone = '';
 String uPassword = '';
+String uID = '';
 int uGender = 0;
 String uBirthday = '';
 Set<int> uRole = {};
@@ -255,23 +256,6 @@ class _RegisterPageState extends State<RegisterPage> {
       return isValid;
     }
 
-    // // 验证学科选择（如果选择了学生或老师身份）
-    // if (_selectedRoles.contains(1) && !_isStudySelectedSubject) {
-    //   isValid = false;
-    //   ScaffoldMessenger.of(
-    //     context,
-    //   ).showSnackBar(const SnackBar(content: Text('请选择学习科目')));
-    //   return isValid;
-    // }
-
-    // if (_selectedRoles.contains(2) && !_isTeachSelectedSubject) {
-    //   isValid = false;
-    //   ScaffoldMessenger.of(
-    //     context,
-    //   ).showSnackBar(const SnackBar(content: Text('请选择教学科目')));
-    //   return isValid;
-    // }
-
     return isValid;
   }
 
@@ -328,9 +312,8 @@ class _RegisterPageState extends State<RegisterPage> {
   // 在_RegisterPageState类中添加保存用户数据到JSON文件的方法
   Future<void> _saveUserData() async {
     try {
-      final String uid = await accountController.getUid();
       final userDataItem = UserDataItem(
-        uID: uid,
+        uID: uID,
         uName: uName,
         uEmail: uEmail,
         uPassword: uPassword,
@@ -351,7 +334,7 @@ class _RegisterPageState extends State<RegisterPage> {
         try {
           final message = await accountController.savePhoneNumberUid(
             uPhone,
-            uid,
+            uID,
           );
           // 处理成功情况
           ScaffoldMessenger.of(
@@ -367,7 +350,7 @@ class _RegisterPageState extends State<RegisterPage> {
       //改为如果uEmail不为空
       if (uEmail.isNotEmpty) {
         try {
-          final message = await accountController.saveEmailUid(uEmail, uid);
+          final message = await accountController.saveEmailUid(uEmail, uID);
           // 处理成功情况
           ScaffoldMessenger.of(
             context,
@@ -654,21 +637,24 @@ class _RegisterPageState extends State<RegisterPage> {
           Center(
             child: OutlinedButton.icon(
               onPressed: () async {
+                debugPrint("点击了确定按钮\n");
                 //表单验证
                 if (_validateForm()) {
                   // 将表单数据赋值给用户属性
                   _assignFormDataToUserProperties();
-                  debugPrint('注册信息已收集完成');
-                  debugPrint('用户名: $uName');
-                  debugPrint('邮箱: $uEmail');
-                  debugPrint('电话号码: $uPhone');
-                  debugPrint('性别: $uGender');
-                  debugPrint('生日: $uBirthday');
-                  debugPrint('身份: $uRole');
-                  debugPrint('学习科目: $uStudySubjects');
-                  debugPrint('教学科目: $uTeachSubjects');
+                  // debugPrint('注册信息已收集完成');
+                  // debugPrint('用户名: $uName');
+                  // debugPrint('邮箱: $uEmail');
+                  // debugPrint('电话号码: $uPhone');
+                  // debugPrint('性别: $uGender');
+                  // debugPrint('生日: $uBirthday');
+                  // debugPrint('身份: $uRole');
+                  // debugPrint('学习科目: $uStudySubjects');
+                  // debugPrint('教学科目: $uTeachSubjects');
                   //如果注册的邮箱和电话号码存在，就不可以重复注册了
-                  if (accountController.uID.isEmpty) {
+                  uID = await accountController.getUid();
+                  if (accountController.uID.isNotEmpty) {
+                    debugPrint("点击了确定，同时UID不为空\n");
                     // 调用保存用户数据到JSON文件的方法
                     await _saveUserData();
                     debugPrint(
@@ -679,6 +665,10 @@ class _RegisterPageState extends State<RegisterPage> {
                           //注册之后把注册页面清空
                           _registerController.clearAllData(),
                     );
+                  } else {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('注册失败，UID为空')));
                   }
                 }
               },
@@ -719,7 +709,6 @@ class _RegisterPageState extends State<RegisterPage> {
               _isStudySelectedSubject =
                   _registerController.uStudySubjects.isNotEmpty;
               uStudySubjects = _registerController.uStudySubjects;
-              debugPrint('选择的学习科目：$uStudySubjects');
             });
           },
           icon: const Icon(MdiIcons.pencil),
@@ -762,7 +751,6 @@ class _RegisterPageState extends State<RegisterPage> {
               _isTeachSelectedSubject =
                   _registerController.uTeachSubjects.isNotEmpty;
               uTeachSubjects = _registerController.uTeachSubjects;
-              debugPrint('选择的教学科目：$uTeachSubjects');
             });
           },
           icon: const Icon(MdiIcons.pen),

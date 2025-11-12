@@ -60,7 +60,7 @@ abstract class _StatusController with Store {
   void setStatus(UserDataItem u) {
     statusBox.clear();
     statusBox.add(Status.fromUserDataItem(u));
-    debugPrint("\n\n\n${statusBox.values.toList()[0].toString()}");
+    debugPrint("\n\n\n修改了，${statusBox.values.toList()[0].toString()}");
     init();
   }
 }
