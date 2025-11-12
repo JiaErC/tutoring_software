@@ -51,12 +51,12 @@ abstract class _UserDataController with Store {
         'password': u.uPassword,
         // 将Map类型转换为JSON字符串
         // 修改字段名为后端期望的名称，并添加额外的非空检查
-        'teachingSubjects': '{"外语学习":{"其他语言":["韩语","法语","德语","意大利语","阿拉伯语","西班牙语","俄语"]},"创业与创新":{"创业实践":["精益创 业"],"创业融资":["种子轮融资"],"创新管理":["创新思维"],"创业基础":["创业思维"]}}',
-        'learningSubjects': '{"健康和锻炼":{"心理健康":["压力管理","情绪调节","心理韧性","心理咨询","冥 想正念"]},"工学技能":{"机械工程":["机械设计"],"电气工程":["电路分析"],"电子工 程":["电子电路"],"土木工程":["建筑设计"],"航空航天工程":["飞行原理"]}}  '
+        'teachingSubjects': teachSubjects as String,
+        'learningSubjects': studySubjects as String
       };
       //检查是否在构建时期产生了错误
       debugPrint(
-        "请求的学科，教学的学科，学习学科：${u.uTeachSubjects.toString()} ${u.uStudySubjects.toString()}\n\n",
+        "请求的学科，教学的学科，学习学科：$teachSubjects $studySubjects\n\n",
       );
 
       //通过URI来传递信息
