@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:flutter_modular/flutter_modular.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
 import 'package:tutoring_software/modules/account_manager/account_match.dart';
+import 'package:tutoring_software/pages/chat/search/search_controller.dart'
+    as custom;
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -12,13 +16,21 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  //引入搜索控制器
+  final custom.SearchController _searchController =
+      Modular.get<custom.SearchController>();
+
   //文本控制器，uID的，电话号码的，邮箱的
   final TextEditingController _userIDController = TextEditingController();
   final TextEditingController _userPhoneController = TextEditingController();
   final TextEditingController _userEmailController = TextEditingController();
+  //这三个属性的数字编码:其中，1为uID，2为手机号，3为邮箱
+  int _userDataType = 0;
 
   //是否已经搜索
-  bool isSearched = false;
+  bool isSearch = true;
+  //是否打开评价页面
+  bool isScore = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +40,13 @@ class _SearchPageState extends State<SearchPage> {
         scrollDirection: Axis.vertical,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [..._searchFrame(context)],
+          children: isSearch
+              ? [..._searchFrame(context)]
+              : [
+                  _buildBackButton(),
+                  _buildUserInfo(),
+                  if (isScore) _buildScoreTable(),
+                ],
         ),
       ),
     );
@@ -162,10 +180,12 @@ class _SearchPageState extends State<SearchPage> {
             children: [
               const Text("你只需要填写其中的任意一个", style: TextStyle(fontSize: 12)),
               OutlinedButton.icon(
-                onPressed: () {
-                  if (_vaildateAccount()) {
+                onPressed: () async {
+                  if (await _vaildateAccount()) {
+                    //搜索成功了，就让是否搜索变为否
                     debugPrint("输入正确");
                   } else {
+                    _userDataType = 0;
                     debugPrint("输入错误");
                   }
                 },
@@ -181,14 +201,22 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   //输入数据验证
-  bool _vaildateAccount() {
+  Future<bool> _vaildateAccount() async {
     // 获取电话和邮箱输入值
     String phone = _userPhoneController.text.trim();
     String email = _userEmailController.text.trim();
+    //获取UID的值
+    String uid = _userIDController.text.trim();
 
     // 如果电话不为空，检查格式是否正确
     if (phone.isNotEmpty) {
       if (AccountMatch.isValidPhone(phone)) {
+        _userDataType = 2;
+        await _searchController.searchUidByPhone(phone);
+        // 添加这一行，搜索成功后设置isSearch为false
+        setState(() {
+          isSearch = false;
+        });
         return true;
       } else {
         ScaffoldMessenger.of(
@@ -200,12 +228,35 @@ class _SearchPageState extends State<SearchPage> {
     // 如果邮箱不为空，检查格式是否正确
     if (email.isNotEmpty) {
       if (AccountMatch.isValidEmail(email)) {
+        _userDataType = 1;
+        await _searchController.searchUidByEmail(email);
+        // 添加这一行，搜索成功后设置isSearch为false
+        setState(() {
+          isSearch = false;
+        });
         return true;
       } else {
         ScaffoldMessenger.of(
           // ignore: use_build_context_synchronously
           context,
         ).showSnackBar(const SnackBar(content: Text("邮箱格式输入错误")));
+      }
+    }
+    //其中UID为数字组成的19位的字符串
+    if (uid.isNotEmpty) {
+      if (AccountMatch.isValidUid(uid)) {
+        _userDataType = 0;
+        await _searchController.searchUserDataItem(uid);
+        // 添加这一行，搜索成功后设置isSearch为false
+        setState(() {
+          isSearch = false;
+        });
+        return true;
+      } else {
+        ScaffoldMessenger.of(
+          // ignore: use_build_context_synchronously
+          context,
+        ).showSnackBar(const SnackBar(content: Text("UID格式输入错误")));
       }
     }
 
@@ -215,5 +266,145 @@ class _SearchPageState extends State<SearchPage> {
       context,
     ).showSnackBar(const SnackBar(content: Text("你什么都没有输入")));
     return false;
+  }
+
+  /****接下来是搜索成功之后的用户显示页面，也就是isSearch = false的时候****/
+  //这个是返回按钮，在页面顶端的左端
+  Widget _buildBackButton() {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          border: Border.all(color: Colors.grey[800]!),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        width: 140,
+        height: 60,
+        child: TextButton(
+          child: Row(
+            children: [
+              Icon(
+                Icons.arrow_back_rounded,
+                color: Colors.grey[800]!,
+                size: 30,
+              ),
+              SizedBox(width: 8), // 图标和文本之间的间距
+              Text(
+                "返回",
+                style: TextStyle(
+                  color: Colors.grey[800]!,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          onPressed: () {
+            setState(() {
+              isSearch = true;
+              isScore = false;
+              // 清空输入框
+              _userIDController.clear();
+              _userPhoneController.clear();
+              _userEmailController.clear();
+              // 重置搜索结果
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  //还要有搜索出来的用户的介绍
+  Widget _buildUserInfo() {
+    return Center(
+      child: SizedBox(
+        width: 500,
+        height: 250,
+        child: GFCard(
+          titlePosition: GFPosition.start,
+          border: Border.all(color: Colors.black),
+          borderRadius: BorderRadius.circular(15),
+          color: Color.fromARGB(100, 0, 255, 0),
+          title: GFListTile(
+            avatar: GFAvatar(
+              backgroundImage: AssetImage("lib/data/images/1.png"),
+              radius: 20,
+            ),
+            title: Text(
+              _searchController.searchUserData.uName,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            subTitle: Text(
+              "联系方式: \n电话：${_searchController.searchUserData.uPhone}\n邮箱：${_searchController.searchUserData.uEmail}\nUID：${_searchController.searchUserData.uID}",
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w300,
+                color: Colors.grey[800],
+              ),
+            ),
+          ),
+          buttonBar: GFButtonBar(
+            children: <Widget>[
+              GFButton(
+                onPressed: () => setState(() => isScore = !isScore),
+                text: "评价",
+                shape: GFButtonShape.pills,
+                borderSide: BorderSide(color: Colors.black),
+                color: GFColors.TRANSPARENT,
+                icon: Icon(MdiIcons.star, color: Colors.amberAccent),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  //评分表
+  Widget _buildScoreTable() {
+    return Center(
+      child: Container(
+        width: 270,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.amberAccent[200]!),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        child: Row(
+          children: [
+            //这个是零分按钮
+            IconButton(
+              onPressed: () =>
+                  setState(() => _searchController.userRating = 0.0),
+              icon: Icon(
+                Icons.exposure_zero_outlined,
+                color: _searchController.userRating == 0.0
+                    ? Colors.red
+                    : Colors.black,
+              ),
+            ),
+            //这个是评分表
+            GFRating(
+              value: _searchController.userRating,
+              size: GFSize.SMALL,
+              color: Colors.amberAccent[200]!,
+              borderColor: Colors.amberAccent[200]!, //当未选择的时候的颜色
+              onChanged: (value) {
+                setState(() {
+                  _searchController.userRating = value;
+                  debugPrint("调整用户评分:${_searchController.userRating}");
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -131,7 +131,7 @@ class _MyPageState extends State<MyPage> {
           ),
           titleText: _isLogin ? statusController.uName : "点击头像登录",
           subTitleText: _isLogin
-              ? "电话号码:${statusController.uPhone}\n邮箱:${statusController.uEmail}"
+              ? "电话号码:${statusController.uPhone}\n邮箱:${statusController.uEmail}\nUid:${statusController.uID}"
               : "这里是联系方式",
         ),
         content: Text("这里是简介"),

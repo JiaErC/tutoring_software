@@ -18,6 +18,10 @@ abstract class _SearchController with Store {
   @observable
   late UserDataItem searchUserData;
 
+  //对用户的评分
+  @observable
+  double userRating = 0.0;
+
   //通过Uid获取用户信息
   @action
   Future<void> searchUserDataItem(String uid) async {
