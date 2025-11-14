@@ -8,6 +8,8 @@ import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
 import 'package:tutoring_software/modules/account_manager/account_match.dart';
 import 'package:tutoring_software/pages/chat/search/search_controller.dart'
     as custom;
+import 'package:tutoring_software/bean/widgets/rating_input.dart';
+import 'package:tutoring_software/modules/status/status_controller.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -20,6 +22,8 @@ class _SearchPageState extends State<SearchPage> {
   //引入搜索控制器
   final custom.SearchController _searchController =
       Modular.get<custom.SearchController>();
+  //引入状态控制器来获取当前用户的信息
+  final StatusController statusController = Modular.get<StatusController>();
 
   //文本控制器，uID的，电话号码的，邮箱的
   final TextEditingController _userIDController = TextEditingController();
@@ -33,7 +37,7 @@ class _SearchPageState extends State<SearchPage> {
   //是否打开评价页面
   bool isScore = false;
 
-    // 存储reaction的disposer，使用控制器监视uID的变化来监听是否更新了用户
+  // 存储reaction的disposer，使用控制器监视uID的变化来监听是否更新了用户
   ReactionDisposer? _searchReaction;
 
   @override
@@ -51,7 +55,7 @@ class _SearchPageState extends State<SearchPage> {
       // 设置reaction来监听搜索状态变化
       _searchReaction = reaction(
         // 监听一个包含isLogin和uID的列表，这样任何一个变化都会触发
-        (_) => [ _searchController.searchUid],
+        (_) => [_searchController.searchUid],
         (List value) {
           // 使用setState确保UI更新
           setState(() {
@@ -86,7 +90,12 @@ class _SearchPageState extends State<SearchPage> {
               : [
                   _buildBackButton(),
                   _buildUserInfo(),
-                  if (isScore) _buildScoreTable(),
+                  //及联产开
+                  if (isScore) ...[
+                    _buildScoreTable(),
+                    const SizedBox(height: 20),
+                    _buildRatingInput(),
+                  ],
                 ],
         ),
       ),
@@ -386,6 +395,7 @@ class _SearchPageState extends State<SearchPage> {
 
   //评分表
   Widget _buildScoreTable() {
+    final double ratio = _searchController.userRating.clamp(0.0, 5.0) / 5.0;
     return Center(
       child: Container(
         width: 270,
@@ -417,13 +427,68 @@ class _SearchPageState extends State<SearchPage> {
               borderColor: Colors.amberAccent[200]!, //当未选择的时候的颜色
               onChanged: (value) {
                 setState(() {
-                  _searchController.userRating = value;
+                  // 将评分四舍五入到最接近的0.5，算了，直接变成整数吧
+                  // _searchController.userRating = (value * 2).round() / 2;
+                  _searchController.userRating = value.toInt().toDouble();
                   debugPrint("调整用户评分:${_searchController.userRating}");
                 });
               },
             ),
+            const SizedBox(width: 5),
+            Text(
+              _searchController.userRating.toStringAsFixed(0),
+              style: _getRatingTextStyle(),
+            ),
+            const SizedBox(width: 5),
+            Icon(
+              [
+                MdiIcons.emoticonCry,
+                MdiIcons.emoticonFrown,
+                MdiIcons.emoticonSad,
+                MdiIcons.emoticonNeutral,
+                MdiIcons.emoticonHappy,
+                MdiIcons.emoticonExcited,
+              ][(ratio * 5).round().clamp(0, 5)],
+              color: Color.lerp(Colors.red, Colors.green, ratio)!,
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  //根据评分动态生成文本样式
+  TextStyle _getRatingTextStyle() {
+    // 评分范围：0-5
+    final double ratio = _searchController.userRating.clamp(0.0, 5.0) / 5.0;
+
+    // 计算动态样式值
+    final double fontSize = 12 + (18 - 12) * ratio;
+    final FontWeight fontWeight = [
+      FontWeight.w200,
+      FontWeight.w300,
+      FontWeight.w400,
+      FontWeight.w500,
+      FontWeight.w600,
+      FontWeight.w700,
+      FontWeight.w800,
+    ][(ratio * 5).round().clamp(0, 5)];
+    final Color color = Color.lerp(Colors.red, Colors.green, ratio)!;
+
+    return TextStyle(fontSize: fontSize, fontWeight: fontWeight, color: color);
+  }
+
+  //文本输入框，用来输入评价
+  Widget _buildRatingInput() {
+    return KeyedSubtree(
+      key: ValueKey(_searchController.userRating), // 使用评分作为key，确保评分变化时重建组件
+      child: RatingInput(
+        userName: statusController.uName,
+        initialRating: _searchController.userRating.toInt(),
+        onSubmit: (comment, rating) {
+          print("发布评价: $comment, 评分: $rating");
+          // 这里可以添加发布评价的逻辑
+        },
       ),
     );
   }
