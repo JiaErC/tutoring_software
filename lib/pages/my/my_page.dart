@@ -43,16 +43,20 @@ class _MyPageState extends State<MyPage> {
       myController.init();
 
       // 设置reaction来监听登录状态变化
-      _loginReaction = reaction((_) => statusController.isLogin, (
-        bool isLoggedIn,
-      ) {
-        // 使用setState确保UI更新
-        setState(() {
-          // 当登录状态变化时，重新初始化MyController
-          myController.init();
-          debugPrint('登录状态变化: $isLoggedIn');
-        });
-      });
+      _loginReaction = reaction(
+        // 监听一个包含isLogin和uID的列表，这样任何一个变化都会触发
+        (_) => [statusController.isLogin, statusController.uID],
+        (List value) {
+          // 使用setState确保UI更新
+          setState(() {
+            // 当登录状态或用户ID变化时，重新初始化MyController
+            myController.init();
+            debugPrint(
+              '用户信息变化: 登录状态=${statusController.isLogin}, 用户ID=${statusController.uID}',
+            );
+          });
+        },
+      );
     } catch (e) {
       debugPrint('初始化控制器失败: $e');
     }
@@ -321,7 +325,7 @@ class _MyPageState extends State<MyPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AnimatedContainer(
-              margin: EdgeInsets.only(top:6),
+              margin: EdgeInsets.only(top: 6),
               duration: Duration(milliseconds: 150),
               width: 200,
               height: 40,
