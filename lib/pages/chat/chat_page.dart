@@ -31,7 +31,7 @@ class _ChatPageState extends State<ChatPage> {
                   buildBackButton(),
                   buildFilterButton(),
                   buildChatButton(),
-                  buildCommentButton(),
+                  buildSearchButton(),
                 ],
               ),
             ],
@@ -41,8 +41,8 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  //构建一个头部评价按钮
-  Widget buildCommentButton() {
+  //构建一个搜索用户的按钮
+  Widget buildSearchButton() {
     return Expanded(
       flex: 1,
       child: Container(
@@ -57,7 +57,7 @@ class _ChatPageState extends State<ChatPage> {
           child: Row(
             children: [
               Text(
-                "评价老师",
+                "搜索",
                 style: TextStyle(
                   color: Colors.green[800]!,
                   fontWeight: FontWeight.bold,
@@ -73,7 +73,8 @@ class _ChatPageState extends State<ChatPage> {
             ],
           ),
           onPressed: () {
-            debugPrint("评价老师");
+            Modular.to.pushNamed("/tab/chat/search");
+            debugPrint("搜索");
           },
         ),
       ),

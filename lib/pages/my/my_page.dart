@@ -1,11 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:mobx/mobx.dart';
-import 'package:provider/provider.dart';
 
 import 'package:tutoring_software/bean/widgets/edge_box.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
