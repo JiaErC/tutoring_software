@@ -27,7 +27,6 @@ abstract class _SearchController with Store {
   Future<void> searchUserDataItem(String uid) async {
     //打印uID
     debugPrint('获取用户数据: $uid');
-
     try {
       // 添加UID类型验证和转换逻辑
       if (uid.isEmpty) {
@@ -44,6 +43,7 @@ abstract class _SearchController with Store {
         if (result['code'] == 200) {
           debugPrint('获取用户数据成功: ${result['message']}');
           searchUserData = UserDataItem.fromBackend(result['data']);
+          searchUid = uid;
         } else {
           debugPrint('获取用户数据失败: ${result['message']}');
           throw Exception('获取失败:${result['message']}');
@@ -73,8 +73,7 @@ abstract class _SearchController with Store {
         if (result['code'] == 200) {
           final String uid = result['data']['uid'].toString();
           debugPrint('通过电话号码$phoneNumber获取到了UID: $uid');
-          searchUid = uid;
-          searchUserDataItem(searchUid);
+          searchUserDataItem(uid);
         } else {
           throw Exception('通过电话号码获取UID失败: ${result['message']}');
         }
@@ -104,8 +103,7 @@ abstract class _SearchController with Store {
         if (result['code'] == 200) {
           final String uid = result['data']['uid'].toString();
           debugPrint('通过邮箱$email获取到了UID: $uid');
-          searchUid = uid;
-          searchUserDataItem(searchUid);
+          searchUserDataItem(uid);
         } else {
           throw Exception('通过邮箱$email获取UID失败: ${result['message']}');
         }

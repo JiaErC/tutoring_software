@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
+import 'package:mobx/mobx.dart';
 
 import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
 import 'package:tutoring_software/modules/account_manager/account_match.dart';
@@ -31,6 +32,46 @@ class _SearchPageState extends State<SearchPage> {
   bool isSearch = true;
   //是否打开评价页面
   bool isScore = false;
+
+    // 存储reaction的disposer，使用控制器监视uID的变化来监听是否更新了用户
+  ReactionDisposer? _searchReaction;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 在首帧渲染后初始化
+      _initializeController();
+    });
+  }
+
+  void _initializeController() {
+    try {
+      // 设置reaction来监听搜索状态变化
+      _searchReaction = reaction(
+        // 监听一个包含isLogin和uID的列表，这样任何一个变化都会触发
+        (_) => [ _searchController.searchUid],
+        (List value) {
+          // 使用setState确保UI更新
+          setState(() {
+            // 当搜索后的用户ID变化时，来让搜索页面变为false
+            isSearch = false;
+            debugPrint('搜索后的用户ID已改变');
+          });
+        },
+      );
+    } catch (e) {
+      debugPrint('初始化控制器失败: $e');
+    }
+  }
+
+  //销毁对象
+  @override
+  void dispose() {
+    super.dispose();
+    _searchReaction?.reaction.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -180,15 +221,7 @@ class _SearchPageState extends State<SearchPage> {
             children: [
               const Text("你只需要填写其中的任意一个", style: TextStyle(fontSize: 12)),
               OutlinedButton.icon(
-                onPressed: () async {
-                  if (await _vaildateAccount()) {
-                    //搜索成功了，就让是否搜索变为否
-                    debugPrint("输入正确");
-                  } else {
-                    _userDataType = 0;
-                    debugPrint("输入错误");
-                  }
-                },
+                onPressed: () async => await _vaildateAccount(),
                 icon: const Icon(Icons.app_registration),
                 label: const Text('确定'),
               ),
@@ -201,7 +234,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   //输入数据验证
-  Future<bool> _vaildateAccount() async {
+  Future<void> _vaildateAccount() async {
     // 获取电话和邮箱输入值
     String phone = _userPhoneController.text.trim();
     String email = _userEmailController.text.trim();
@@ -213,11 +246,7 @@ class _SearchPageState extends State<SearchPage> {
       if (AccountMatch.isValidPhone(phone)) {
         _userDataType = 2;
         await _searchController.searchUidByPhone(phone);
-        // 添加这一行，搜索成功后设置isSearch为false
-        setState(() {
-          isSearch = false;
-        });
-        return true;
+        return;
       } else {
         ScaffoldMessenger.of(
           // ignore: use_build_context_synchronously
@@ -230,11 +259,7 @@ class _SearchPageState extends State<SearchPage> {
       if (AccountMatch.isValidEmail(email)) {
         _userDataType = 1;
         await _searchController.searchUidByEmail(email);
-        // 添加这一行，搜索成功后设置isSearch为false
-        setState(() {
-          isSearch = false;
-        });
-        return true;
+        return;
       } else {
         ScaffoldMessenger.of(
           // ignore: use_build_context_synchronously
@@ -247,11 +272,7 @@ class _SearchPageState extends State<SearchPage> {
       if (AccountMatch.isValidUid(uid)) {
         _userDataType = 0;
         await _searchController.searchUserDataItem(uid);
-        // 添加这一行，搜索成功后设置isSearch为false
-        setState(() {
-          isSearch = false;
-        });
-        return true;
+        return;
       } else {
         ScaffoldMessenger.of(
           // ignore: use_build_context_synchronously
@@ -265,7 +286,6 @@ class _SearchPageState extends State<SearchPage> {
       // ignore: use_build_context_synchronously
       context,
     ).showSnackBar(const SnackBar(content: Text("你什么都没有输入")));
-    return false;
   }
 
   /****接下来是搜索成功之后的用户显示页面，也就是isSearch = false的时候****/

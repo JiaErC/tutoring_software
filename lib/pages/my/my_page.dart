@@ -86,7 +86,7 @@ class _MyPageState extends State<MyPage> {
         child: Column(
           children: [
             SizedBox(
-              height: 200,
+              height: 250,
               child: Row(
                 children: [_userAvatar(context), _buildingButtonArea(context)],
               ),
