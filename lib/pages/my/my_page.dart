@@ -1,11 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:mobx/mobx.dart';
-import 'package:provider/provider.dart';
 
 import 'package:tutoring_software/bean/widgets/edge_box.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
@@ -43,16 +40,20 @@ class _MyPageState extends State<MyPage> {
       myController.init();
 
       // 设置reaction来监听登录状态变化
-      _loginReaction = reaction((_) => statusController.isLogin, (
-        bool isLoggedIn,
-      ) {
-        // 使用setState确保UI更新
-        setState(() {
-          // 当登录状态变化时，重新初始化MyController
-          myController.init();
-          debugPrint('登录状态变化: $isLoggedIn');
-        });
-      });
+      _loginReaction = reaction(
+        // 监听一个包含isLogin和uID的列表，这样任何一个变化都会触发
+        (_) => [statusController.isLogin, statusController.uID],
+        (List value) {
+          // 使用setState确保UI更新
+          setState(() {
+            // 当登录状态或用户ID变化时，重新初始化MyController
+            myController.init();
+            debugPrint(
+              '用户信息变化: 登录状态=${statusController.isLogin}, 用户ID=${statusController.uID}',
+            );
+          });
+        },
+      );
     } catch (e) {
       debugPrint('初始化控制器失败: $e');
     }
@@ -85,7 +86,7 @@ class _MyPageState extends State<MyPage> {
         child: Column(
           children: [
             SizedBox(
-              height: 200,
+              height: 250,
               child: Row(
                 children: [_userAvatar(context), _buildingButtonArea(context)],
               ),
@@ -130,7 +131,7 @@ class _MyPageState extends State<MyPage> {
           ),
           titleText: _isLogin ? statusController.uName : "点击头像登录",
           subTitleText: _isLogin
-              ? "电话号码:${statusController.uPhone}\n邮箱:${statusController.uEmail}"
+              ? "电话号码:${statusController.uPhone}\n邮箱:${statusController.uEmail}\nUid:${statusController.uID}"
               : "这里是联系方式",
         ),
         content: Text("这里是简介"),
@@ -321,7 +322,7 @@ class _MyPageState extends State<MyPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AnimatedContainer(
-              margin: EdgeInsets.only(top:6),
+              margin: EdgeInsets.only(top: 6),
               duration: Duration(milliseconds: 150),
               width: 200,
               height: 40,

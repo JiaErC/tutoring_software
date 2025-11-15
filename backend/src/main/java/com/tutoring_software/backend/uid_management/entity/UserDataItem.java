@@ -41,6 +41,7 @@ public class UserDataItem {
     private String teachingSubjects ;
     @TableField("learning_subjects")
     private String learningSubjects ;
+    
     public UserDataItem(){}
     public UserDataItem(
             Long uid, String username, String phoneNumber,

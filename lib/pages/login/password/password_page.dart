@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
+import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
+import 'package:tutoring_software/modules/account_manager/account_controller.dart';
+import 'package:tutoring_software/modules/status/status_controller.dart';
+import 'package:tutoring_software/modules/user_data/user_data_item.dart';
+import 'package:tutoring_software/modules/account_manager/account_match.dart';
 
 class PasswordPage extends StatefulWidget {
   const PasswordPage({super.key});
@@ -24,13 +29,6 @@ class _PasswordPageState extends State<PasswordPage> {
   bool _isAccountValid = true;
   //判断密码是否满足格式
   bool _isPasswordValid = true;
-
-  //邮箱正则表达式
-  final RegExp _emailRegex = RegExp(
-    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-  );
-  //电话号码正则表达式（中国手机号）
-  final RegExp _phoneRegex = RegExp(r'^1[3-9]\d{9}$');
   // 密码正则表达式：至少包含一个数字、一个大写字母、一个小写字母和一个特殊字符
   final RegExp _passwordContainsDigit = RegExp(r'\d');
   final RegExp _passwordContainsUppercase = RegExp(r'[A-Z]');
@@ -39,8 +37,8 @@ class _PasswordPageState extends State<PasswordPage> {
   //验证账号
   void _validateAccount(String value) {
     setState(() {
-      if (_emailRegex.hasMatch(value) ||
-          _phoneRegex.hasMatch(value) ||
+      if (AccountMatch.isValidEmail(value) ||
+          AccountMatch.isValidPhone(value) ||
           value.isEmpty) {
         // 邮箱或手机号格式正确
         _isAccountValid = true;
@@ -50,6 +48,23 @@ class _PasswordPageState extends State<PasswordPage> {
         _isAccountValid = false;
       }
     });
+  }
+
+  //获取UID
+  Future<void> _fetchUid(String value) async {
+    try {
+      if (AccountMatch.isValidPhone(value)) {
+        await accountController.getUidByPhone(value);
+      } else if (AccountMatch.isValidEmail(value)) {
+        await accountController.getUidByEmail(value);
+      }
+      // 可以在这里添加额外的UI反馈，比如显示"验证成功"或清除错误提示
+    } catch (e) {
+      debugPrint('获取UID失败: $e');
+      // 确保在发生错误时清空uID
+      accountController.uID = '';
+      // 可以添加UI反馈，比如显示错误消息
+    }
   }
 
   //验证密码

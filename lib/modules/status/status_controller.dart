@@ -1,6 +1,6 @@
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';  
+import 'package:hive/hive.dart';
 
 import 'package:tutoring_software/modules/status/status.dart';
 import 'package:tutoring_software/utils/storage.dart';
@@ -36,8 +36,20 @@ abstract class _StatusController with Store {
   Map<String, dynamic> uTeachSubjects = {};
 
   //初始化，从盒子中获得登录状态和uID
-  void init(Status status) {
+  void init() {
     //status的第一个元素就是登录状态
+    Status status = statusBox.values.toList()[0];
+    isLogin = status.isLogin;
+    uID = status.uID;
+    uName = status.uName;
+    uPhone = status.uPhone;
+    uEmail = status.uEmail;
+    uRole = status.uRole;
+    uStudySubjects = status.uStudySubjects;
+    uTeachSubjects = status.uTeachSubjects;
+  }
+
+  void changeStatus(Status status) {
     isLogin = status.isLogin;
     uID = status.uID;
     uName = status.uName;
@@ -55,7 +67,7 @@ abstract class _StatusController with Store {
     statusBox.clear();
     Status newStatus = Status(isLogin: false);
     statusBox.add(newStatus);
-    init(newStatus);
+    changeStatus(newStatus);
   }
 
   //用户登录或者注册，也就是直接修改
@@ -63,8 +75,8 @@ abstract class _StatusController with Store {
   Future<void> setStatus(UserDataItem u) async {
     // 方法1：完全重写statusBox（推荐）
     statusBox.clear();
-    Status newStatus = Status.fromUserDataItem(u);  
+    Status newStatus = Status.fromUserDataItem(u);
     statusBox.add(newStatus);
-    init(newStatus);
+    changeStatus(newStatus);
   }
 }
