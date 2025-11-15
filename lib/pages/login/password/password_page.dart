@@ -257,7 +257,7 @@ class _PasswordPageState extends State<PasswordPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             OutlinedButton.icon(
-              onPressed: () {
+              onPressed: () async {
                 //表单验证
                 if (_validateForm()) {
                   // 密码和账号的输出情况

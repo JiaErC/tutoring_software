@@ -46,7 +46,6 @@ dependencies:
   hive: ^2.2.3
   json_annotation: ^4.9.0
   mobx_codegen: ^2.7.0
-  http: ^1.5.0
   path_provider: ^2.1.5
   font_awesome_flutter: ^10.12.0
   image_picker: ^1.2.1
