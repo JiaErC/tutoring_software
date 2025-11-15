@@ -1,4 +1,4 @@
-import 'dart:convert';
+import "dart:convert";
 
 import "package:hive/hive.dart";
 
@@ -17,7 +17,7 @@ class UserDataItem {
   late String uEmail;
   @HiveField(3, defaultValue: "")
   late String uPhone;
-  @HiveField(4, defaultValue: "隐藏")
+  @HiveField(4, defaultValue: "0")
   late String uGender;
   @HiveField(5, defaultValue: "2000 1 1")
   late String uBirthday;
