@@ -50,8 +50,8 @@ public class UserDataItemController {
             boolean success = userDataItemService.saveUserDataItem(
                     userDataItem.getUid(),userDataItem.getUsername(),
                     userDataItem.getPhoneNumber(),userDataItem.getEmail(),
-                    userDataItem.getRole(),userDataItem.getGender(),
-                    userDataItem.getBirthday(),userDataItem.getPassword(),
+                    userDataItem.getBirthday(),userDataItem.getRole(),
+                    userDataItem.getGender(),userDataItem.getPassword(),
                     userDataItem.getTeachingSubjects(),userDataItem.getLearningSubjects());
             if(success){
                 LOGGER.info("成功存储数据:uid={},username={}",userDataItem.getUid(),userDataItem.getUsername());
