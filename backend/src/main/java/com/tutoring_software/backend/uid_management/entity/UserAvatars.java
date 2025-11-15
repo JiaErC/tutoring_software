@@ -7,26 +7,30 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 
 @TableName("user_avatars")
-public class ImageData {
+public class UserAvatars {
     // 主键字段
     @TableId(type = IdType.AUTO)
     private Long id;
-    
     // 关联用户ID，NOT NULL约束
     @TableField("uid")
     private Long uid;
-    
     // 图片二进制数据，NOT NULL约束
     @TableField("image_data")
     private byte[] imageData;
-    
     // 图片类型，如 'image/jpeg'
     @TableField("mime_type")
     private String mimeType;
-    
     // 创建时间，默认值为当前时间戳
     @TableField("created_at")
     private LocalDateTime createdAt;
+
+    //构造方法
+    public UserAvatars(){}
+    public UserAvatars(Long uid, byte[] imageData, String mimeType) {
+        this.uid = uid;
+        this.imageData = imageData;
+        this.mimeType = mimeType;
+    }
 
     // Getter和Setter方法
     public Long getId() {
