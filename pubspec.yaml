@@ -28,13 +28,10 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  http: ^1.6.0
   flutter:
     sdk: flutter
   flutter_modular: ^6.4.1
   provider: ^6.1.5+1
-  modular_triple_bind: ^2.0.0-beta.1
-  
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -106,5 +103,5 @@ flutter:
   # see https://flutter.dev/to/font-from-package
   assets:
     - lib/data/images/1.png
+    #json文件
     - lib/data/subjects_data.json
-    - assets/images/

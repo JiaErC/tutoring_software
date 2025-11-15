@@ -1,5 +1,6 @@
 /*代码复用来自Kazumi*/
 import 'package:flutter_modular/flutter_modular.dart';
+
 import 'package:tutoring_software/pages/index_module.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_controller.dart';

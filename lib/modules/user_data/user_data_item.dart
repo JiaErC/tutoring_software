@@ -31,6 +31,8 @@ class UserDataItem {
   late Map<String, dynamic> uTeachSubjects;
   @HiveField(8, defaultValue: {})
   late Map<String, dynamic> uStudySubjects;
+  // @HiveField(12,defaultValue: [])
+  // late List<String> contacts;
   @HiveField(9)
   late String uPassword;
 

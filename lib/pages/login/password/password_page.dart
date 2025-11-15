@@ -20,6 +20,13 @@ String uAccount = '';
 String uPassword = '';
 
 class _PasswordPageState extends State<PasswordPage> {
+  //此处的代码仅作为测试
+  UserDataController userDataController = Modular.get<UserDataController>();
+  //通过邮箱和电话查找uID的控制类
+  AccountController accountController = Modular.get<AccountController>();
+  //登录状态控制器
+  StatusController statusController = Modular.get<StatusController>();
+
   bool showPassword = false; //是否显示密码的变量
   //两个控制器
   final TextEditingController _userAccountController = TextEditingController();
@@ -36,6 +43,9 @@ class _PasswordPageState extends State<PasswordPage> {
 
   //验证账号
   void _validateAccount(String value) {
+    // 在setState外部执行异步操作，避免UI卡顿
+    _fetchUid(value);
+
     setState(() {
       if (AccountMatch.isValidEmail(value) ||
           AccountMatch.isValidPhone(value) ||
