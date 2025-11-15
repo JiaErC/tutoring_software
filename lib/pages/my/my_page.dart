@@ -155,55 +155,77 @@ class _MyPageState extends State<MyPage> {
   Widget _settingButton(context) {
     return Expanded(
       flex: 2,
-      child: EdgeBox(
-        margin: EdgeInsets.only(right: 20, top: 10),
-        child: Align(
-          alignment: Alignment.topRight,
-          child: GFButtonBar(
-            children: [
-              IconButton(
-                iconSize: 22,
-                padding: const EdgeInsets.all(8),
-                style: const ButtonStyle(
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                tooltip: "进入或者退出无痕模式",
-                onPressed: () => debugPrint("点击切换无痕模式按钮"),
-                icon: Icon(Icons.stream),
+      child: Column(
+        children: [
+          EdgeBox(
+            margin: EdgeInsets.only(right: 40, top: 10),
+            child: Align(
+              alignment: Alignment.topRight,
+              child: GFButtonBar(
+                children: [
+                  IconButton(
+                    iconSize: 22,
+                    padding: const EdgeInsets.all(8),
+                    style: const ButtonStyle(
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    tooltip: "进入或者退出无痕模式",
+                    onPressed: () => debugPrint("点击切换无痕模式按钮"),
+                    icon: Icon(Icons.stream),
+                  ),
+                  IconButton(
+                    iconSize: 22,
+                    padding: const EdgeInsets.all(8),
+                    style: const ButtonStyle(
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    tooltip: '设置账号模式',
+                    onPressed: () => debugPrint("点击切换账号模式按钮"),
+                    icon: const Icon(Icons.switch_account_outlined),
+                  ),
+                  IconButton(
+                    iconSize: 22,
+                    padding: const EdgeInsets.all(8),
+                    style: const ButtonStyle(
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    tooltip: '切换主题',
+                    onPressed: () => debugPrint("点击切换主题按钮"),
+                    icon: Icon(Icons.sunny),
+                  ),
+                  IconButton(
+                    iconSize: 22,
+                    padding: const EdgeInsets.all(8),
+                    style: const ButtonStyle(
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    tooltip: '设置',
+                    onPressed: () => Modular.to.pushNamed("/settings"),
+                    icon: const Icon(Icons.settings_outlined),
+                  ),
+                ],
               ),
-              IconButton(
-                iconSize: 22,
-                padding: const EdgeInsets.all(8),
-                style: const ButtonStyle(
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                tooltip: '设置账号模式',
-                onPressed: () => debugPrint("点击切换账号模式按钮"),
-                icon: const Icon(Icons.switch_account_outlined),
-              ),
-              IconButton(
-                iconSize: 22,
-                padding: const EdgeInsets.all(8),
-                style: const ButtonStyle(
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                tooltip: '切换主题',
-                onPressed: () => debugPrint("点击切换主题按钮"),
-                icon: Icon(Icons.sunny),
-              ),
-              IconButton(
-                iconSize: 22,
-                padding: const EdgeInsets.all(8),
-                style: const ButtonStyle(
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                tooltip: '设置',
-                onPressed: () => Modular.to.pushNamed("/settings"),
-                icon: const Icon(Icons.settings_outlined),
-              ),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(height: 10),
+          //接下来是编辑资料的按钮
+          Container(
+            margin: EdgeInsets.only(right: 50),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.blue, width: 2),
+              color: Colors.transparent,
+            ),
+            width: double.infinity,
+            height: 50,
+            child: TextButton(
+              onPressed: () => Modular.to.pushNamed("/tab/my/info"),
+              child: Text(
+                "编辑资料",
+                style: TextStyle(color: Colors.blue.shade700, fontSize: 16),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -299,6 +321,8 @@ class _MyPageState extends State<MyPage> {
       ),
     );
   }
+
+  /**********************************学科显示***************************************************************************/
 
   //接下来制作显示老师或者学生学习的各个学科
   Widget _buildSubjects() {

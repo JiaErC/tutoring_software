@@ -34,6 +34,12 @@ abstract class _StatusController with Store {
   Map<String, dynamic> uStudySubjects = {};
   @observable
   Map<String, dynamic> uTeachSubjects = {};
+  //生日
+  @observable
+  String uBirthday = "";
+  //性别
+  @observable
+  String uGender = "";
 
   //初始化，从盒子中获得登录状态和uID
   void init() {
@@ -47,6 +53,8 @@ abstract class _StatusController with Store {
     uRole = status.uRole;
     uStudySubjects = status.uStudySubjects;
     uTeachSubjects = status.uTeachSubjects;
+    uBirthday = status.uBirthday;
+    uGender = status.uGender;
   }
 
   void changeStatus(Status status) {
@@ -58,6 +66,8 @@ abstract class _StatusController with Store {
     uRole = status.uRole;
     uStudySubjects = status.uStudySubjects;
     uTeachSubjects = status.uTeachSubjects;
+    uBirthday = status.uBirthday;
+    uGender = status.uGender;
     debugPrint("\n\n\n修改了${status.toString()}");
   }
 
