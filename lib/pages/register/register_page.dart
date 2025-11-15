@@ -9,6 +9,7 @@ import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/modules/account_manager/account_controller.dart';
+import 'package:tutoring_software/pages/my/my_controller.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -48,7 +49,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final StatusController statusController = Modular.get<StatusController>();
   //引入账号控制器
   final AccountController accountController = Modular.get<AccountController>();
-
   //创建一个是否横屏的显示器
   bool _isLandscape = false;
 
@@ -316,11 +316,11 @@ class _RegisterPageState extends State<RegisterPage> {
         uID: uID,
         uName: uName,
         uEmail: uEmail,
-        uPassword: uPassword,
-        uPhone: uPhone,
-        uBirthday: uBirthday,
-        uGender: uGender.toString(), // 转换为字符串
-        uRole: uRole.toList().join(','), // 转换为逗号分隔的字符串
+        uPhone: uPhone, // 修正：调整为正确的顺序
+        uGender: uGender.toString(), // 修正：调整为正确的顺序
+        uBirthday: uBirthday, // 修正：调整为正确的顺序
+        uPassword: uPassword, // 修正：调整为正确的顺序
+        uRole: uRole.toList().join(','),
         uTeachSubjects: uTeachSubjects,
         uStudySubjects: uStudySubjects,
       );
@@ -363,11 +363,13 @@ class _RegisterPageState extends State<RegisterPage> {
       }
       userDataController.saveUserData(userDataItem);
       statusController.setStatus(userDataItem);
+      // //打印UserDataItem来查看是否错误
+      // debugPrint('这个是注册的数据，请看看有没有错误${userDataItem.toString()}');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('注册成功！数据已保存。')));
       // 注册成功后导航到登录页面或首页
-      Modular.to.pushReplacementNamed('/login');
+      Modular.to.pushReplacementNamed('/tab/my');
     } catch (e) {
       print('保存用户数据失败: $e');
       ScaffoldMessenger.of(

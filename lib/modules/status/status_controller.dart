@@ -42,6 +42,7 @@ abstract class _StatusController with Store {
   String uGender = "";
 
   //初始化，从盒子中获得登录状态和uID
+  @action
   void init() {
     //status的第一个元素就是登录状态
     Status status = statusBox.values.toList()[0];
@@ -57,6 +58,7 @@ abstract class _StatusController with Store {
     uGender = status.uGender;
   }
 
+  @action
   void changeStatus(Status status) {
     isLogin = status.isLogin;
     uID = status.uID;
@@ -69,6 +71,8 @@ abstract class _StatusController with Store {
     uBirthday = status.uBirthday;
     uGender = status.uGender;
     debugPrint("\n\n\n修改了${status.toString()}");
+    debugPrint("\n\n\n教学科目：${uTeachSubjects.toString()}");
+    debugPrint("\n\n\n学习科目：${uStudySubjects.toString()}");
   }
 
   //退出登录，也就是直接删除登录状态

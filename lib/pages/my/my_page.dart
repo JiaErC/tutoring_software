@@ -28,6 +28,8 @@ class _MyPageState extends State<MyPage> {
   void initState() {
     super.initState();
 
+    myController.init();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 在首帧渲染后初始化
       _initializeController();
@@ -40,6 +42,7 @@ class _MyPageState extends State<MyPage> {
       myController.init();
 
       // 设置reaction来监听登录状态变化
+      // 修改后
       _loginReaction = reaction(
         // 监听一个包含isLogin和uID的列表，这样任何一个变化都会触发
         (_) => [statusController.isLogin, statusController.uID],
@@ -73,12 +76,15 @@ class _MyPageState extends State<MyPage> {
   //获取当前用户角色
   bool get _isStudent => myController.isStudent;
   //获取当前用户教学的学科信息，选了什么学科，还有是否选择了学科
+    //选择的学科
   Map<String, dynamic> get _subjects => myController.subjects;
+
   bool get _isSelectedSubjects => _subjects.isNotEmpty;
   //每个大学科的选择情况
   Map<String, bool> get _isViewSubjects => myController.isViewSubjects;
   @override
   Widget build(BuildContext context) {
+    debugPrint("目前选择的学科：${_subjects.toString()}");
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -466,15 +472,20 @@ class _MyPageState extends State<MyPage> {
       );
     });
     //返回一个有边框的Container容器
-    return Container(
-      margin: EdgeInsets.only(left: 5),
-      padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-      decoration: BoxDecoration(
-        border: Border.all(color: _getRoleColor(), width: 2),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(children: list),
+    return Expanded(
+      child: Container(
+        margin: EdgeInsets.only(left: 5),
+        padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+        decoration: BoxDecoration(
+          border: Border.all(color: _getRoleColor(), width: 2),
+        ),
+        // 移除Wrap，直接在ScrollView中放置Row
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          // 添加physics参数确保滚动体验
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Row(children: list),
+        ),
       ),
     );
   }
