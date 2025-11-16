@@ -20,7 +20,7 @@ abstract class _UserDataController with Store {
   //初始化操作，用来查看UserDataBox中的UserData数据
   void init() {
     var temp = storedUserDataBox.values.toList();
-    debugPrint(temp.toString());
+    debugPrint("storedUserDataBox的内容：${temp.toString()}");
   }
 
   //存放用户信息
@@ -47,6 +47,7 @@ abstract class _UserDataController with Store {
         'user_data_controller.dart_保存用户学科数据try语句中 - 学习: ${u.uStudySubjects}\n',
       );
       //把数据放到盒子中
+      storedUserDataBox.put(u.uID, u);
       // 关键修复：在Hive存储操作后立即恢复原始数据
       u.uTeachSubjects = teachSubjectsCopy;
       u.uStudySubjects = studySubjectsCopy;
@@ -62,12 +63,14 @@ abstract class _UserDataController with Store {
       // 这确保了StatusController中的数据也被正确恢复
       final statusBox = GStorage.statusBox;
       if (statusBox.isNotEmpty) {
-        Status currentStatus = statusBox.values.first;
-        currentStatus.uTeachSubjects = teachSubjectsCopy;
-        currentStatus.uStudySubjects = studySubjectsCopy;
+        Status updatedStatus = statusBox.values.first;
+       // 重新创建Map实例而不是直接赋值引用
+        updatedStatus.uTeachSubjects = Map<String, dynamic>.from(teachSubjectsCopy);
+        updatedStatus.uStudySubjects = Map<String, dynamic>.from(studySubjectsCopy);
+        
         // 更新StatusBox
         statusBox.clear();
-        statusBox.add(currentStatus);
+        statusBox.add(updatedStatus);
         
         // 同时更新StatusController中的可观察变量（如果可以访问到的话）
         // 这里可能需要额外的依赖注入或全局访问方式

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import 'package:tutoring_software/modules/status/status_controller.dart';
+import 'package:tutoring_software/bean/data_process/json_process.dart';
 
 part 'my_controller.g.dart';
 
@@ -36,11 +37,11 @@ abstract class _MyController with Store {
       // 使用runInAction确保所有observable变量在同一action中更新
       runInAction(() {
         subjects = isStudent
-            ? statusController.uStudySubjects
-            : statusController.uTeachSubjects;
+            ? deepCopyMap(statusController.uStudySubjects)
+            : deepCopyMap(statusController.uTeachSubjects);
         isViewSubjects = subjects.map((key, value) => MapEntry(key, true));
         debugPrint("以下为my_controller.dart的init信息：");
-        debugPrint("\n用户角色: $isStudent");
+        debugPrint("用户角色: $isStudent");
         debugPrint("学习科目: ${statusController.uStudySubjects}");
         debugPrint("教学科目: ${statusController.uTeachSubjects}");
         debugPrint("当前init获取的subjects: $subjects");
@@ -58,24 +59,22 @@ abstract class _MyController with Store {
   //获取学科
   @action
   void getSubjects() {
-    debugPrint(
-      "my_controller.dart_fuck 获取到的学科信息:${statusController.uStudySubjects}\n${statusController.uTeachSubjects}\n",
-    );
-      // 创建新的Map实例，确保MobX能检测到变化
-  final Map<String, dynamic> newSubjects = Map.from(
-    isStudent
-        ? statusController.uStudySubjects
-        : statusController.uTeachSubjects
-  );
-    // 使用runInAction确保observable变量更新能被MobX正确跟踪
-    runInAction(() {
-      subjects = newSubjects;
-      isViewSubjects = subjects.map((key, value) => MapEntry(key, true));
-      debugPrint("以下为my_controller.dart的getSubjects信息：\n");
-      debugPrint("fuck 获取到的学科：$subjects");
-      debugPrint("fuck 获取到的isViewSubjects：$isViewSubjects\n");
-      debugPrint("getSubjects结束\n");
+    // 根据用户角色决定使用哪个学科数据
+    if (!isStudent) {
+      subjects = deepCopyMap(statusController.uTeachSubjects);
+    } else {
+      subjects = deepCopyMap(statusController.uStudySubjects);
+    }
+    
+    // 创建isViewSubjects映射
+    isViewSubjects = {};
+    subjects.forEach((key, value) {
+      isViewSubjects[key] = true;
     });
+    debugPrint("my_controller.dart的getSubjects");
+    debugPrint("获取到的学科：$subjects");
+    debugPrint("获取到的isViewSubjects：$isViewSubjects");
+    debugPrint("getSubjects结束");
   }
 
   @action

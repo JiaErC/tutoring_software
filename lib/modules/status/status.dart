@@ -2,6 +2,7 @@
 import "package:hive/hive.dart";
 
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
+import 'package:tutoring_software/bean/data_process/json_process.dart';
 
 part 'status.g.dart';
 
@@ -53,9 +54,11 @@ class Status {
     uPhone = item.uPhone;
     uRole = item.uRole;
     uBirthday = item.uBirthday;
-    uTeachSubjects = item.uTeachSubjects;
-    uStudySubjects = item.uStudySubjects;
+    // 关键修复：创建深拷贝而不是直接引用
+    uTeachSubjects = deepCopyMap(item.uTeachSubjects);
+    uStudySubjects = deepCopyMap(item.uStudySubjects);
   }
+
 
   //toString方法
   @override
