@@ -18,10 +18,10 @@ public class UserDataItemServiceImpl extends ServiceImpl<UserDataItemMapper, Use
         return baseMapper.getByUid(uid);
     }
     @Override
-    public boolean saveUserDataItem(Long uid,String username ,String phoneNumber,String email,String role,String gender,String birthday
+    public boolean saveUserDataItem(Long uid,String username ,String phoneNumber,String email,String birthday,String role,String gender
     ,String password,String teachingSubjects,String learningSubjects) {
-        UserDataItem userDataItem = new UserDataItem(uid,username,phoneNumber,email,role,gender,
-                birthday,password,teachingSubjects,learningSubjects);
+        UserDataItem userDataItem = new UserDataItem(uid,username,phoneNumber,email,birthday,role,
+                gender,password,teachingSubjects,learningSubjects);
         return save(userDataItem);
     }
 }
