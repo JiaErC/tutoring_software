@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 import 'package:tutoring_software/utils/storage.dart';
 import 'package:tutoring_software/modules/api/api_settings.dart';
+import 'package:tutoring_software/modules/status/status.dart';
 
 part 'user_data_controller.g.dart';
 
@@ -25,6 +26,9 @@ abstract class _UserDataController with Store {
   //存放用户信息
   @action
   Future<String> saveUserData(UserDataItem u) async {
+    // 在方法开始时创建学科数据的深拷贝
+    final teachSubjectsCopy = Map<String, dynamic>.from(u.uTeachSubjects);
+    final studySubjectsCopy = Map<String, dynamic>.from(u.uStudySubjects);
     // debugPrint('保存用户学科数据 - 教学: ${u.uTeachSubjects}');
     // debugPrint('保存用户学科数据 - 学习: ${u.uStudySubjects}');
     //打印经过jsonEncode之后的数据
@@ -36,8 +40,39 @@ abstract class _UserDataController with Store {
       // 将String类型的uid转换为Long类型
       final longUid = int.parse(u.uID);
 
+      debugPrint(
+        'user_data_controller.dart_保存用户学科数据try语句中 - 教学: ${u.uTeachSubjects}\n',
+      );
+      debugPrint(
+        'user_data_controller.dart_保存用户学科数据try语句中 - 学习: ${u.uStudySubjects}\n',
+      );
       //把数据放到盒子中
-      await storedUserDataBox.put(u.uID, u);
+      // 关键修复：在Hive存储操作后立即恢复原始数据
+      u.uTeachSubjects = teachSubjectsCopy;
+      u.uStudySubjects = studySubjectsCopy;
+      //显示存储之后会发生什么
+      debugPrint(
+        'user_data_controller.dart_保存用户学科数据try语句中，存储盒子后 - 教学: ${u.uTeachSubjects}\n',
+      );
+      debugPrint(
+        'user_data_controller.dart_保存用户学科数据try语句中，存储盒子后 - 学习: ${u.uStudySubjects}\n',
+      );
+
+            // 关键修复2：从GStorage获取StatusController并更新其中的学科数据
+      // 这确保了StatusController中的数据也被正确恢复
+      final statusBox = GStorage.statusBox;
+      if (statusBox.isNotEmpty) {
+        Status currentStatus = statusBox.values.first;
+        currentStatus.uTeachSubjects = teachSubjectsCopy;
+        currentStatus.uStudySubjects = studySubjectsCopy;
+        // 更新StatusBox
+        statusBox.clear();
+        statusBox.add(currentStatus);
+        
+        // 同时更新StatusController中的可观察变量（如果可以访问到的话）
+        // 这里可能需要额外的依赖注入或全局访问方式
+        // 如果StatusController是单例，直接获取并更新
+      }
 
       // 构建请求体数据，确保字段名称与后端匹配
       final requestBody = {
@@ -52,13 +87,16 @@ abstract class _UserDataController with Store {
         // 将Map类型转换为JSON字符串
         // 修改字段名为后端期望的名称，并添加额外的非空检查
         'teachingSubjects': teachSubjects as String,
-        'learningSubjects': studySubjects as String
+        'learningSubjects': studySubjects as String,
       };
+
       //检查是否在构建时期产生了错误
       debugPrint(
-        "请求的学科，教学的学科，学习学科：$teachSubjects $studySubjects\n\n",
+        'user_data_controller.dart_保存用户学科数据try语句后 - 教学: ${u.uTeachSubjects}\n',
       );
-
+      debugPrint(
+        'user_data_controller.dart_保存用户学科数据try语句后 - 学习: ${u.uStudySubjects}\n',
+      );
       //通过URI来传递信息
       final response = await http
           .post(

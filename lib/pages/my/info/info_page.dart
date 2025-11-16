@@ -41,59 +41,62 @@ class _InfoPageState extends State<InfoPage> {
         child: Container(
           margin: EdgeInsets.only(top: 80),
           padding: EdgeInsets.symmetric(horizontal: 40, vertical: 5),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _bulidAvatar(),
-              _buildDivider(),
-              //修改用户名、电话号码、邮箱
-              _buildEditTile(
-                Icons.person,
-                _statusController.uName,
-                "用户名",
-                () {},
-              ),
-              _buildDivider(),
-              //修改电话号码
-              _buildEditTile(
-                Icons.phone,
-                _statusController.uPhone,
-                "电话号码",
-                () {},
-              ),
-              _buildDivider(),
-              //修改邮箱
-              _buildEditTile(
-                Icons.email,
-                _statusController.uEmail,
-                "邮箱",
-                () {},
-              ),
-              _buildDivider(),
-              //修改生日
-              _buildEditTile(
-                Icons.calendar_today,
-                _statusController.uBirthday,
-                "生日",
-                () {},
-              ),
-              _buildDivider(),
-              //性别信息
-              _buildEditTile(
-                Icons.wc,
-                _statusController.uGender,
-                "性别",
-                () {},
-              ),
-              _buildDivider(),
-              //个人身份
-              _buildEditTile(
-                Icons.people,
-                _statusController.uRole,
-                "个人身份",
-                () {},
-              ),
-            ],
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _bulidAvatar(),
+                _buildDivider(),
+                //修改用户名、电话号码、邮箱
+                _buildEditTile(
+                  Icons.person,
+                  _statusController.uName,
+                  "用户名",
+                  () {},
+                ),
+                _buildDivider(),
+                //修改电话号码
+                _buildEditTile(
+                  Icons.phone,
+                  _statusController.uPhone,
+                  "电话号码",
+                  () {},
+                ),
+                _buildDivider(),
+                //修改邮箱
+                _buildEditTile(
+                  Icons.email,
+                  _statusController.uEmail,
+                  "邮箱",
+                  () {},
+                ),
+                _buildDivider(),
+                //修改生日
+                _buildEditTile(
+                  Icons.calendar_today,
+                  _statusController.uBirthday,
+                  "生日",
+                  () {},
+                ),
+                _buildDivider(),
+                //性别信息
+                _buildEditTile(
+                  Icons.wc,
+                  _statusController.uGender,
+                  "性别",
+                  () {},
+                ),
+                _buildDivider(),
+                //个人身份
+                _buildEditTile(
+                  Icons.people,
+                  _statusController.uRole,
+                  "个人身份",
+                  () {},
+                ),
+              ],
+            ),
           ),
         ),
       ),

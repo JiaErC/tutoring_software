@@ -30,10 +30,7 @@ class _MyPageState extends State<MyPage> {
 
     myController.init();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 在首帧渲染后初始化
-      _initializeController();
-    });
+    _initializeController();
   }
 
   void _initializeController() {
@@ -41,22 +38,33 @@ class _MyPageState extends State<MyPage> {
       // 初始化MyController，同步StatusController的状态
       myController.init();
 
-      // 设置reaction来监听登录状态变化
-      // 修改后
+      // 修改reaction，监听更多的相关状态变化
       _loginReaction = reaction(
-        // 监听一个包含isLogin和uID的列表，这样任何一个变化都会触发
-        (_) => [statusController.isLogin, statusController.uID],
+        // 监听所有可能影响学科显示的状态
+        (_) => [
+          statusController.isLogin,
+          statusController.uID,
+          statusController.uStudySubjects,
+          statusController.uTeachSubjects,
+          statusController.uRole,
+        ],
         (List value) {
-          // 使用setState确保UI更新
+          // 使用setState确保UI更新在正确的线程中
           setState(() {
-            // 当登录状态或用户ID变化时，重新初始化MyController
+            // 当任何相关状态变化时，重新初始化MyController
             myController.init();
+            // 显式调用getSubjects确保学科数据最新
+            myController.getSubjects();
+            debugPrint("my_page.dart：用户信息变化\n");
             debugPrint(
-              '用户信息变化: 登录状态=${statusController.isLogin}, 用户ID=${statusController.uID}',
+              '用户信息变化: 登录状态=${statusController.isLogin}, 用户ID=${statusController.uID}，获取到的学科信息为：${myController.subjects}',
             );
           });
-        },
+      },
       );
+
+      // 页面加载时立即获取最新学科数据
+      myController.getSubjects();
     } catch (e) {
       debugPrint('初始化控制器失败: $e');
     }
@@ -76,20 +84,26 @@ class _MyPageState extends State<MyPage> {
   //获取当前用户角色
   bool get _isStudent => myController.isStudent;
   //获取当前用户教学的学科信息，选了什么学科，还有是否选择了学科
-    //选择的学科
+  //选择的学科
   Map<String, dynamic> get _subjects => myController.subjects;
 
-  bool get _isSelectedSubjects => _subjects.isNotEmpty;
+  bool get _isSelectedSubjects => myController.subjects.isNotEmpty;
   //每个大学科的选择情况
   Map<String, bool> get _isViewSubjects => myController.isViewSubjects;
+  //获取是否显示学科信息
+  bool get _isView => myController.isView;
+  bool get _isViewComments => myController.isViewComment;
+
   @override
   Widget build(BuildContext context) {
-    debugPrint("目前选择的学科：${_subjects.toString()}");
+    debugPrint("MyPage获取到的学科信息为：${myController.subjects}");
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
               height: 250,
@@ -98,12 +112,16 @@ class _MyPageState extends State<MyPage> {
               ),
             ),
             const SizedBox(height: 20),
+            //添加一个按钮，用于切换学科显示状态
+            _buildToggleSubjectsButton(),
             //这里放置学科显示组件
-            _isLogin
+            _isLogin && _isView
                 ? _isSelectedSubjects
                       ? _buildSubjects()
                       : SizedBox.shrink()
                 : SizedBox.shrink(),
+            //评论显示按钮
+            _buildToggleCommentsButton(),
           ],
         ),
       ),
@@ -261,12 +279,10 @@ class _MyPageState extends State<MyPage> {
                 setState(() {
                   // 注意：这里只是为了演示UI变化，实际切换身份的逻辑需要根据您的业务需求实现
                   // 可能需要调用statusController中的方法来更新用户角色
-                  if (_isLogin) myController.switchIdentity();
-                  debugPrint(
-                    _isLogin
-                        ? "切换身份：${_isStudent ? '学生 -> 老师' : '老师 -> 学生'}"
-                        : '请先登录',
-                  );
+                  if (_isLogin) {
+                    myController.switchIdentity();
+                    myController.getSubjects();
+                  }
                   // 实际应用中应该是类似这样的调用：
                   // statusController.switchUserRole();
                 });
@@ -330,6 +346,58 @@ class _MyPageState extends State<MyPage> {
 
   /**********************************学科显示***************************************************************************/
 
+  // 添加一个按钮，用于切换学科显示状态
+  Widget _buildToggleSubjectsButton() {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 40),
+      decoration: BoxDecoration(color: _isView ? Colors.grey : Colors.blue),
+      width: 130,
+      child: TextButton(
+        onPressed: () {
+          setState(() {
+            myController.switchView();
+          });
+        },
+        child: Text(
+          "显示学科",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 添加一个按钮，用于切换评论显示状态
+  Widget _buildToggleCommentsButton() {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 40),
+      decoration: BoxDecoration(
+        color: _isViewComments ? Colors.grey : Colors.blue,
+      ),
+      width: 130,
+      child: TextButton(
+        onPressed: () {
+          setState(() {
+            myController.switchCommentsView(); // 调用控制器中的方法切换评论显示状态
+          });
+        },
+        child: Text(
+          "显示评论",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
   //接下来制作显示老师或者学生学习的各个学科
   Widget _buildSubjects() {
     return Container(
@@ -345,7 +413,7 @@ class _MyPageState extends State<MyPage> {
   //箭头形状显示选择的学科大类
   List<Widget> _buildBigSubjects() {
     List<Widget> list = [];
-    _subjects.forEach((bigSubject, smallSubjects) {
+    myController.subjects.forEach((bigSubject, smallSubjects) {
       debugPrint("是否展开：${_isViewSubjects[bigSubject]}");
       list.add(
         Column(

@@ -70,9 +70,11 @@ abstract class _StatusController with Store {
     uTeachSubjects = status.uTeachSubjects;
     uBirthday = status.uBirthday;
     uGender = status.uGender;
-    debugPrint("\n\n\n修改了${status.toString()}");
-    debugPrint("\n\n\n教学科目：${uTeachSubjects.toString()}");
-    debugPrint("\n\n\n学习科目：${uStudySubjects.toString()}");
+    debugPrint("status_controller.dart :执行：changeStatus()");
+    debugPrint("\n修改了${status.toString()}");
+    debugPrint("\n教学科目：${uTeachSubjects.toString()}");
+    debugPrint("\n学习科目：${uStudySubjects.toString()}");
+    debugPrint("\n changeStatus() 执行完毕\n");
   }
 
   //退出登录，也就是直接删除登录状态
@@ -92,5 +94,6 @@ abstract class _StatusController with Store {
     Status newStatus = Status.fromUserDataItem(u);
     statusBox.add(newStatus);
     changeStatus(newStatus);
+    debugPrint("status_controller.dart_状态更新完成: 教学科目=$uTeachSubjects, 学习科目=$uStudySubjects");
   }
 }

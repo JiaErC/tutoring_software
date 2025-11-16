@@ -9,7 +9,6 @@ import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/modules/account_manager/account_controller.dart';
-import 'package:tutoring_software/pages/my/my_controller.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -361,8 +360,8 @@ class _RegisterPageState extends State<RegisterPage> {
           ).showSnackBar(SnackBar(content: Text(e.toString())));
         }
       }
+      await statusController.setStatus(userDataItem);
       userDataController.saveUserData(userDataItem);
-      statusController.setStatus(userDataItem);
       // //打印UserDataItem来查看是否错误
       // debugPrint('这个是注册的数据，请看看有没有错误${userDataItem.toString()}');
       ScaffoldMessenger.of(
