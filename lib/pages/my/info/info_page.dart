@@ -5,6 +5,9 @@ import 'package:flutter/services.dart';
 
 import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
+import 'package:tutoring_software/modules/account_manager/account_controller.dart';
+import 'package:tutoring_software/modules/account_manager/account_match.dart';
+import 'package:tutoring_software/bean/data_process/json_process.dart';
 
 class InfoPage extends StatefulWidget {
   const InfoPage({super.key});
@@ -19,20 +22,35 @@ class _InfoPageState extends State<InfoPage> {
   //引入用户账号控制器
   final UserDataController _userDataController =
       Modular.get<UserDataController>();
+  //引入账号控制器
+  final AccountController _accountController = Modular.get<AccountController>();
 
   // 添加TextEditingController用于处理输入
   late TextEditingController _userNameController;
   late TextEditingController _phoneController;
   late TextEditingController _emailController;
 
+  //获取到的签名
+  String _newSignature = "";
+
   //用于检测更新变量的一些变量
-  int? _newGender;
   int? _selectedGender;
   String? _selectedBirthday;
-  String? _selectedRole;
   //存放选择身份的变量
   // 创建一个临时变量存储当前选择的身份
   Set<int>? _tempSelectedRoles;
+
+  //新的用户名、电话和邮箱
+  late String _newUserName;
+  late String _newPhone;
+  late String _newEmail;
+  //新的性别
+  int? _newGender;
+  String? _newRole;
+  String? _newBirthday;
+  //新的学科
+  Map<String, dynamic>? _newStudySubjects;
+  Map<String, dynamic>? _newTeachSubjects;
 
   @override
   void initState() {
@@ -41,17 +59,26 @@ class _InfoPageState extends State<InfoPage> {
     _userNameController = TextEditingController(text: _statusController.uName);
     _phoneController = TextEditingController(text: _statusController.uPhone);
     _emailController = TextEditingController(text: _statusController.uEmail);
+    //初始化电话号码和邮箱
+    _newUserName = _statusController.uName;
+    _newPhone = _statusController.uPhone;
+    _newEmail = _statusController.uEmail;
 
     // 初始化出生日期选择值    初始化性别选择值
     _selectedBirthday = _statusController.uBirthday;
     _newGender = int.tryParse(_statusController.uGender) ?? 0;
     // 初始化角色选择值
-    _selectedRole = _statusController.uRole;
+    _newRole = _statusController.uRole;
     _selectedGender = _newGender;
+    _newBirthday = _selectedBirthday ?? "未设置生日";
     _tempSelectedRoles = Set.from(
       _statusController.uRole.split(',').map(int.parse),
     );
     _tempSelectedRoles ??= {1, 2};
+
+    //初始化学科
+    _newStudySubjects = deepCopyMap(_statusController.uStudySubjects);
+    _newTeachSubjects = deepCopyMap(_statusController.uTeachSubjects);
 
     debugPrint("info_page.dart 初始化界面");
   }
@@ -94,10 +121,18 @@ class _InfoPageState extends State<InfoPage> {
               children: [
                 _bulidAvatar(),
                 _buildDivider(),
+                //签名区域
+                _buildEditTile(
+                  Icons.edit_note,
+                  _newSignature,
+                  "签名",
+                  _showEditSignatureMenu,
+                ),
+                _buildDivider(),
                 //修改用户名、电话号码、邮箱
                 _buildEditTile(
                   Icons.person,
-                  _userNameController.text,
+                  _newUserName,
                   "用户名",
                   _showEditUserNameMenu,
                 ),
@@ -105,7 +140,7 @@ class _InfoPageState extends State<InfoPage> {
                 //修改电话号码
                 _buildEditTile(
                   Icons.phone,
-                  _phoneController.text,
+                  _newPhone,
                   "电话号码",
                   _showEditPhoneMenu,
                 ),
@@ -113,7 +148,7 @@ class _InfoPageState extends State<InfoPage> {
                 //修改邮箱
                 _buildEditTile(
                   Icons.email,
-                  _emailController.text,
+                  _newEmail,
                   "邮箱",
                   _showEditEmailMenu,
                 ),
@@ -121,7 +156,7 @@ class _InfoPageState extends State<InfoPage> {
                 //修改生日
                 _buildEditTile(
                   Icons.calendar_today,
-                  _selectedBirthday!,
+                  _newBirthday!,
                   "生日",
                   _showEditBirthdayMenu,
                 ),
@@ -137,10 +172,17 @@ class _InfoPageState extends State<InfoPage> {
                 //个人身份
                 _buildEditTile(
                   Icons.people,
-                  _selectedRole!,
+                  getRoleText(_newRole!),
                   "个人身份",
                   _showEditRoleMenu,
                 ),
+                _buildDivider(),
+                const SizedBox(height:20),
+                if (_tempSelectedRoles?.contains(1) ?? false)
+                  _buildEditStudySubjects(context), // 学生更改学科区域
+                const SizedBox(height:10),
+                if (_tempSelectedRoles?.contains(2) ?? false)
+                  _buildEditTeachSubjects(context), // 老师更改学科区域
               ],
             ),
           ),
@@ -242,6 +284,7 @@ class _InfoPageState extends State<InfoPage> {
             Row(
               children: [
                 Icon(icon),
+                const SizedBox(width: 20),
                 Text(uT, style: TextStyle(fontSize: 16, color: Colors.black54)),
               ],
             ),
@@ -256,6 +299,102 @@ class _InfoPageState extends State<InfoPage> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showEditSignatureMenu() {
+    // 初始化签名输入框
+    TextEditingController _signatureController = TextEditingController(
+      text: _statusController.uSignature ?? '',
+    );
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // 允许底部菜单占满更多空间
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Container(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom, // 适配键盘
+              top: 20,
+              left: 20,
+              right: 20,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  '修改签名',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: _signatureController,
+                  decoration: InputDecoration(
+                    labelText: '请输入新签名',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLength: 100, // 限制签名长度为50个字符
+                  minLines: 5,
+                  maxLines: 10000,
+                  autofocus: true, // 自动聚焦
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey,
+                        ),
+                        onPressed: () {
+                          // 取消操作
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('取消'),
+                      ),
+                    ),
+                    SizedBox(width: 20),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _newSignature = _signatureController.text;
+                          if (_newSignature.isNotEmpty) {
+                            // 如果签名不为空，保存并关闭弹窗
+                            setState(() {
+                              _statusController.uSignature = _newSignature;
+                            });
+                            Navigator.of(context).pop();
+                          } else {
+                            // 如果签名为空，显示错误提示
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('签名不能为空'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                        child: Text('保存'),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
+      // 设置菜单样式
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16.0),
+          topRight: Radius.circular(16.0),
+        ),
+      ),
+      // 启用可拖动关闭
+      enableDrag: true,
     );
   }
 
@@ -313,17 +452,26 @@ class _InfoPageState extends State<InfoPage> {
                     SizedBox(width: 20),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {}, //async {
-                        //   // 保存新用户名
-                        //   String newUserName = _userNameController.text.trim();
-                        //   if (newUserName.isNotEmpty &&
-                        //       newUserName != _statusController.uName) {
-                        //     // 更新状态控制器中的用户名
-                        //     // 由于StatusController没有直接更新单个字段的方法，我们需要创建一个新的Status实例
-                        //     await _updateUserName(newUserName);
-                        //   }
-                        //
-                        // },
+                        onPressed: () {
+                          String newUserName = _userNameController.text.trim();
+                          if (AccountMatch.isValidUsername(newUserName)) {
+                            // 如果用户名格式正确，保存并关闭弹窗
+                            setState(() {
+                              _newUserName = newUserName;
+                            });
+                            Navigator.of(context).pop();
+                          } else {
+                            // 如果用户名格式不正确，显示错误提示
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  '请输入有效的用户名（2-30个字符，仅支持字母、数字、下划线和中文）',
+                                ),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
                         child: Text('保存'),
                       ),
                     ),
@@ -351,7 +499,6 @@ class _InfoPageState extends State<InfoPage> {
   void _showEditPhoneMenu() {
     // 重置为当前值
     _phoneController.text = _statusController.uPhone;
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true, // 允许底部菜单占满更多空间
@@ -405,20 +552,24 @@ class _InfoPageState extends State<InfoPage> {
                     SizedBox(width: 20),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {}, //async {
-                        //   // 保存新电话号码
-                        //   String newPhone = _phoneController.text.trim();
-                        //   // 简单的电话号码验证（11位数字）
-                        //   if (newPhone.length == 11 && newPhone != _statusController.uPhone) {
-                        //     await _updateUserInfo('phone', newPhone);
-                        //   } else {
-                        //     ScaffoldMessenger.of(context).showSnackBar(
-                        //       SnackBar(content: Text('请输入有效的11位电话号码')),
-                        //     );
-                        //     return;
-                        //   }
-                        //   Navigator.of(context).pop();
-                        // },
+                        onPressed: () {
+                          String newPhone = _phoneController.text.trim();
+                          if (AccountMatch.isValidPhone(newPhone)) {
+                            // 如果电话号码格式正确，保存并关闭弹窗
+                            setState(() {
+                              _newPhone = newPhone;
+                            });
+                            Navigator.of(context).pop();
+                          } else {
+                            // 如果电话号码格式不正确，显示错误提示
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('请输入有效的电话号码'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
                         child: Text('保存'),
                       ),
                     ),
@@ -496,20 +647,24 @@ class _InfoPageState extends State<InfoPage> {
                     SizedBox(width: 20),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {}, // async {
-                        //   // 保存新邮箱
-                        //   String newEmail = _emailController.text.trim();
-                        //   // 简单的邮箱验证
-                        //   if (_isValidEmail(newEmail) && newEmail != _statusController.uEmail) {
-                        //     await _updateUserInfo('email', newEmail);
-                        //   } else {
-                        //     ScaffoldMessenger.of(context).showSnackBar(
-                        //       SnackBar(content: Text('请输入有效的邮箱地址')),
-                        //     );
-                        //     return;
-                        //   }
-                        //   Navigator.of(context).pop();
-                        // },
+                        onPressed: () {
+                          String newEmail = _emailController.text.trim();
+                          if (AccountMatch.isValidEmail(newEmail)) {
+                            // 如果邮箱格式正确，保存并关闭弹窗
+                            setState(() {
+                              _newEmail = newEmail;
+                            });
+                            Navigator.of(context).pop();
+                          } else {
+                            // 如果邮箱格式不正确，显示错误提示
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('请输入有效的邮箱地址'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
                         child: Text('保存'),
                       ),
                     ),
@@ -531,12 +686,6 @@ class _InfoPageState extends State<InfoPage> {
       // 启用可拖动关闭
       enableDrag: true,
     );
-  }
-
-  // 新增：验证邮箱格式
-  bool _isValidEmail(String email) {
-    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
-    return emailRegex.hasMatch(email);
   }
 
   // 显示修改生日的底部菜单
@@ -578,9 +727,8 @@ class _InfoPageState extends State<InfoPage> {
                       setState(
                         () =>
                             // 更新状态控制器中的生日
-                            _selectedBirthday = formattedDate,
+                            _newBirthday = formattedDate,
                       );
-
                       // 关闭底部菜单
                       Navigator.of(context).pop();
                     }
@@ -803,8 +951,7 @@ class _InfoPageState extends State<InfoPage> {
                             onPressed: () {
                               // 保存选择的身份，使用主页面的setState更新状态
                               setState(() {
-                                _selectedRole =
-                                    _tempSelectedRoles?.join(',') ?? '';
+                                _newRole = _tempSelectedRoles?.join(',') ?? '';
                               });
                               Navigator.of(context).pop();
                             },
@@ -831,5 +978,129 @@ class _InfoPageState extends State<InfoPage> {
       // 启用可拖动关闭
       enableDrag: true,
     );
+  }
+
+  //角色展示方法
+  String getRoleText(String? role) {
+    if (role == null || role.isEmpty) {
+      return '未设置身份';
+    }
+    // 将角色字符串拆分为整数集合
+    Set<int> roles = role.split(',').map(int.parse).toSet();
+    // 根据角色集合返回对应的文本
+    if (roles.contains(1) && roles.contains(2)) {
+      return '老师和学生';
+    } else if (roles.contains(1)) {
+      return '学生';
+    } else if (roles.contains(2)) {
+      return '老师';
+    } else {
+      return '未设置身份';
+    }
+  }
+
+  // 老师更改学科区域
+  Widget _buildEditTeachSubjects(BuildContext context) {
+    return Row(
+      children: [
+        const Icon(Icons.book),
+        const SizedBox(width: 10),
+        const Text(
+          "修改教学科目",
+          style: TextStyle(fontSize: 16, color: Colors.black87),
+        ),
+        const SizedBox(width: 60),
+        // 跳转到选择科目的界面
+        OutlinedButton.icon(
+          onPressed: () async {
+            await Modular.to.pushNamed(
+              '/subjects',
+              arguments: {'isTeacher': true}, // 传递参数，表示是老师身份
+            );
+            // 更新状态，表示已选择学科
+            setState(() {
+              _newRole = _statusController.uRole;
+              // _statusController.uTeachSubjects = _userDataController.uTeachSubjects;
+            });
+          },
+          icon: const Icon(Icons.edit),
+          label: const Text('修改科目'),
+        ),
+        const SizedBox(width: 60),
+        // 提示框，提示是否选择了学科
+        _textPrompt(_statusController.uTeachSubjects.isNotEmpty),
+      ],
+    );
+  }
+
+  // 学生更改学科区域
+  Widget _buildEditStudySubjects(BuildContext context) {
+    return Row(
+      children: [
+        const Icon(Icons.school),
+        const SizedBox(width: 10),
+        const Text(
+          "修改学习科目",
+          style: TextStyle(fontSize: 16, color: Colors.black87),
+        ),
+        const SizedBox(width: 60),
+        // 跳转到选择科目的界面
+        OutlinedButton.icon(
+          onPressed: () async {
+            await Modular.to.pushNamed(
+              '/subjects',
+              arguments: {'isTeacher': false}, // 传递参数，表示是学生身份
+            );
+            // 更新状态，表示已选择学科
+            setState(() {
+              _newRole = _statusController.uRole;
+              // _statusController.uStudySubjects = _newStudySubjects;
+            });
+          },
+          icon: const Icon(Icons.edit),
+          label: const Text('修改科目'),
+        ),
+        const SizedBox(width: 60),
+        // 提示框，提示是否选择了学科
+        _textPrompt(_statusController.uStudySubjects.isNotEmpty),
+      ],
+    );
+  }
+
+  // 提示框组件
+  Widget _textPrompt(bool isSelected) {
+    return isSelected
+        ? Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.green,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: const Center(
+              child: Text(
+                '已选择学科',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          )
+        : Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.redAccent,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: const Center(
+              child: Text(
+                '未选择学科',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          );
   }
 }

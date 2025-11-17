@@ -1,6 +1,5 @@
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 
 import 'package:tutoring_software/modules/status/status.dart';
 import 'package:tutoring_software/utils/storage.dart';
@@ -41,6 +40,9 @@ abstract class _StatusController with Store {
   //性别
   @observable
   String uGender = "";
+  //用户签名
+  @observable
+  String uSignature = "";
 
   //初始化，从盒子中获得登录状态和uID
   @action
@@ -90,8 +92,6 @@ abstract class _StatusController with Store {
   //用户登录或者注册，也就是直接修改
   @action
 Future<void> setStatus(UserDataItem u) async {
-  // 方法1：完全重写statusBox（推荐）
-  statusBox.clear();
   // 创建新的Status实例，但确保学科数据是深拷贝的
   Status newStatus = Status(
     isLogin: true,
