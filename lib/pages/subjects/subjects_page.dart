@@ -7,6 +7,8 @@ import 'package:getwidget/getwidget.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import 'package:tutoring_software/pages/register/register_controller.dart';
+import 'package:tutoring_software/pages/subjects/subjects_controller.dart';
+import 'package:tutoring_software/bean/data_process/json_process.dart';
 
 class SubjectsPage extends StatefulWidget {
   const SubjectsPage({super.key});
@@ -19,6 +21,9 @@ class _SubjectsPageState extends State<SubjectsPage> {
   //引入注册用户信息模块来持久化
   final RegisterController _registerController =
       Modular.get<RegisterController>();
+  //引入学科页面控制类来监视持久化信息
+  final SubjectsController _subjectsController =
+      Modular.get<SubjectsController>();
 
   //判断是老师还是学生
   bool _isTeacher = true;
@@ -72,14 +77,22 @@ class _SubjectsPageState extends State<SubjectsPage> {
     // setState(() {
     //   isTeacher = args?['isTeacher'] ?? true;
     // });
-    //在这里获取注册控制类的信息
+    // //在这里获取注册控制类的信息
+    // _selectedSubjects = _isTeacher
+    //     ? _registerController.uTeachSubjects
+    //     : _registerController.uStudySubjects;
+    // //获取选择的学科数量
+    // _count = _isTeacher
+    //     ? _registerController.uTeachSubjectsCount
+    //     : _registerController.uStudySubjectsCount;
+    //     // 从subjectsController获取数据而不是registerController
     _selectedSubjects = _isTeacher
-        ? _registerController.uTeachSubjects
-        : _registerController.uStudySubjects;
-    //获取选择的学科数量
+        ? _subjectsController.teachSubjects
+        : _subjectsController.studySubjects;
+
     _count = _isTeacher
-        ? _registerController.uTeachSubjectsCount
-        : _registerController.uStudySubjectsCount;
+        ? _subjectsController.teachSubjectsCount
+        : _subjectsController.studySubjectsCount;
     //获取选择的学科具体数量
     _calculateSubjectCounts();
   }
@@ -126,13 +139,17 @@ class _SubjectsPageState extends State<SubjectsPage> {
           icon: const Icon(Icons.arrow_back),
           tooltip: "返回上一页",
           onPressed: () {
-            _isTeacher
-                ? _registerController.uTeachSubjects = _selectedSubjects
-                : _registerController.uStudySubjects = _selectedSubjects;
-            // 更新选择的学科数量
-            _isTeacher
-                ? _registerController.uTeachSubjectsCount = _count
-                : _registerController.uStudySubjectsCount = _count;
+            // _isTeacher
+            //     ? _registerController.uTeachSubjects = _selectedSubjects
+            //     : _registerController.uStudySubjects = _selectedSubjects;
+            // // 更新选择的学科数量
+            // _isTeacher
+            //     ? _registerController.uTeachSubjectsCount = _count
+            //     : _registerController.uStudySubjectsCount = _count;
+            // 不需要保存到subjectsController
+            // _isTeacher
+            //     ? _subjectsController.updateTeachSubjects(_selectedSubjects)
+            //     : _subjectsController.updateStudySubjects(_selectedSubjects);
             Navigator.pop(context);
           }, // 返回上一级路由
         ),
@@ -186,14 +203,22 @@ class _SubjectsPageState extends State<SubjectsPage> {
                   ),
                   const SizedBox(width: 30),
                   _buildControlButton("确认", Colors.blueAccent, () {
+                    // _isTeacher
+                    //     ? _registerController.uTeachSubjects = _selectedSubjects
+                    //     : _registerController.uStudySubjects =
+                    //           _selectedSubjects;
+                    // //更新学科选择数量
+                    // _isTeacher
+                    //     ? _registerController.uTeachSubjectsCount = _count
+                    //     : _registerController.uStudySubjectsCount = _count;
+                    // 保存到subjectsController
                     _isTeacher
-                        ? _registerController.uTeachSubjects = _selectedSubjects
-                        : _registerController.uStudySubjects =
-                              _selectedSubjects;
-                    //更新学科选择数量
-                    _isTeacher
-                        ? _registerController.uTeachSubjectsCount = _count
-                        : _registerController.uStudySubjectsCount = _count;
+                        ? _subjectsController.updateTeachSubjects(
+                            _selectedSubjects,
+                          )
+                        : _subjectsController.updateStudySubjects(
+                            _selectedSubjects,
+                          );
                     Navigator.pop(context);
                   }),
                 ],
@@ -262,7 +287,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
             child: GFBadge(
               color: Colors.redAccent,
               shape: GFBadgeShape.circle,
-              size:40,
+              size: 40,
               child: Text(categoryCount.toString()),
             ),
           ),

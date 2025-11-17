@@ -8,6 +8,7 @@ import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
 import 'package:tutoring_software/modules/account_manager/account_controller.dart';
 import 'package:tutoring_software/modules/account_manager/account_match.dart';
 import 'package:tutoring_software/bean/data_process/json_process.dart';
+import 'package:tutoring_software/pages/subjects/subjects_controller.dart';
 
 class InfoPage extends StatefulWidget {
   const InfoPage({super.key});
@@ -24,6 +25,9 @@ class _InfoPageState extends State<InfoPage> {
       Modular.get<UserDataController>();
   //引入账号控制器
   final AccountController _accountController = Modular.get<AccountController>();
+  //引入学科页面控制类来监视学科选择信息
+  final SubjectsController _subjectsController =
+      Modular.get<SubjectsController>();
 
   // 添加TextEditingController用于处理输入
   late TextEditingController _userNameController;
