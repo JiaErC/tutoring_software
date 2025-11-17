@@ -26,9 +26,13 @@ class _InfoPageState extends State<InfoPage> {
   late TextEditingController _emailController;
 
   //用于检测更新变量的一些变量
+  int? _newGender;
   int? _selectedGender;
   String? _selectedBirthday;
   String? _selectedRole;
+  //存放选择身份的变量
+  // 创建一个临时变量存储当前选择的身份
+  Set<int>? _tempSelectedRoles;
 
   @override
   void initState() {
@@ -40,9 +44,16 @@ class _InfoPageState extends State<InfoPage> {
 
     // 初始化出生日期选择值    初始化性别选择值
     _selectedBirthday = _statusController.uBirthday;
-    _selectedGender = int.tryParse(_statusController.uGender) ?? 0;
+    _newGender = int.tryParse(_statusController.uGender) ?? 0;
     // 初始化角色选择值
     _selectedRole = _statusController.uRole;
+    _selectedGender = _newGender;
+    _tempSelectedRoles = Set.from(
+      _statusController.uRole.split(',').map(int.parse),
+    );
+    _tempSelectedRoles ??= {1, 2};
+
+    debugPrint("info_page.dart 初始化界面");
   }
 
   @override
@@ -112,13 +123,13 @@ class _InfoPageState extends State<InfoPage> {
                   Icons.calendar_today,
                   _selectedBirthday!,
                   "生日",
-                  _showEditBirthdayMenu, 
+                  _showEditBirthdayMenu,
                 ),
                 _buildDivider(),
                 //性别信息
                 _buildEditTile(
                   Icons.wc,
-                  getGenderText(_selectedGender!),
+                  getGenderText(_newGender!),
                   "性别",
                   _showEditGenderMenu,
                 ),
@@ -564,9 +575,11 @@ class _InfoPageState extends State<InfoPage> {
                       // 格式化日期为字符串
                       String formattedDate =
                           "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
-
-                      // 更新状态控制器中的生日
-                      _selectedBirthday = formattedDate;
+                      setState(
+                        () =>
+                            // 更新状态控制器中的生日
+                            _selectedBirthday = formattedDate,
+                      );
 
                       // 关闭底部菜单
                       Navigator.of(context).pop();
@@ -603,90 +616,98 @@ class _InfoPageState extends State<InfoPage> {
   // 在_InfoPageState类中添加以下方法
   // 显示修改性别的底部菜单
   void _showEditGenderMenu() {
-    // 重置为当前值
-    _selectedGender = int.tryParse(_statusController.uGender) ?? 0;
-
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return SafeArea(
-          child: Container(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text(
-                  '选择性别',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 20),
-                // 性别选择单选按钮组
-                RadioGroup<int>(
-                  groupValue: _selectedGender,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedGender = value;
-                    });
-                  },
-                  child: Column(
-                    children: <Widget>[
-                      Row(children: [Radio<int>(value: 1), Text('男')]),
-                      Row(children: [Radio<int>(value: 2), Text('女')]),
-                      Row(children: [Radio<int>(value: 0), Text('保密')]),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey,
+        // 使用StatefulBuilder来管理模态框内部的状态
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return SafeArea(
+              child: Container(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      '选择性别',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    // 按照注册页面的方式使用RadioGroup
+                    RadioGroup<int>(
+                      groupValue: _selectedGender,
+                      onChanged: (value) {
+                        // 使用setModalState而不是setState来更新模态框内的状态
+                        setModalState(() {
+                          _selectedGender = value;
+                          debugPrint("info_page.dart选择的性别值：$_selectedGender");
+                        });
+                      },
+                      child: Column(
+                        children: <Widget>[
+                          Row(children: [Radio<int>(value: 1), Text('男')]),
+                          Row(children: [Radio<int>(value: 2), Text('女')]),
+                          Row(children: [Radio<int>(value: 0), Text('保密')]),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey,
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('取消'),
+                          ),
                         ),
-                        onPressed: () {
-                          // 取消操作
-                          Navigator.of(context).pop();
-                        },
-                        child: Text('取消'),
-                      ),
+                        SizedBox(width: 20),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // 保存时使用主页面的setState更新状态
+                              setState(() {
+                                _newGender = _selectedGender;
+                              });
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('保存'),
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(width: 20),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed:
-                            () //async {
-                            //   // 保存新性别
-                            //   await _updateGender(_selectedGender.toString());
-                            //   Navigator.of(context).pop();
-                            // },
-                            {},
-                        child: Text('保存'),
-                      ),
-                    ),
+                    SizedBox(height: 20),
                   ],
                 ),
-                SizedBox(height: 20),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
-      // 设置菜单样式
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16.0),
           topRight: Radius.circular(16.0),
         ),
       ),
-      // 启用可拖动关闭
       enableDrag: true,
     );
   }
 
   //获取性别方法
-  String getGenderText(int gender) {
+  String getGenderText(int? gender) {
+    if (gender == null) {
+      _newGender = 0;
+      return '保密';
+    }
     switch (gender) {
       case 1:
         return '男性';
@@ -702,94 +723,102 @@ class _InfoPageState extends State<InfoPage> {
       context: context,
       isScrollControlled: true, // 允许底部菜单占满更多空间
       builder: (BuildContext context) {
-        // 创建一个临时变量存储当前选择的身份
-        Set<int> tempSelectedRoles = Set.from(
-          _statusController.uRole.split(',').map(int.parse),
-        );
-
-        return SafeArea(
-          child: Container(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom, // 适配键盘
-              top: 20,
-              left: 20,
-              right: 20,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text(
-                  '修改个人身份',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        // 使用StatefulBuilder来管理模态框内部的状态
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return SafeArea(
+              child: Container(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom, // 适配键盘
+                  top: 20,
+                  left: 20,
+                  right: 20,
                 ),
-                SizedBox(height: 20),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: tempSelectedRoles.contains(1),
-                      onChanged: (bool? value) {
-                        setState(() {
-                          if (value == true) {
-                            tempSelectedRoles.add(1);
-                          } else {
-                            tempSelectedRoles.remove(1);
-                          }
-                        });
-                      },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      '修改个人身份',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    Text('学生'),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: tempSelectedRoles.contains(2),
-                      onChanged: (bool? value) {
-                        setState(() {
-                          if (value == true) {
-                            tempSelectedRoles.add(2);
-                          } else {
-                            tempSelectedRoles.remove(2);
-                          }
-                        });
-                      },
-                    ),
-                    Text('老师'),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey,
+                    SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: _tempSelectedRoles?.contains(1),
+                          onChanged: (bool? value) {
+                            // 使用setModalState更新模态框内的状态
+                            setModalState(() {
+                              if (value == true) {
+                                _tempSelectedRoles?.add(1);
+                              } else {
+                                _tempSelectedRoles?.remove(1);
+                              }
+                            });
+                          },
                         ),
-                        onPressed: () {
-                          // 取消操作
-                          Navigator.of(context).pop();
-                        },
-                        child: Text('取消'),
-                      ),
+                        Text('学生'),
+                      ],
                     ),
-                    SizedBox(width: 20),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // 保存选择的身份
-                          _selectedRole = tempSelectedRoles.join(',');
-                          Navigator.of(context).pop();
-                        },
-                        child: Text('保存'),
-                      ),
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: _tempSelectedRoles?.contains(2),
+                          onChanged: (bool? value) {
+                            // 使用setModalState更新模态框内的状态
+                            setModalState(() {
+                              if (value == true) {
+                                _tempSelectedRoles?.add(2);
+                              } else {
+                                _tempSelectedRoles?.remove(2);
+                              }
+                            });
+                          },
+                        ),
+                        Text('老师'),
+                      ],
                     ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey,
+                            ),
+                            onPressed: () {
+                              // 取消操作
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('取消'),
+                          ),
+                        ),
+                        SizedBox(width: 20),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // 保存选择的身份，使用主页面的setState更新状态
+                              setState(() {
+                                _selectedRole =
+                                    _tempSelectedRoles?.join(',') ?? '';
+                              });
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('保存'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
                   ],
                 ),
-                SizedBox(height: 20),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
       // 设置菜单样式
