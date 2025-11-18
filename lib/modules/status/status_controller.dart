@@ -105,6 +105,7 @@ Future<void> setStatus(UserDataItem u) async {
     uTeachSubjects: deepCopyMap(u.uTeachSubjects),
     uStudySubjects: deepCopyMap(u.uStudySubjects),
   );
+  statusBox.clear();
   statusBox.add(newStatus);
   changeStatus(newStatus);
   debugPrint(

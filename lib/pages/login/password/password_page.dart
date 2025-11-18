@@ -7,6 +7,7 @@ import 'package:tutoring_software/modules/account_manager/account_controller.dar
 import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 import 'package:tutoring_software/modules/account_manager/account_match.dart';
+import 'package:tutoring_software/pages/subjects/subjects_controller.dart';
 
 class PasswordPage extends StatefulWidget {
   const PasswordPage({super.key});
@@ -31,6 +32,9 @@ class _PasswordPageState extends State<PasswordPage> {
   //两个控制器
   final TextEditingController _userAccountController = TextEditingController();
   final TextEditingController _userPasswordController = TextEditingController();
+  //添加学科控制器
+  final SubjectsController subjectsController =
+      Modular.get<SubjectsController>();
 
   //判断账号是否满足邮箱和手机号的格式
   bool _isAccountValid = true;
@@ -286,6 +290,8 @@ class _PasswordPageState extends State<PasswordPage> {
                       if (userDataItem != null) {
                         //改变登录状态
                         statusController.setStatus(userDataItem);
+                        // 调用SubjectsController的init()方法初始化科目数据
+                        subjectsController.init();
                         debugPrint("登录成功:\n${userDataItem.toString()}");
                         //返回到上一个页面
                         Modular.to.pushReplacementNamed("/tab/my");

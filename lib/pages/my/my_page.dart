@@ -60,7 +60,7 @@ class _MyPageState extends State<MyPage> {
               '用户信息变化: 登录状态=${statusController.isLogin}, 用户ID=${statusController.uID}，获取到的学科信息为：${myController.subjects}',
             );
           });
-      },
+        },
       );
 
       // 页面加载时立即获取最新学科数据
@@ -236,16 +236,27 @@ class _MyPageState extends State<MyPage> {
           Container(
             margin: EdgeInsets.only(right: 50),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.blue, width: 2),
+              border: Border.all(
+                color: statusController.isLogin ? Colors.blue : Colors.grey,
+                width: 2,
+              ),
               color: Colors.transparent,
             ),
             width: double.infinity,
             height: 50,
             child: TextButton(
-              onPressed: () => Modular.to.pushNamed("/tab/my/info"),
+              onPressed: statusController.isLogin
+                  ? () =>
+                        Modular.to.pushNamed("/tab/my/info") // 登录时跳转到编辑资料页面
+                  : null,
               child: Text(
                 "编辑资料",
-                style: TextStyle(color: Colors.blue.shade700, fontSize: 16),
+                style: TextStyle(
+                  color: statusController.isLogin
+                      ? Colors.blue.shade700
+                      : Colors.grey, // 根据登录状态设置文字颜色, fontSize: 16),
+                  fontSize: 16,
+                ),
               ),
             ),
           ),

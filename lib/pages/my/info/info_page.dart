@@ -76,7 +76,18 @@ class _InfoPageState extends State<InfoPage> {
     _selectedGender = _newGender;
     _newBirthday = _selectedBirthday ?? "未设置生日";
     _tempSelectedRoles = Set.from(
-      _statusController.uRole.split(',').map(int.parse),
+      _statusController.uRole
+          .split(',')
+          .where((role) => role.trim().isNotEmpty) // 过滤掉空字符串
+          .map((role) {
+            try {
+              return int.parse(role); // 尝试解析为整数
+            } catch (e) {
+              debugPrint("解析角色时出错: $role"); // 打印错误信息
+              return null; // 返回 null 表示解析失败
+            }
+          })
+          .whereType<int>(), // 过滤掉 null 值
     );
     _tempSelectedRoles ??= {1, 2};
 
@@ -85,6 +96,7 @@ class _InfoPageState extends State<InfoPage> {
     _newTeachSubjects = deepCopyMap(_statusController.uTeachSubjects);
 
     debugPrint("info_page.dart 初始化界面");
+    debugPrint("info_page.dart当前角色字符串: ${_statusController.uRole}");
   }
 
   @override
@@ -181,12 +193,14 @@ class _InfoPageState extends State<InfoPage> {
                   _showEditRoleMenu,
                 ),
                 _buildDivider(),
-                const SizedBox(height:20),
+                const SizedBox(height: 20),
                 if (_tempSelectedRoles?.contains(1) ?? false)
                   _buildEditStudySubjects(context), // 学生更改学科区域
-                const SizedBox(height:10),
+                const SizedBox(height: 10),
                 if (_tempSelectedRoles?.contains(2) ?? false)
                   _buildEditTeachSubjects(context), // 老师更改学科区域
+                _buildDivider(),
+                _buildConfirmButton(),
               ],
             ),
           ),
@@ -1107,4 +1121,50 @@ class _InfoPageState extends State<InfoPage> {
             ),
           );
   }
+
+  //确定按钮，
+  Widget _buildConfirmButton() {
+    return Align(
+      alignment: Alignment.center,
+      child: SizedBox(
+        width: 250,
+        height: 80,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ElevatedButton.icon(
+            onPressed: () {
+              // 保存数据逻辑
+              // _saveInfo();
+            },
+            icon: const Icon(Icons.check),
+            label: const Text("确定"),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              textStyle: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  // // 新增保存信息的方法
+  // void _saveInfo() {
+  //   setState(() {
+  //     _statusController.uName = _newUserName;
+  //     _statusController.uPhone = _newPhone;
+  //     _statusController.uEmail = _newEmail;
+  //     _statusController.uGender = _newGender.toString();
+  //     _statusController.uBirthday = _newBirthday;
+  //     _statusController.uRole = _newRole!;
+  //     _statusController.uStudySubjects = _newStudySubjects ?? {};
+  //     _statusController.uTeachSubjects = _newTeachSubjects ?? {};
+  //   });
+
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     const SnackBar(content: Text("信息已保存")),
+  //   );
+  // }
 }
