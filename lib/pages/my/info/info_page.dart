@@ -58,8 +58,8 @@ class _InfoPageState extends State<InfoPage> {
   Map<String, dynamic>? _newTeachSubjects;
 
   //判断电话号码和邮箱是否更新
-  bool ?_isPhoneNumberUpdated;
-  bool ?_isEmailUpdated;
+  bool? _isPhoneNumberUpdated;
+  bool? _isEmailUpdated;
 
   @override
   void initState() {
@@ -162,12 +162,7 @@ class _InfoPageState extends State<InfoPage> {
                   _showEditUserNameMenu,
                 ),
                 _buildDivider(),
-                _buildEditTile(
-                  Icons.lock,
-                  "更改密码",
-                  "密码",
-                  (){}
-                ),
+                _buildEditTile(Icons.lock, "更改密码", "密码", () {}),
                 _buildDivider(),
                 //修改电话号码
                 _buildEditTile(
@@ -596,6 +591,9 @@ class _InfoPageState extends State<InfoPage> {
                               _newPhone = newPhone;
                               // 标记电话号码已更新
                               _isPhoneNumberUpdated = true;
+                              if (_newPhone == _statusController.uPhone) {
+                                _isPhoneNumberUpdated = false;
+                              }
                             });
                             Navigator.of(context).pop();
                           } else {
@@ -692,6 +690,9 @@ class _InfoPageState extends State<InfoPage> {
                             setState(() {
                               _newEmail = newEmail;
                               _isEmailUpdated = true;
+                              if (_newEmail == _statusController.uEmail) {
+                                _isEmailUpdated = false;
+                              }
                             });
                             Navigator.of(context).pop();
                           } else {
@@ -1058,8 +1059,7 @@ class _InfoPageState extends State<InfoPage> {
             );
             // 更新状态，表示已选择学科
             setState(() {
-              _newRole = _statusController.uRole;
-              // _statusController.uTeachSubjects = _userDataController.uTeachSubjects;
+              _newTeachSubjects = _subjectsController.teachSubjects;
             });
           },
           icon: const Icon(Icons.edit),
@@ -1067,7 +1067,7 @@ class _InfoPageState extends State<InfoPage> {
         ),
         const SizedBox(width: 60),
         // 提示框，提示是否选择了学科
-        _textPrompt(_statusController.uTeachSubjects.isNotEmpty),
+        _textPrompt({_newTeachSubjects??{}}.isNotEmpty),
       ],
     );
   }
@@ -1092,8 +1092,7 @@ class _InfoPageState extends State<InfoPage> {
             );
             // 更新状态，表示已选择学科
             setState(() {
-              _newRole = _statusController.uRole;
-              // _statusController.uStudySubjects = _newStudySubjects;
+              _newStudySubjects = _subjectsController.studySubjects;
             });
           },
           icon: const Icon(Icons.edit),
@@ -1101,7 +1100,7 @@ class _InfoPageState extends State<InfoPage> {
         ),
         const SizedBox(width: 60),
         // 提示框，提示是否选择了学科
-        _textPrompt(_statusController.uStudySubjects.isNotEmpty),
+        _textPrompt({_newStudySubjects??{}}.isNotEmpty),
       ],
     );
   }
@@ -1149,13 +1148,13 @@ class _InfoPageState extends State<InfoPage> {
       alignment: Alignment.center,
       child: SizedBox(
         width: 250,
-        height: 80,
+        height: 100,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ElevatedButton.icon(
             onPressed: () {
-              // 保存数据逻辑
-              // _saveInfo();
+              //保存数据逻辑
+              _saveInfo();
             },
             icon: const Icon(Icons.check),
             label: const Text("确定"),
@@ -1173,7 +1172,7 @@ class _InfoPageState extends State<InfoPage> {
   }
 
   // 新增保存信息的方法
-  void _saveInfo()  async{
+  void _saveInfo() async {
     //创建UserDataItem对象
     UserDataItem newUser = UserDataItem(
       uID: _statusController.uID,
@@ -1181,18 +1180,38 @@ class _InfoPageState extends State<InfoPage> {
       uPhone: _newPhone,
       uEmail: _newEmail,
       uGender: _newGender.toString(),
-      uBirthday: _newBirthday!,
+      uBirthday: _newBirthday ?? "",
       uPassword: _statusController.uPassword,
-      uRole: _newRole!,
-      uStudySubjects: _newStudySubjects ?? {},
-      uTeachSubjects: _newTeachSubjects ?? {},
+      uRole: _newRole ?? "",
+      uStudySubjects: deepCopyMap(_newStudySubjects ?? {}),
+      uTeachSubjects: deepCopyMap(_newTeachSubjects ?? {}),
     );
     debugPrint('info_page.dart 新的用户: ${newUser.toString()}');
-    setState(() {
-    });
+    /**在未来要记得，如果远程连接不上，实现回退更改的功能**/
+    try {
+      //首先更新电话号码和邮箱
+      if (_isPhoneNumberUpdated ?? false) {
+        await _accountController.updatePhoneNumberUid(
+          newUser.uPhone,
+          newUser.uID,
+        );
+      }
+      if (_isEmailUpdated ?? false) {
+        await _accountController.updateEmailUid(newUser.uEmail, newUser.uID);
+      }
+      //接下来更新状态
+      _statusController.setStatus(newUser);
+      await _userDataController.updateUserData(newUser);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("信息已保存")),
-    );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("信息已保存")));
+    } catch (e) {
+      // 处理异常
+      debugPrint('更新用户信息失败: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("信息更新失败，请重试")));
+    }
   }
 }
