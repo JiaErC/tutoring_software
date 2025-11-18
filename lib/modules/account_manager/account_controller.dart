@@ -216,6 +216,103 @@ abstract class _AccountController with Store {
     }
   }
 
+  //更新电话号码 - 先删除后保存
+  @action
+  Future<String> updatePhoneNumberUid(String phoneNumber, String uid) async {
+    try {
+      // 将String类型的uid转换为Long类型
+      final longUid = int.parse(uid);
+
+      // 步骤1: 先根据uid删除现有的电话号码关联
+      debugPrint('开始更新电话号码: 先删除UID $uid 现有的电话号码关联');
+      final deleteResponse = await http
+          .delete(
+            Uri.parse('$baseUrl/api/phone-uid/delete/uid/$longUid'),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 10));
+
+      // 步骤2: 保存新的电话号码和UID关联
+      debugPrint('account_controller.dart_删除完成，开始保存新的电话号码 $phoneNumber 和 UID $uid 关联');
+      final saveResponse = await http
+          .post(
+            Uri.parse('$baseUrl/api/phone-uid/save').replace(
+              queryParameters: {
+                'phoneNumber': phoneNumber,
+                'uid': longUid.toString(),
+              },
+            ),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (saveResponse.statusCode == 200) {
+        final result = jsonDecode(saveResponse.body);
+        if (result['code'] == 200) {
+          debugPrint('电话号码$phoneNumber和UID$uid更新成功（先删除后保存）');
+          this.phoneNumber = phoneNumber;
+          return result['data'].toString(); // 返回成功信息
+        } else {
+          debugPrint('account_controller.dart_保存新关联失败: ${result['message']}');
+          throw Exception('account_controller.dart_更新失败: ${result['message']}');
+        }
+      } else {
+        debugPrint('account_controller.dart_保存新关联API请求失败，状态码：${saveResponse.statusCode}，响应体：${saveResponse.body}');
+        throw Exception('account_controller.dart_更新电话号码和UID失败: HTTP ${saveResponse.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('account_controller.dart_更新电话号码和UID时出错: $e');
+      rethrow;
+    }
+  }
+
+  //更新邮箱 - 先删除后保存
+  @action
+  Future<String> updateEmailUid(String email, String uid) async {
+    try {
+      // 将String类型的uid转换为Long类型
+      final longUid = int.parse(uid);
+
+      // 步骤1: 先根据uid删除现有的邮箱关联
+      debugPrint('account_controller.dart_开始更新邮箱: 先删除UID $uid 现有的邮箱关联');
+      final deleteResponse = await http
+          .delete(
+            Uri.parse('$baseUrl/api/email-uid/delete/uid/$longUid'),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 10));
+
+      // 步骤2: 保存新的邮箱和UID关联
+      debugPrint('account_controller.dart_删除完成，开始保存新的邮箱 $email 和 UID $uid 关联');
+      final saveResponse = await http
+          .post(
+            Uri.parse('$baseUrl/api/email-uid/save').replace(
+              queryParameters: {'email': email, 'uid': longUid.toString()},
+            ),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (saveResponse.statusCode == 200) {
+        final result = jsonDecode(saveResponse.body);
+        if (result['code'] == 200) {
+          debugPrint('account_controller.dart_邮箱$email和UID$uid更新成功（先删除后保存）');
+          this.email = email;
+          return result['data'].toString(); // 返回成功信息
+        } else {
+          debugPrint('account_controller.dart_保存新关联失败: ${result['message']}');
+          throw Exception('account_controller.dart_更新失败: ${result['message']}');
+        }
+      } else {
+        debugPrint('account_controller.dart_保存新关联API请求失败，状态码：${saveResponse.statusCode}，响应体：${saveResponse.body}');
+        throw Exception('account_controller.dart_更新邮箱和UID失败: HTTP ${saveResponse.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('account_controller.dart_更新邮箱和UID时出错: Error updating email and UID: $e');
+      rethrow;
+    }
+  }
+
   // //删除账户
   // @action
   // Future<void> deleteUser(String phoneNumber, String email) async {

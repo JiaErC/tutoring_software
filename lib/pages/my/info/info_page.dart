@@ -9,6 +9,7 @@ import 'package:tutoring_software/modules/account_manager/account_controller.dar
 import 'package:tutoring_software/modules/account_manager/account_match.dart';
 import 'package:tutoring_software/bean/data_process/json_process.dart';
 import 'package:tutoring_software/pages/subjects/subjects_controller.dart';
+import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 
 class InfoPage extends StatefulWidget {
   const InfoPage({super.key});
@@ -56,6 +57,10 @@ class _InfoPageState extends State<InfoPage> {
   Map<String, dynamic>? _newStudySubjects;
   Map<String, dynamic>? _newTeachSubjects;
 
+  //判断电话号码和邮箱是否更新
+  bool ?_isPhoneNumberUpdated;
+  bool ?_isEmailUpdated;
+
   @override
   void initState() {
     super.initState();
@@ -94,6 +99,10 @@ class _InfoPageState extends State<InfoPage> {
     //初始化学科
     _newStudySubjects = deepCopyMap(_statusController.uStudySubjects);
     _newTeachSubjects = deepCopyMap(_statusController.uTeachSubjects);
+
+    //初始化更新情况
+    _isPhoneNumberUpdated = false;
+    _isEmailUpdated = false;
 
     debugPrint("info_page.dart 初始化界面");
     debugPrint("info_page.dart当前角色字符串: ${_statusController.uRole}");
@@ -153,6 +162,13 @@ class _InfoPageState extends State<InfoPage> {
                   _showEditUserNameMenu,
                 ),
                 _buildDivider(),
+                _buildEditTile(
+                  Icons.lock,
+                  "更改密码",
+                  "密码",
+                  (){}
+                ),
+                _buildDivider(),
                 //修改电话号码
                 _buildEditTile(
                   Icons.phone,
@@ -199,7 +215,9 @@ class _InfoPageState extends State<InfoPage> {
                 const SizedBox(height: 10),
                 if (_tempSelectedRoles?.contains(2) ?? false)
                   _buildEditTeachSubjects(context), // 老师更改学科区域
+                const SizedBox(height: 20),
                 _buildDivider(),
+                const SizedBox(height: 10),
                 _buildConfirmButton(),
               ],
             ),
@@ -576,6 +594,8 @@ class _InfoPageState extends State<InfoPage> {
                             // 如果电话号码格式正确，保存并关闭弹窗
                             setState(() {
                               _newPhone = newPhone;
+                              // 标记电话号码已更新
+                              _isPhoneNumberUpdated = true;
                             });
                             Navigator.of(context).pop();
                           } else {
@@ -671,6 +691,7 @@ class _InfoPageState extends State<InfoPage> {
                             // 如果邮箱格式正确，保存并关闭弹窗
                             setState(() {
                               _newEmail = newEmail;
+                              _isEmailUpdated = true;
                             });
                             Navigator.of(context).pop();
                           } else {
@@ -1150,21 +1171,28 @@ class _InfoPageState extends State<InfoPage> {
       ),
     );
   }
-  // // 新增保存信息的方法
-  // void _saveInfo() {
-  //   setState(() {
-  //     _statusController.uName = _newUserName;
-  //     _statusController.uPhone = _newPhone;
-  //     _statusController.uEmail = _newEmail;
-  //     _statusController.uGender = _newGender.toString();
-  //     _statusController.uBirthday = _newBirthday;
-  //     _statusController.uRole = _newRole!;
-  //     _statusController.uStudySubjects = _newStudySubjects ?? {};
-  //     _statusController.uTeachSubjects = _newTeachSubjects ?? {};
-  //   });
 
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     const SnackBar(content: Text("信息已保存")),
-  //   );
-  // }
+  // 新增保存信息的方法
+  void _saveInfo()  async{
+    //创建UserDataItem对象
+    UserDataItem newUser = UserDataItem(
+      uID: _statusController.uID,
+      uName: _newUserName,
+      uPhone: _newPhone,
+      uEmail: _newEmail,
+      uGender: _newGender.toString(),
+      uBirthday: _newBirthday!,
+      uPassword: _statusController.uPassword,
+      uRole: _newRole!,
+      uStudySubjects: _newStudySubjects ?? {},
+      uTeachSubjects: _newTeachSubjects ?? {},
+    );
+    debugPrint('info_page.dart 新的用户: ${newUser.toString()}');
+    setState(() {
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("信息已保存")),
+    );
+  }
 }

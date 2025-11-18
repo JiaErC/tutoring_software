@@ -40,6 +40,9 @@ abstract class _StatusController with Store {
   //性别
   @observable
   String uGender = "";
+  //密码
+  @observable
+  String uPassword = "";
   //用户签名
   @observable
   String uSignature = "";
@@ -59,6 +62,7 @@ abstract class _StatusController with Store {
     uTeachSubjects = status.uTeachSubjects;
     uBirthday = status.uBirthday;
     uGender = status.uGender;
+    uPassword = status.uPassword;
   }
 
   @action
@@ -73,6 +77,7 @@ abstract class _StatusController with Store {
     uTeachSubjects = status.uTeachSubjects;
     uBirthday = status.uBirthday;
     uGender = status.uGender;
+    uPassword = status.uPassword;
     debugPrint("status_controller.dart :执行：changeStatus()");
     debugPrint("\n修改了${status.toString()}");
     debugPrint("\n教学科目：${uTeachSubjects.toString()}");
@@ -102,6 +107,7 @@ Future<void> setStatus(UserDataItem u) async {
     uPhone: u.uPhone,
     uRole: u.uRole,
     uBirthday: u.uBirthday,
+    uPassword: u.uPassword,
     uTeachSubjects: deepCopyMap(u.uTeachSubjects),
     uStudySubjects: deepCopyMap(u.uStudySubjects),
   );
@@ -134,4 +140,11 @@ Future<void> setStatus(UserDataItem u) async {
       debugPrint("状态控制器中的学科数据已更新: 教学科目=$uTeachSubjects, 学习科目=$uStudySubjects");
     }
   }
+
+  //改变密码
+  // @action
+  // void changePassword(String newPassword) {
+  //   uPassword = newPassword;
+  //   debugPrint('status_controller.dart 控制器中的密码已更新: $uPassword');
+  // }
 }

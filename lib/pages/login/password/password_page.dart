@@ -290,6 +290,8 @@ class _PasswordPageState extends State<PasswordPage> {
                       if (userDataItem != null) {
                         //改变登录状态
                         statusController.setStatus(userDataItem);
+                        // 添加changePassword方法调用，将密码同步到StatusController
+                        // statusController.changePassword(uPassword);
                         // 调用SubjectsController的init()方法初始化科目数据
                         subjectsController.init();
                         debugPrint("登录成功:\n${userDataItem.toString()}");

@@ -384,6 +384,7 @@ class _RegisterPageState extends State<RegisterPage> {
         }
       }
       await statusController.setStatus(userDataItem);
+      // statusController.changePassword(uPassword);
       userDataController.saveUserData(userDataItem);
       // //打印UserDataItem来查看是否错误
       // debugPrint('这个是注册的数据，请看看有没有错误${userDataItem.toString()}');

@@ -129,17 +129,6 @@ abstract class _UserDataController with Store {
     }
   }
 
-  //根据用户的ID获取用户的数据
-  // Future<UserDataItem?> getUserData(String uID) async {
-  //   try {
-  //     UserDataItem? userData = storedUserDataBox.get(uID);
-  //     return userData;
-  //   } catch (e) {
-  //     print('获取用户数据失败: $e');
-  //     return null;
-  //   }
-  // }
-
   Future<UserDataItem?> getUserData(String uid) async {
     //打印uID
     debugPrint('获取用户数据: $uid');
@@ -171,33 +160,79 @@ abstract class _UserDataController with Store {
     } catch (e) {
       rethrow;
     }
-    //     try {
-    //   final response = await http
-    //       .get(
-    //         Uri.parse('$baseUrl/api/email-uid/by-email/$email'),
-    //         headers: {'Content-Type': 'application/json'},
-    //       )
-    //       .timeout(const Duration(seconds: 10));
+  }
 
-    //   if (response.statusCode == 200) {
-    //     final result = jsonDecode(response.body);
-    //     if (result['code'] == 200) {
-    //       final String uid = result['data']['uid'].toString();
-    //       debugPrint('通过邮箱$email获取到了UID: $uid');
-    //       return uid;
-    //     } else {
-    //       throw Exception('通过邮箱$email获取UID失败: ${result['message']}');
-    //     }
-    //   } else {
-    //     debugPrint('API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
-    //     throw Exception(
-    //       'Failed to get UID by email: HTTP ${response.statusCode}',
-    //     );
-    //   }
-    // } catch (e) {
-    //   debugPrint('Error: $e');
-    //   rethrow;
-    // }
+    //更新用户数据
+  @action
+  Future<String> updateUserData(UserDataItem u) async {
+    // 在方法开始时创建学科数据的深拷贝
+    final teachSubjectsCopy = Map<String, dynamic>.from(u.uTeachSubjects);
+    final studySubjectsCopy = Map<String, dynamic>.from(u.uStudySubjects);
+    
+    String teachSubjects = jsonEncode(u.uTeachSubjects);
+    String studySubjects = jsonEncode(u.uStudySubjects);
+    
+    try {
+      // 将String类型的uid转换为Long类型
+      final longUid = int.parse(u.uID);
+      // 更新本地Hive存储
+      storedUserDataBox.put(u.uID, u);
+      // 更新StatusBox中的数据
+      final statusBox = GStorage.statusBox;
+      if (statusBox.isNotEmpty) {
+        Status updatedStatus = statusBox.values.first;
+        updatedStatus.uName = u.uName;
+        updatedStatus.uEmail = u.uEmail;
+        updatedStatus.uPhone = u.uPhone;
+        updatedStatus.uGender = u.uGender;
+        updatedStatus.uBirthday = u.uBirthday;
+        updatedStatus.uRole = u.uRole;
+        updatedStatus.uTeachSubjects = Map<String, dynamic>.from(teachSubjectsCopy);
+        updatedStatus.uStudySubjects = Map<String, dynamic>.from(studySubjectsCopy);
+        updatedStatus.uPassword = u.uPassword;
+        // statusBox.clear();
+        // statusBox.add(updatedStatus);
+      }   
+      // 构建更新请求体
+      final requestBody = {
+        'uid': longUid,
+        'username': u.uName,
+        'phoneNumber': u.uPhone,
+        'email': u.uEmail,
+        'birthday': u.uBirthday,
+        'role': u.uRole,
+        'gender': u.uGender,
+        'password': u.uPassword,
+        'teachingSubjects': teachSubjects,
+        'learningSubjects': studySubjects,
+      };
+      // 调用后端更新用户数据API
+      final response = await http
+          .put(
+            Uri.parse('$baseUrl/api/user-data-item/update'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(requestBody),
+          )
+          .timeout(const Duration(seconds: 10));    
+      if (response.statusCode == 200) {
+        final result = jsonDecode(response.body);
+        if (result['code'] == 200) {
+          debugPrint('user_data_controller.dart更新用户数据成功: ${result['message']}');
+          // 同步更新邮箱和手机号与UID的关联
+          // await _updateEmailAndPhoneAssociations(u.uEmail, u.uPhone, longUid);  
+          return result['message'];
+        } else {
+          debugPrint('user_data_controller.dart更新用户数据失败: ${result['message']}');
+          throw Exception('user_data_controller.dart更新失败: ${result['message']}');
+        }
+      } else {
+        debugPrint('user_data_controller.dart_API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
+        throw Exception('user_data_controller.dart_更新用户数据失败: HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('user_data_controller.dart_更新用户数据时出错: $e');
+      rethrow;
+    }
   }
 
   // 检查用户是否已存在
