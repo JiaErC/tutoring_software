@@ -20,15 +20,15 @@ public class UserDataItemController {
     private UserDataItemService userDataItemService;
 
     @GetMapping("/get/{uid}")
-    public Result<UserDataItem> getByUid(@PathVariable String uid){
-        //把uid转换为Long类型
+    public Result<UserDataItem> getByUid(@PathVariable String uid) {
+        // 把uid转换为Long类型
         Long uidLong = Long.parseLong(uid);
-        LOGGER.info("需要查询的uid为:{}",uidLong);
-        try{
+        LOGGER.info("需要查询的uid为:{}", uidLong);
+        try {
             UserDataItem result = userDataItemService.getByUid(uidLong);
             if (result != null) {
                 return Result.success(result);
-            }else{
+            } else {
                 return Result.error("UID not found");
             }
         } catch (Exception e) {
@@ -38,8 +38,8 @@ public class UserDataItemController {
     }
 
     @PostMapping("/save")
-    public Result<String> saveUserDataItem(@RequestBody UserDataItem userDataItem){
-        try{
+    public Result<String> saveUserDataItem(@RequestBody UserDataItem userDataItem) {
+        try {
             // 首先检查用户是否已存在
             UserDataItem existingUser = userDataItemService.getByUid(userDataItem.getUid());
             if (existingUser != null) {
@@ -47,19 +47,48 @@ public class UserDataItemController {
                 return Result.error("User already exists"); // 返回明确的用户已存在错误
             }
             boolean success = userDataItemService.saveUserDataItem(
-                    userDataItem.getUid(),userDataItem.getUsername(),
-                    userDataItem.getPhoneNumber(),userDataItem.getEmail(),
-                    userDataItem.getBirthday(),userDataItem.getRole(),
-                    userDataItem.getGender(),userDataItem.getPassword(),
-                    userDataItem.getTeachingSubjects(),userDataItem.getLearningSubjects());
-            if(success){
-                LOGGER.info("成功存储数据:uid={},username={}",userDataItem.getUid(),userDataItem.getUsername());
+                    userDataItem.getUid(), userDataItem.getUsername(),
+                    userDataItem.getPhoneNumber(), userDataItem.getEmail(),
+                    userDataItem.getBirthday(), userDataItem.getRole(),
+                    userDataItem.getGender(), userDataItem.getPassword(),
+                    userDataItem.getTeachingSubjects(), userDataItem.getLearningSubjects());
+            if (success) {
+                LOGGER.info("成功存储数据:uid={},username={}", userDataItem.getUid(), userDataItem.getUsername());
                 return Result.success("Save successful");
-            }else{
+            } else {
                 return Result.error("Save failed");
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             LOGGER.error("Error saving user data item", e);
+            return Result.error("Internal server error");
+        }
+    }
+
+    @PutMapping("/update")
+    public Result<String> updateUserDataItem(@RequestBody UserDataItem userDataItem) {
+        try {
+            // 检查用户是否存在
+            UserDataItem existingUser = userDataItemService.getByUid(userDataItem.getUid());
+            if (existingUser == null) {
+                LOGGER.error("用户{}不存在，更新失败", userDataItem.getUid());
+                return Result.error("User not found");
+            }
+
+            boolean success = userDataItemService.updateUserDataItem(
+                    userDataItem.getUid(), userDataItem.getUsername(),
+                    userDataItem.getPhoneNumber(), userDataItem.getEmail(),
+                    userDataItem.getBirthday(), userDataItem.getRole(),
+                    userDataItem.getGender(), userDataItem.getPassword(),
+                    userDataItem.getTeachingSubjects(), userDataItem.getLearningSubjects());
+
+            if (success) {
+                LOGGER.info("成功更新用户数据:uid={},username={}", userDataItem.getUid(), userDataItem.getUsername());
+                return Result.success("Update successful");
+            } else {
+                return Result.error("Update failed");
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error updating user data item", e);
             return Result.error("Internal server error");
         }
     }

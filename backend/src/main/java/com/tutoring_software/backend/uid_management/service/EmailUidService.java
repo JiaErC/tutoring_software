@@ -11,4 +11,5 @@ public interface EmailUidService extends IService<EmailUid> {
     boolean saveEmailUid(String email, Long uid);
     boolean updateByEmail(String email, Long uid);
     boolean deleteByEmail(String email);
+    boolean deleteByUid(Long uid); // 新增：根据UID删除邮箱映射
 }
