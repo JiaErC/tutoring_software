@@ -6,9 +6,7 @@ import "package:flutter_material_design_icons/flutter_material_design_icons.dart
 import 'package:getwidget/getwidget.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
-import 'package:tutoring_software/pages/register/register_controller.dart';
 import 'package:tutoring_software/pages/subjects/subjects_controller.dart';
-import 'package:tutoring_software/bean/data_process/json_process.dart';
 
 class SubjectsPage extends StatefulWidget {
   const SubjectsPage({super.key});
@@ -18,9 +16,6 @@ class SubjectsPage extends StatefulWidget {
 }
 
 class _SubjectsPageState extends State<SubjectsPage> {
-  //引入注册用户信息模块来持久化
-  final RegisterController _registerController =
-      Modular.get<RegisterController>();
   //引入学科页面控制类来监视持久化信息
   final SubjectsController _subjectsController =
       Modular.get<SubjectsController>();

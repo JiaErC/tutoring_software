@@ -25,6 +25,9 @@ abstract class _MyController with Store {
   //查看评论
   @observable
   bool isViewComment = false;
+  //学科是否选中表
+  @observable
+  Map<String,bool> subjectsSelectedMap = {};
 
   //获取状态控制器
   final statusController = Modular.get<StatusController>();
@@ -65,6 +68,8 @@ abstract class _MyController with Store {
     } else {
       subjects = deepCopyMap(statusController.uStudySubjects);
     }
+    //初始化学科选择表
+    subjectsSelectedMap = initSubjectsBoolMap(subjects);
     
     // 创建isViewSubjects映射
     isViewSubjects = {};
@@ -84,6 +89,8 @@ abstract class _MyController with Store {
         ? statusController.uStudySubjects
         : statusController.uTeachSubjects;
     isViewSubjects = subjects.map((key, value) => MapEntry(key, true));
+    //初始化学科选择表
+    subjectsSelectedMap = initSubjectsBoolMap(subjects);
     debugPrint("\nisViewSubjects是$isViewSubjects\n");
   }
 

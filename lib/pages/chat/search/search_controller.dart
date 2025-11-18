@@ -41,16 +41,17 @@ abstract class _SearchController with Store {
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
         if (result['code'] == 200) {
-          debugPrint('获取用户数据成功: ${result['message']}');
+          debugPrint('search_controller.dart 获取用户数据成功: ${result['message']}');
           searchUserData = UserDataItem.fromBackend(result['data']);
+          debugPrint('search_controller.dart 用户的选课情况: ${searchUserData.uTeachSubjects}');
           searchUid = uid;
         } else {
-          debugPrint('获取用户数据失败: ${result['message']}');
+          debugPrint('search_controller.dart 获取用户数据失败: ${result['message']}');
           throw Exception('获取失败:${result['message']}');
         }
       } else {
-        debugPrint('API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
-        throw Exception('获取用户数据失败: HTTP ${response.statusCode}');
+        debugPrint('search_controller.dart API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
+        throw Exception('search_controller.dart 获取用户数据失败: HTTP ${response.statusCode}');
       }
     } catch (e) {
       rethrow;
@@ -72,19 +73,19 @@ abstract class _SearchController with Store {
         final result = jsonDecode(response.body);
         if (result['code'] == 200) {
           final String uid = result['data']['uid'].toString();
-          debugPrint('通过电话号码$phoneNumber获取到了UID: $uid');
+          debugPrint('search_controller.dart 通过电话号码$phoneNumber获取到了UID: $uid');
           searchUserDataItem(uid);
         } else {
-          throw Exception('通过电话号码获取UID失败: ${result['message']}');
+          throw Exception('search_controller.dart 通过电话号码获取UID失败: ${result['message']}');
         }
       } else {
-        debugPrint('API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
+        debugPrint('search_controller.dart API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
         throw Exception(
-          'Failed to get UID by phone: HTTP ${response.statusCode}',
+          'search_controller.dart Failed to get UID by phone: HTTP ${response.statusCode}',
         );
       }
     } catch (e) {
-      debugPrint('Error: $e');
+      debugPrint('search_controller.dart Error: $e');
       rethrow;
     }
   }
@@ -102,19 +103,19 @@ abstract class _SearchController with Store {
         final result = jsonDecode(response.body);
         if (result['code'] == 200) {
           final String uid = result['data']['uid'].toString();
-          debugPrint('通过邮箱$email获取到了UID: $uid');
+          debugPrint('search_controller.dart 通过邮箱$email获取到了UID: $uid');
           searchUserDataItem(uid);
         } else {
-          throw Exception('通过邮箱$email获取UID失败: ${result['message']}');
+          throw Exception('search_controller.dart 通过邮箱$email获取UID失败: ${result['message']}');
         }
       } else {
-        debugPrint('API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
+        debugPrint('search_controller.dart API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
         throw Exception(
-          'Failed to get UID by email: HTTP ${response.statusCode}',
+          'search_controller.dart Failed to get UID by email: HTTP ${response.statusCode}',
         );
       }
     } catch (e) {
-      debugPrint('Error: $e');
+      debugPrint('search_controller.dart Error: $e');
       rethrow;
     }
   }

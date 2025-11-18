@@ -92,7 +92,6 @@ class _MyPageState extends State<MyPage> {
   bool get _isStudent => myController.isStudent;
   //获取当前用户教学的学科信息，选了什么学科，还有是否选择了学科
   //选择的学科
-  Map<String, dynamic> get _subjects => myController.subjects;
 
   bool get _isSelectedSubjects => myController.subjects.isNotEmpty;
   //每个大学科的选择情况
@@ -547,23 +546,44 @@ class _MyPageState extends State<MyPage> {
     List<Widget> list = [];
     ss.forEach((s) {
       list.add(
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 4),
-          decoration: BoxDecoration(
-            border: Border.all(color: _getBackgroundColor(), width: 2),
-          ),
-          child: Text(
-            s,
-            style: TextStyle(
-              color: _getRoleColor(),
-              fontWeight: FontWeight.normal,
-              fontSize: 16,
-            ),
-          ),
+        StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            bool isSelected =
+                myController.subjectsSelectedMap[s] ?? false; // 用于跟踪当前按钮是否被选中
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                color: isSelected
+                      ? _getBackgroundColor() // 选中时的背景色
+                      : Colors.transparent, // 未选中时透明
+                border: Border.all(color: _getRoleColor(), width: 2),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  setState(() {
+                    if (myController.subjectsSelectedMap.containsKey(s)) {
+                      myController.subjectsSelectedMap[s] =
+                          !myController.subjectsSelectedMap[s]!;
+                    } else {
+                      myController.subjectsSelectedMap[s] = true;
+                    }
+                  });
+                },
+                child: Text(
+                  s,
+                  style: TextStyle(
+                    color: _getRoleColor(),
+                    fontWeight: FontWeight.normal,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       );
     });
-    //返回一个有边框的Container容器
+    // 返回一个有边框的Container容器
     return Expanded(
       child: Container(
         margin: EdgeInsets.only(left: 5),

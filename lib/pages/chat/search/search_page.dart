@@ -10,6 +10,7 @@ import 'package:tutoring_software/pages/chat/search/search_controller.dart'
     as custom;
 import 'package:tutoring_software/bean/widgets/rating_input.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
+import 'package:tutoring_software/modules/avatar/avatar_controller.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -24,6 +25,8 @@ class _SearchPageState extends State<SearchPage> {
       Modular.get<custom.SearchController>();
   //引入状态控制器来获取当前用户的信息
   final StatusController statusController = Modular.get<StatusController>();
+  //引入头像控制器
+  final AvatarController _avatarController = Modular.get<AvatarController>();
 
   //文本控制器，uID的，电话号码的，邮箱的
   final TextEditingController _userIDController = TextEditingController();
@@ -486,9 +489,14 @@ class _SearchPageState extends State<SearchPage> {
         userName: statusController.uName,
         initialRating: _searchController.userRating.toInt(),
         onSubmit: (comment, rating) {
-          print("发布评价: $comment, 评分: $rating");
+          debugPrint("search_page.dart 发布评价: $comment, 评分: $rating");
           // 这里可以添加发布评价的逻辑
         },
+        //需要图片
+        avatarProvider: _avatarController.avatarData != null
+            ? MemoryImage(_avatarController.avatarData!)
+            : AssetImage("lib/data/images/1.png"),
+        isShowSelectSubjectButton: true,
       ),
     );
   }
