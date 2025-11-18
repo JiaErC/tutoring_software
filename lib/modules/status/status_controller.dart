@@ -43,9 +43,6 @@ abstract class _StatusController with Store {
   //密码
   @observable
   String uPassword = "";
-  //用户签名
-  @observable
-  String uSignature = "";
 
   //初始化，从盒子中获得登录状态和uID
   @action

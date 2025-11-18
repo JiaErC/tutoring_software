@@ -10,6 +10,7 @@ import 'package:tutoring_software/modules/account_manager/account_match.dart';
 import 'package:tutoring_software/bean/data_process/json_process.dart';
 import 'package:tutoring_software/pages/subjects/subjects_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
+import 'package:tutoring_software/modules/signature/signature_controller.dart';
 
 class InfoPage extends StatefulWidget {
   const InfoPage({super.key});
@@ -29,6 +30,9 @@ class _InfoPageState extends State<InfoPage> {
   //引入学科页面控制类来监视学科选择信息
   final SubjectsController _subjectsController =
       Modular.get<SubjectsController>();
+  //引入签名控制器
+  final SignatureController _signatureController =
+      Modular.get<SignatureController>();
 
   // 添加TextEditingController用于处理输入
   late TextEditingController _userNameController;
@@ -72,6 +76,8 @@ class _InfoPageState extends State<InfoPage> {
     _newUserName = _statusController.uName;
     _newPhone = _statusController.uPhone;
     _newEmail = _statusController.uEmail;
+    //初始化签名
+    _newSignature = _signatureController.uSignature;
 
     // 初始化出生日期选择值    初始化性别选择值
     _selectedBirthday = _statusController.uBirthday;
@@ -147,10 +153,9 @@ class _InfoPageState extends State<InfoPage> {
                 _bulidAvatar(),
                 _buildDivider(),
                 //签名区域
-                _buildEditTile(
+                _buildSignatureEditTile(
                   Icons.edit_note,
-                  _newSignature,
-                  "签名",
+                  "个性签名",
                   _showEditSignatureMenu,
                 ),
                 _buildDivider(),
@@ -333,10 +338,58 @@ class _InfoPageState extends State<InfoPage> {
     );
   }
 
+  //签名的区域
+  Widget _buildSignatureEditTile(IconData icon, String uT, Function() f) {
+    return GestureDetector(
+      onTap: f,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(16.0),
+        decoration: BoxDecoration(color: Colors.white),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            // 标题行
+            Row(
+              children: [
+                Icon(icon, size: 24),
+                SizedBox(width: 12),
+                Text(uT, style: TextStyle(fontSize: 16, color: Colors.black54)),
+              ],
+            ),
+            SizedBox(height: 12),
+            // 签名内容区域
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(4),
+                color: Colors.grey.shade50,
+              ),
+              padding: EdgeInsets.all(12.0),
+              child: _newSignature.isEmpty
+                  ? Text(
+                      '未设置签名',
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                    )
+                  : Text(
+                      _newSignature,
+                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                      textAlign: TextAlign.left,
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showEditSignatureMenu() {
     // 初始化签名输入框
-    TextEditingController _signatureController = TextEditingController(
-      text: _statusController.uSignature ?? '',
+    TextEditingController signatureTextController = TextEditingController(
+      text: _newSignature,
     );
     showModalBottomSheet(
       context: context,
@@ -359,7 +412,7 @@ class _InfoPageState extends State<InfoPage> {
                 ),
                 SizedBox(height: 20),
                 TextField(
-                  controller: _signatureController,
+                  controller: signatureTextController,
                   decoration: InputDecoration(
                     labelText: '请输入新签名',
                     border: OutlineInputBorder(),
@@ -388,13 +441,26 @@ class _InfoPageState extends State<InfoPage> {
                     SizedBox(width: 20),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
-                          _newSignature = _signatureController.text;
-                          if (_newSignature.isNotEmpty) {
+                        onPressed: () async {
+                          if (signatureTextController.text.isNotEmpty) {
                             // 如果签名不为空，保存并关闭弹窗
                             setState(() {
-                              _statusController.uSignature = _newSignature;
+                              _newSignature = signatureTextController.text;
                             });
+                            //接下来把_newSignature保存到数据库中
+                            try {
+                              _signatureController.hasSignature
+                                  ? await _signatureController.updateSignature(
+                                      _statusController.uID,
+                                      _newSignature,
+                                    )
+                                  : await _signatureController.saveSignature(
+                                      _statusController.uID,
+                                      _newSignature,
+                                    );
+                            } catch (e) {
+                              debugPrint('保存签名时发生错误: $e');
+                            }
                             Navigator.of(context).pop();
                           } else {
                             // 如果签名为空，显示错误提示
@@ -1067,7 +1133,7 @@ class _InfoPageState extends State<InfoPage> {
         ),
         const SizedBox(width: 60),
         // 提示框，提示是否选择了学科
-        _textPrompt({_newTeachSubjects??{}}.isNotEmpty),
+        _textPrompt({_newTeachSubjects ?? {}}.isNotEmpty),
       ],
     );
   }
@@ -1100,7 +1166,7 @@ class _InfoPageState extends State<InfoPage> {
         ),
         const SizedBox(width: 60),
         // 提示框，提示是否选择了学科
-        _textPrompt({_newStudySubjects??{}}.isNotEmpty),
+        _textPrompt({_newStudySubjects ?? {}}.isNotEmpty),
       ],
     );
   }

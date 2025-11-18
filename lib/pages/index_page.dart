@@ -3,6 +3,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 
 import 'package:tutoring_software/pages/menu/menu.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
+import 'package:tutoring_software/modules/signature/signature_controller.dart';
 
 //再者各路由中的加载导航栏
 class IndexPage extends StatefulWidget {
@@ -16,14 +17,35 @@ class IndexPage extends StatefulWidget {
 class _IndexPageState extends State<IndexPage> with WidgetsBindingObserver {
   //获取状态控制器
   final StatusController _statusController = Modular.get<StatusController>();
-  
+  //获取签名控制器
+  final SignatureController _signatureController =
+      Modular.get<SignatureController>();
+
   @override
   void initState() {
     super.initState();
     // 在首帧渲染后恢复登录状态
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _restoreLoginStatus();
+      // 在恢复登录状态后再初始化签名，确保uID已经设置
+      _initSignature();
     });
+    // 或者直接调用，但不等待
+    // _initSignature();
+  }
+
+  // 新增单独的异步方法用于初始化签名
+  void _initSignature() {
+    // 不使用await，只调用异步方法
+    _signatureController
+        .init(_statusController.uID)
+        .then((_) {
+          // 如果需要在签名初始化完成后做些什么，可以在这里处理
+          debugPrint('签名初始化完成');
+        })
+        .catchError((e) {
+          debugPrint('签名初始化失败: $e');
+        });
   }
 
   @override

@@ -7,6 +7,7 @@ import 'package:mobx/mobx.dart';
 import 'package:tutoring_software/bean/widgets/edge_box.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/pages/my/my_controller.dart';
+import 'package:tutoring_software/modules/signature/signature_controller.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -20,6 +21,8 @@ class _MyPageState extends State<MyPage> {
   final StatusController statusController = Modular.get<StatusController>();
   //获取MyController
   final MyController myController = Modular.get<MyController>();
+  //获取签名控制器
+  final SignatureController signatureController = Modular.get<SignatureController>();
 
   // 存储reaction的disposer
   ReactionDisposer? _loginReaction;
@@ -158,7 +161,11 @@ class _MyPageState extends State<MyPage> {
               ? "电话号码:${statusController.uPhone}\n邮箱:${statusController.uEmail}\nUid:${statusController.uID}"
               : "这里是联系方式",
         ),
-        content: Text("这里是简介"),
+        content: Text(
+          signatureController.hasSignature
+              ? signatureController.uSignature
+              : "这里是个性签名",
+        ),
         //buttonBar:这里存放标签和联系方式
       ),
     );

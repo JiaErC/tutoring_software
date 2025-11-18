@@ -8,6 +8,8 @@ class GStorage {
   static late Box<UserDataItem> userDataBox;
   //存储这个用户登录状态的数据集
   static late Box<Status> statusBox;
+  //存储签名的盒子
+  static late Box<String> signatureBox;
   //存储手机号和电话号码的数据集
   // static late Box<String> phoneNumberBox;
   // static late Box<String> emailBox;
@@ -24,6 +26,7 @@ class GStorage {
     userDataBox = await Hive.openBox('userData');
     // userDataBox.clear();
     statusBox = await Hive.openBox('status');
+    signatureBox = await Hive.openBox('signature');
     //如果登录状态盒子为空，就添加一个默认的登录状态
     if (statusBox.isEmpty) {
       statusBox.add(Status(isLogin: false, uID: ""));
