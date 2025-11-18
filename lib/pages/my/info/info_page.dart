@@ -11,6 +11,7 @@ import 'package:tutoring_software/bean/data_process/json_process.dart';
 import 'package:tutoring_software/pages/subjects/subjects_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 import 'package:tutoring_software/modules/signature/signature_controller.dart';
+import 'package:tutoring_software/modules/avatar/avatar_controller.dart';
 
 class InfoPage extends StatefulWidget {
   const InfoPage({super.key});
@@ -33,6 +34,8 @@ class _InfoPageState extends State<InfoPage> {
   //引入签名控制器
   final SignatureController _signatureController =
       Modular.get<SignatureController>();
+  //引入头像控制器
+  final AvatarController _avatarController = Modular.get<AvatarController>();
 
   // 添加TextEditingController用于处理输入
   late TextEditingController _userNameController;
@@ -245,7 +248,9 @@ class _InfoPageState extends State<InfoPage> {
       height: 100,
       child: ListTile(
         leading: GFAvatar(
-          backgroundImage: AssetImage("lib/data/images/1.png"),
+          backgroundImage: _avatarController.avatarData != null
+              ? MemoryImage(_avatarController.avatarData!)
+              : AssetImage("lib/data/images/1.png"),
           radius: 80,
         ),
         trailing: Text(
@@ -272,6 +277,13 @@ class _InfoPageState extends State<InfoPage> {
                           // 实现拍照功能
                           Navigator.of(context).pop();
                           // 这里将来可以添加相机拍照的代码
+                          try {
+                            _avatarController.pickImageFromCamera(
+                              _statusController.uID,
+                            );
+                          } catch (e) {
+                            debugPrint('info_page.dart 拍照失败：$e');
+                          }
                         },
                       ),
                       ListTile(
@@ -281,6 +293,13 @@ class _InfoPageState extends State<InfoPage> {
                           // 实现从相册选择功能
                           Navigator.of(context).pop();
                           // 这里将来可以添加从相册选择的代码
+                          try {
+                            _avatarController.pickImageFromGallery(
+                              _statusController.uID,
+                            );
+                          } catch (e) {
+                            debugPrint('info_page.dart 从相册选择失败：$e');
+                          }
                         },
                       ),
                     ],

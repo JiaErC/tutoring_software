@@ -4,6 +4,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:tutoring_software/pages/menu/menu.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/modules/signature/signature_controller.dart';
+import 'package:tutoring_software/modules/avatar/avatar_controller.dart';
 
 //再者各路由中的加载导航栏
 class IndexPage extends StatefulWidget {
@@ -20,6 +21,8 @@ class _IndexPageState extends State<IndexPage> with WidgetsBindingObserver {
   //获取签名控制器
   final SignatureController _signatureController =
       Modular.get<SignatureController>();
+  //获取头像控制器
+  final AvatarController _avatarController = Modular.get<AvatarController>();
 
   @override
   void initState() {
@@ -41,10 +44,20 @@ class _IndexPageState extends State<IndexPage> with WidgetsBindingObserver {
         .init(_statusController.uID)
         .then((_) {
           // 如果需要在签名初始化完成后做些什么，可以在这里处理
-          debugPrint('签名初始化完成');
+          debugPrint('index_page.dart 签名初始化完成');
         })
         .catchError((e) {
-          debugPrint('签名初始化失败: $e');
+          debugPrint('index_page.dart 签名初始化失败: $e');
+        });
+    // 初始化头像
+    _avatarController
+        .init(_statusController.uID)
+        .then((_) {
+          // 如果需要在头像初始化完成后做些什么，可以在这里处理
+          debugPrint('index_page.dart 头像初始化完成');
+        })
+        .catchError((e) {
+          debugPrint('index_page.dart 头像初始化失败: $e');
         });
   }
 

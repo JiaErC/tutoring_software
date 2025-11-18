@@ -8,6 +8,7 @@ import 'package:tutoring_software/bean/widgets/edge_box.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/pages/my/my_controller.dart';
 import 'package:tutoring_software/modules/signature/signature_controller.dart';
+import 'package:tutoring_software/modules/avatar/avatar_controller.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -22,7 +23,10 @@ class _MyPageState extends State<MyPage> {
   //获取MyController
   final MyController myController = Modular.get<MyController>();
   //获取签名控制器
-  final SignatureController signatureController = Modular.get<SignatureController>();
+  final SignatureController signatureController =
+      Modular.get<SignatureController>();
+  //获取头像控制器
+  final AvatarController _avatarController = Modular.get<AvatarController>();
 
   // 存储reaction的disposer
   ReactionDisposer? _loginReaction;
@@ -152,7 +156,9 @@ class _MyPageState extends State<MyPage> {
           avatar: InkWell(
             onTap: () => Modular.to.pushNamed("/login/password"),
             child: GFAvatar(
-              backgroundImage: AssetImage("lib/data/images/1.png"),
+              backgroundImage: _avatarController.avatarData != null
+                  ? MemoryImage(_avatarController.avatarData!)
+                  : AssetImage("lib/data/images/1.png"),
               radius: 20,
             ),
           ),

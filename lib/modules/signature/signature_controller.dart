@@ -67,19 +67,19 @@ abstract class _SignatureController with Store {
             signatureBox.put(uid, signature);
             uSignature = signature;
             hasSignature = true;
-            debugPrint('签名保存成功: $signature');
+            debugPrint('signature_controller.dart 签名保存成功: $signature');
             return true;
           } else {
-            debugPrint('签名保存失败: ${result['message']}');
+            debugPrint('signature_controller.dart 签名保存失败: ${result['message']}');
             return false;
           }
         } else {
-          debugPrint('签名保存失败，状态码: ${response.statusCode}');
+          debugPrint('signature_controller.dart 签名保存失败，状态码: ${response.statusCode}');
           return false;
         }
       }
     } catch (e) {
-      debugPrint('保存签名时发生错误: $e');
+      debugPrint('signature_controller.dart 保存签名时发生错误: $e');
       return false;
     }
   }
@@ -101,18 +101,18 @@ abstract class _SignatureController with Store {
           signatureBox.put(uid, signature);
           uSignature = signature;
           hasSignature = true;
-          debugPrint('签名更新成功: $signature');
+          debugPrint('signature_controller.dart_签名更新成功: $signature');
           return true;
         } else {
-          debugPrint('签名更新失败: ${result['message']}');
+          debugPrint('signature_controller.dart_签名更新失败: ${result['message']}');
           return false;
         }
       } else {
-        debugPrint('签名更新失败，状态码: ${response.statusCode}');
+        debugPrint('signature_controller.dart_签名更新失败，状态码: ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      debugPrint('更新签名时发生错误: $e');
+      debugPrint('signature_controller.dart_更新签名时发生错误: $e');
       return false;
     }
   }
@@ -124,7 +124,7 @@ abstract class _SignatureController with Store {
       // 先从本地存储中获取签名
       final localSignature = signatureBox.get(uid);
       if (localSignature != null) {
-        debugPrint('从本地存储获取到的签名: $localSignature');
+        debugPrint('signature_controller.dart_从本地存储获取到的签名: $localSignature');
         return localSignature;
       }
 
@@ -140,18 +140,18 @@ abstract class _SignatureController with Store {
           final signature = result['data']['signatures'];
           // 保存到本地存储
           signatureBox.put(uid, signature);
-          debugPrint('从后端获取到的签名: $signature');
+          debugPrint('signature_controller.dart_从后端获取到的签名: $signature');
           return signature;
         } else {
-          debugPrint('获取签名失败: ${result['message']}');
+          debugPrint('signature_controller.dart_获取签名失败: ${result['message']}');
           return null;
         }
       } else {
-        debugPrint('获取签名失败，状态码: ${response.statusCode}');
+        debugPrint('signature_controller.dart_获取签名失败，状态码: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      debugPrint('获取签名时发生错误: $e');
+      debugPrint('signature_controller.dart_获取签名时发生错误: $e');
       return null;
     }
   }
@@ -170,18 +170,18 @@ abstract class _SignatureController with Store {
         if (result['code'] == 200) {
           // 从本地存储中删除
           signatureBox.delete(uid);
-          debugPrint('签名删除成功');
+          debugPrint('signature_controller.dart_签名删除成功');
           return true;
         } else {
-          debugPrint('签名删除失败: ${result['message']}');
+          debugPrint('signature_controller.dart_签名删除失败: ${result['message']}');
           return false;
         }
       } else {
-        debugPrint('签名删除失败，状态码: ${response.statusCode}');
+        debugPrint('signature_controller.dart_签名删除失败，状态码: ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      debugPrint('删除签名时发生错误: $e');
+      debugPrint('signature_controller.dart_删除签名时发生错误: $e');
       return false;
     }
   }
