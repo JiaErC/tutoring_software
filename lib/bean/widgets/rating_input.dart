@@ -3,7 +3,6 @@ import 'package:flutter/material.dart' hide SearchController;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 
 import 'package:tutoring_software/pages/chat/search/search_controller.dart';
 
@@ -231,72 +230,83 @@ class _RatingInputState extends State<RatingInput> {
     );
   }
 
+  //通过get方法获取_searchController中的属性
+  Map<String, bool> get _selectedSubjects =>
+      _searchController.selectedTeachSubjectsMap;
+  Map<String, bool> get _isViewSubjects => _searchController.isViewSubjects;
+
   //展示这个老师有什么科目可以选择
   void _showSubjectsMenu() {
     showModalBottomSheet(
+      isScrollControlled: true,
       context: context,
-      isScrollControlled: true, // 允许底部菜单占满更多空间
       builder: (BuildContext context) {
-        return SafeArea(
-          child: Container(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom, // 适配键盘
-              top: 20,
-              left: 20,
-              right: 20,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '选择科目',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        // 使用StatefulBuilder来管理模态框内部的状态
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return SafeArea(
+              child: Container(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom, // 适配键盘
+                  top: 20,
+                  left: 20,
+                  right: 20,
                 ),
-                const SizedBox(height: 20),
-                _buildSubjects(),
-                const SizedBox(height: 20),
-                // 添加取消和确定按钮
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey,
+                    Text(
+                      '选择科目',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildSubjects(),
+                    const SizedBox(height: 20),
+                    // 添加取消和确定按钮
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey,
+                            ),
+                            onPressed: () {
+                              // 取消操作，返回到上一个路由
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('取消'),
+                          ),
                         ),
-                        onPressed: () {
-                          // 取消操作，返回到上一个路由
-                          Navigator.of(context).pop();
-                        },
-                        child: Text('取消'),
-                      ),
+                        SizedBox(width: 20),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // 确定操作，返回到上一个路由
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('确定'),
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(width: 20),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // 确定操作，返回到上一个路由
-                          Navigator.of(context).pop();
-                        },
-                        child: Text('确定'),
-                      ),
-                    ),
+                    SizedBox(height: 20),
                   ],
                 ),
-                SizedBox(height: 20),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
-      // 设置菜单样式
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16.0),
           topRight: Radius.circular(16.0),
         ),
       ),
-      // 启用可拖动关闭
       enableDrag: true,
     );
   }
@@ -304,16 +314,24 @@ class _RatingInputState extends State<RatingInput> {
   //接下来制作显示搜索出来的老师的各个学科
   Widget _buildSubjects() {
     return Container(
+      height: 400,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.blueAccent, width: 2),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
       padding: EdgeInsets.symmetric(horizontal: 40),
       alignment: Alignment.centerLeft,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: _buildBigSubjects(),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _buildBigSubjects(),
+        ),
       ),
     );
   }
 
-  //箭头形状显示选择的学科大类
+  // 箭头形状显示选择的学科大类
   List<Widget> _buildBigSubjects() {
     List<Widget> list = [];
     _searchController.searchUserData.uTeachSubjects.forEach((
@@ -321,12 +339,12 @@ class _RatingInputState extends State<RatingInput> {
       smallSubjects,
     ) {
       list.add(
-        Observer(
-          builder: (_) {
+        StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            // 在builder内部获取最新状态
             bool isExpanded =
                 _searchController.isViewSubjects[bigSubject] ?? true;
             debugPrint("rating_input.dart 当前展开状态：$isExpanded");
-
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -358,7 +376,6 @@ class _RatingInputState extends State<RatingInput> {
                           ),
                         ),
                         SizedBox(width: 8),
-                        // 使用AnimatedSwitcher确保图标正确动画切换
                         AnimatedSwitcher(
                           duration: Duration(milliseconds: 200),
                           child: Icon(
@@ -373,12 +390,13 @@ class _RatingInputState extends State<RatingInput> {
                       ],
                     ),
                     onPressed: () {
-                      // 只调用switchViewSubjects，不读取状态
+                      // 调用MobX action
                       _searchController.switchViewSubjects(bigSubject);
+                      // 使用setState触发重新构建
+                      setState(() {});
                     },
                   ),
                 ),
-                // 使用AnimatedSwitcher确保内容正确显示/隐藏
                 AnimatedSwitcher(
                   duration: Duration(milliseconds: 300),
                   transitionBuilder:
@@ -447,16 +465,16 @@ class _RatingInputState extends State<RatingInput> {
     return list;
   }
 
-  //获取每个科目
+  // 获取每个科目
   Widget _buildLastSubjects(ss) {
     List<Widget> list = [];
     ss.forEach((s) {
       list.add(
         StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
+            // 关键点：在builder函数内部获取最新状态，而不是在外部缓存
             bool isSelected =
-                _searchController.selectedTeachSubjectsMap[s] ??
-                false; // 用于跟踪当前按钮是否被选中
+                _searchController.selectedTeachSubjectsMap[s] ?? false;
             return Container(
               margin: EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
@@ -467,8 +485,14 @@ class _RatingInputState extends State<RatingInput> {
               ),
               child: TextButton(
                 onPressed: () {
+                  // 第一步：调用MobX action更新状态
+                  _searchController.changeSelectedSubjects(s);
+
+                  // 第二步：使用StatefulBuilder的setState强制重新构建当前组件
+                  // 这会导致重新执行builder函数，从而获取最新的selectedTeachSubjectsMap值
                   setState(() {
-                    _searchController.changeSelectedSubjects(s);
+                    // 这里不需要写任何代码，setState本身就会触发builder重新执行
+                    // 重新执行时会再次获取_searchController.selectedTeachSubjectsMap[s]
                   });
                 },
                 child: Text(
@@ -485,21 +509,16 @@ class _RatingInputState extends State<RatingInput> {
         ),
       );
     });
-    // 返回一个有边框的Container容器
-    return Expanded(
-      child: Container(
-        margin: EdgeInsets.only(left: 5),
-        padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-        decoration: BoxDecoration(
-          border: Border.all(color: _getRoleColor(), width: 2),
-        ),
-        // 移除Wrap，直接在ScrollView中放置Row
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          // 添加physics参数确保滚动体验
-          physics: AlwaysScrollableScrollPhysics(),
-          child: Row(children: list),
-        ),
+    return Container(
+      margin: EdgeInsets.only(left: 5),
+      padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+      decoration: BoxDecoration(
+        border: Border.all(color: _getRoleColor(), width: 2),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: AlwaysScrollableScrollPhysics(),
+        child: Row(children: list),
       ),
     );
   }

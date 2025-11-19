@@ -151,7 +151,7 @@ abstract class _SearchController with Store {
   void switchViewSubjects(String bigSubject) {
     isViewSubjects[bigSubject] = !(isViewSubjects[bigSubject] ?? false);
       // 打印调试信息
-  debugPrint("search_controller.dart 是否展开：${isViewSubjects[bigSubject]}");
+  debugPrint("search_controller.dart $bigSubject是否展开：${isViewSubjects[bigSubject]}");
   }
 
   //修改选择的学科
@@ -170,7 +170,6 @@ abstract class _SearchController with Store {
       });
       selectedTeachSubjectsMap[s] = true;
     }
-    debugPrint("search_controller.dart 当前选中的学科: $s");
     debugPrint("search_controller.dart 学科状态: $selectedTeachSubjectsMap");
   }
 }
