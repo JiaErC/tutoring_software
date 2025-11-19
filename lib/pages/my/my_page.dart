@@ -9,6 +9,9 @@ import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/pages/my/my_controller.dart';
 import 'package:tutoring_software/modules/signature/signature_controller.dart';
 import 'package:tutoring_software/modules/avatar/avatar_controller.dart';
+import 'package:tutoring_software/modules/comment/comment_controller.dart';
+import 'package:tutoring_software/modules/comment/comment.dart';
+import 'package:tutoring_software/modules/avatar/avatar_item.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -27,6 +30,8 @@ class _MyPageState extends State<MyPage> {
       Modular.get<SignatureController>();
   //获取头像控制器
   final AvatarController _avatarController = Modular.get<AvatarController>();
+  //获取评论控制器
+  final CommentController _commentController = Modular.get<CommentController>();
 
   // 存储reaction的disposer
   ReactionDisposer? _loginReaction;
@@ -69,11 +74,22 @@ class _MyPageState extends State<MyPage> {
           });
         },
       );
-
       // 页面加载时立即获取最新学科数据
       myController.getSubjects();
     } catch (e) {
       debugPrint('初始化控制器失败: $e');
+    }
+  }
+
+  // 获取评论数据的方法
+  Future<void> _getComments() async {
+    if (statusController.isLogin) {
+      final uid = statusController.uID;
+      if (_isStudent) {
+        await _commentController.getCommentsByStudentUid(uid);
+      } else {
+        await _commentController.getCommentsByTeacherUid(uid);
+      }
     }
   }
 
@@ -128,6 +144,8 @@ class _MyPageState extends State<MyPage> {
                 : SizedBox.shrink(),
             //评论显示按钮
             _buildToggleCommentsButton(),
+            //这里放置评论显示组件
+            _isLogin && _isViewComments ? _buildComments() : SizedBox.shrink(),
           ],
         ),
       ),
@@ -297,7 +315,8 @@ class _MyPageState extends State<MyPage> {
             ),
             child: MaterialButton(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              onPressed: () {
+              onPressed: () async {
+                await _getComments();
                 // 这里添加切换身份的逻辑
                 setState(() {
                   // 注意：这里只是为了演示UI变化，实际切换身份的逻辑需要根据您的业务需求实现
@@ -305,7 +324,9 @@ class _MyPageState extends State<MyPage> {
                   if (_isLogin) {
                     myController.switchIdentity();
                     myController.getSubjects();
+                    myController.isViewComment = false;
                   }
+                  //同时关闭评论按钮
                   // 实际应用中应该是类似这样的调用：
                   // statusController.switchUserRole();
                 });
@@ -404,7 +425,8 @@ class _MyPageState extends State<MyPage> {
       ),
       width: 130,
       child: TextButton(
-        onPressed: () {
+        onPressed: () async {
+          await _getComments();
           setState(() {
             myController.switchCommentsView(); // 调用控制器中的方法切换评论显示状态
           });
@@ -554,8 +576,8 @@ class _MyPageState extends State<MyPage> {
               margin: EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
                 color: isSelected
-                      ? _getBackgroundColor() // 选中时的背景色
-                      : Colors.transparent, // 未选中时透明
+                    ? _getBackgroundColor() // 选中时的背景色
+                    : Colors.transparent, // 未选中时透明
                 border: Border.all(color: _getRoleColor(), width: 2),
               ),
               child: TextButton(
@@ -601,4 +623,147 @@ class _MyPageState extends State<MyPage> {
       ),
     );
   }
+
+  /***********************评论组件********************** */
+  // 构建评论显示组件
+  Widget _buildComments() {
+    final comments = _isStudent
+        ? _commentController.studentList
+        : _commentController.teacherList;
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${_isStudent ? '学生' : '老师'}评论 (${comments.length}条)',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: _getRoleColor(),
+            ),
+          ),
+          SizedBox(height: 10),
+          if (comments.isEmpty)
+            Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '暂无评论',
+                style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              ),
+            )
+          else
+            ...comments.map((comment) => _buildCommentItem(comment)).toList(),
+        ],
+      ),
+    );
+  }
+
+  // 构建单个评论项
+  Widget _buildCommentItem(Comment comment) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 15),
+      padding: EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: _getBackgroundColor(),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _getRoleColor(), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              //评论者头像和用户名
+              Row(
+                children: [
+                  FutureBuilder<AvatarItem?>(
+                    future: _avatarController.getAvatarByUid(
+                      comment.studentUid,
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircleAvatar(
+                          radius: 16,
+                          backgroundColor: Colors.grey.shade300,
+                          child: Icon(
+                            Icons.person,
+                            size: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                        );
+                      } else if (snapshot.hasData && snapshot.data != null) {
+                        return CircleAvatar(
+                          backgroundImage: MemoryImage(
+                            snapshot.data!.imageData,
+                          ),
+                          radius: 16,
+                        );
+                      } else {
+                        return CircleAvatar(
+                          radius: 16,
+                          backgroundColor: Colors.grey.shade300,
+                          child: Icon(
+                            Icons.person,
+                            size: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  SizedBox(width: 8),
+                  // Text(
+                  //   comment.username,
+                  //   style: TextStyle(
+                  //     fontWeight: FontWeight.bold,
+                  //     color: _getRoleColor(),
+                  //   ),
+                  // ),
+                ],
+              ),
+              Text(
+                '学科: ${comment.subject}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: _getRoleColor(),
+                ),
+              ),
+              Text(
+                comment.createdAt,
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          Text(comment.content, style: TextStyle(fontSize: 14)),
+          SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(Icons.star, color: Colors.amber, size: 16),
+              SizedBox(width: 4),
+              Text(
+                '评分: ${comment.rating}',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // //获取评论者头像的方法
+  // Future<ImageProvider> _getCommenterAvatar(String uid) async{
+  //   var commenterAvatar = await _avatarController.getAvatarByUid(uid);
+  //   return commenterAvatar != null
+  //       ? MemoryImage(commenterAvatar.imageData)
+  //       : AssetImage('');
+  // }
 }
