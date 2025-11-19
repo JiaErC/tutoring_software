@@ -605,6 +605,23 @@ class _RatingInputState extends State<RatingInput> {
     //发布评论
     if (await _commentController.saveComment(comment)) {
       debugPrint("rating_input.dart: 评论发布成功 ");
+      // 显示评价成功的用户反馈
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('评价发布成功！'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      // 也可以添加发布失败的反馈
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('评价发布失败，请稍后重试'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 }

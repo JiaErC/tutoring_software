@@ -14,7 +14,10 @@ import 'package:tutoring_software/pages/chat/search/search_controller.dart';
 import 'package:tutoring_software/pages/subjects/subjects_controller.dart'; 
 import 'package:tutoring_software/modules/signature/signature_controller.dart';
 import 'package:tutoring_software/modules/avatar/avatar_controller.dart';
-import 'package:tutoring_software/modules/comment/comment_controller.dart'; 
+import 'package:tutoring_software/modules/comment/comment_controller.dart';
+import 'package:tutoring_software/pages/teacher_info/teacher_info_module.dart'; 
+import 'package:tutoring_software/pages/test_scoring/test_scoring_module.dart';
+import 'package:tutoring_software/pages/teacher_evaluation/teacher_evaluation_module.dart';
 
 //目的是定义整个软件的路由
 class IndexModule extends Module {
@@ -88,5 +91,9 @@ class IndexModule extends Module {
     r.module("/settings", module: SettingsModule()); //设置路由
     r.module("/register", module: RegisterModule()); //注册路由
     // r.module("/search", module: SearchModule());
+    r.module("/reacher_info",module:TeacherInfoModule());
+    r.module("/test_scoring",module:TestScoringModule());
+    r.module("/teacher_evaluation",module:TeacherEvaluationModule());
+
   }
 }

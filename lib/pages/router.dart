@@ -1,5 +1,6 @@
 /*代码复用来自Kazumi*/
 import 'package:flutter_modular/flutter_modular.dart';
+
 import 'package:tutoring_software/pages/chat/chat_module.dart';
 import 'package:tutoring_software/pages/study/study_module.dart';
 import 'package:tutoring_software/pages/my/my_module.dart';
@@ -7,6 +8,9 @@ import 'package:tutoring_software/pages/home/home_module.dart';
 import 'package:tutoring_software/pages/login/password/password_module.dart';
 import 'package:tutoring_software/pages/login/qr_code/qr_code_module.dart';
 import 'package:tutoring_software/pages/login/sms/sms_module.dart';
+import 'package:tutoring_software/pages/test_scoring/test_scoring_module.dart';
+import 'package:tutoring_software/pages/teacher_evaluation/teacher_evaluation_module.dart';
+import 'package:tutoring_software/pages/learning_analysis/learning_analysis_module.dart';
 
 //路由项目的具体设置
 class MenuRouteItem {
@@ -62,6 +66,20 @@ final MenuRoute menu = MenuRoute([
     path: "/my",
     module: MyModule(),
   ),
+  MenuRouteItem(
+    //学情分析的路由
+    path: "/learning_analysis",
+    module: LearningAnalysisModule(),
+  ),
+  MenuRouteItem(
+    //试卷评阅的路由
+    path: "/test_scoring",
+    module: TestScoringModule(),
+  ),
+  MenuRouteItem(
+    //查看评价的路由
+    path: "/view_evaluations",
+    module: TeacherEvaluationModule(),)
 ]);
 
 //登录导航栏

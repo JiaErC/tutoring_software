@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
                     child: ElevatedButton(
                       onPressed: () {
                         // 跳转到学情分析页面
-                        Modular.to.pushNamed('/learning_analysis');
+                        Modular.to.pushNamed('/tab/learning_analysis');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
@@ -72,7 +72,7 @@ class _HomePageState extends State<HomePage> {
                     child: ElevatedButton(
                       onPressed: () {
                         // 跳转到试卷评阅页面
-                        Modular.to.pushNamed('/test_scoring');
+                        Modular.to.pushNamed('/tab/test_scoring');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
@@ -91,7 +91,7 @@ class _HomePageState extends State<HomePage> {
                     child: ElevatedButton(
                       onPressed: () {
                         // 跳转到查看评价页面
-                        Modular.to.pushNamed('/view_evaluations');
+                        Modular.to.pushNamed('/teacher_evasssluation');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,

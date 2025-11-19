@@ -11,7 +11,6 @@ import 'package:tutoring_software/pages/subjects/subjects_controller.dart';
 import 'package:tutoring_software/modules/signature/signature_controller.dart';
 import 'package:tutoring_software/modules/avatar/avatar_controller.dart';
 
-
 class PasswordPage extends StatefulWidget {
   const PasswordPage({super.key});
 
@@ -35,8 +34,6 @@ class _PasswordPageState extends State<PasswordPage> {
       Modular.get<SignatureController>();
   // 添加 AvatarController
   final AvatarController avatarController = Modular.get<AvatarController>();
-
-
 
   bool showPassword = false; //是否显示密码的变量
   //两个控制器
@@ -280,6 +277,7 @@ class _PasswordPageState extends State<PasswordPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // 修改登录按钮的onPressed回调
             OutlinedButton.icon(
               onPressed: () async {
                 //表单验证
@@ -288,43 +286,56 @@ class _PasswordPageState extends State<PasswordPage> {
                   _assignFormDataToUserProperties();
                   debugPrint("账号：$uAccount");
                   debugPrint("密码：$uPassword");
-                  //验证用户账户查找情况
+
+                  // 修复点1：确保在登录时重新获取并等待UID
                   if (accountController.uID.isEmpty) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(const SnackBar(content: Text("账号错误")));
-                  } else {
                     try {
-                      UserDataItem? userDataItem = await userDataController
-                          .getUserData(accountController.uID);
-                      if (userDataItem != null) {
-                        //改变登录状态
-                        statusController.setStatus(userDataItem);
-                        // 添加changePassword方法调用，将密码同步到StatusController
-                        // statusController.changePassword(uPassword);
-                        // 调用 SignatureController 的 init 方法获取签名
-                        await signatureController.init(accountController.uID);
-                        // 调用 AvatarController 的 init 方法获取头像
-                        await avatarController.init(accountController.uID);
-                        // 调用SubjectsController的init()方法初始化科目数据
-                        subjectsController.init();
-                        debugPrint("登录成功:\n${userDataItem.toString()}");
-                        //返回到上一个页面
-                        Modular.to.pushReplacementNamed("/tab/my");
-                        //同时更新
-                      } else {
-                        ScaffoldMessenger.of(
-                          // ignore: use_build_context_synchronously
-                          context,
-                        ).showSnackBar(const SnackBar(content: Text("账号错误")));
+                      await _fetchUid(uAccount);
+                      // 如果仍然没有获取到UID，显示具体错误
+                      if (accountController.uID.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("未找到该账号，请检查输入是否正确")),
+                        );
+                        return;
                       }
                     } catch (e) {
-                      // 捕获并处理"UID not found"等异常
-                      debugPrint('登录异常: $e');
                       ScaffoldMessenger.of(
                         context,
-                      ).showSnackBar(SnackBar(content: Text("$e")));
+                      ).showSnackBar(SnackBar(content: Text("获取账号信息失败：$e")));
+                      return;
                     }
+                  }
+
+                  // 修复点2：添加密码验证
+                  try {
+                    UserDataItem? userDataItem = await userDataController
+                        .getUserData(accountController.uID);
+                    if (userDataItem != null) {
+                      // 关键修复：验证密码
+                      if (userDataItem.uPassword == uPassword) {
+                        // 密码正确，继续登录流程
+                        statusController.setStatus(userDataItem);
+                        await signatureController.init(accountController.uID);
+                        await avatarController.init(accountController.uID);
+                        subjectsController.init();
+                        debugPrint("登录成功:\n${userDataItem.toString()}");
+                        Modular.to.pushReplacementNamed("/tab/my");
+                      } else {
+                        // 密码错误
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("密码错误，请重新输入")),
+                        );
+                      }
+                    } else {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(const SnackBar(content: Text("用户不存在")));
+                    }
+                  } catch (e) {
+                    debugPrint('登录异常: $e');
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text("登录失败：$e")));
                   }
                 }
               },
