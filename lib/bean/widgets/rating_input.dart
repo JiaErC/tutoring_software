@@ -1,5 +1,4 @@
 // 添加所需的导入
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:getwidget/getwidget.dart';
@@ -138,7 +137,10 @@ class _RatingInputState extends State<RatingInput> {
                     if (_subject.isNotEmpty)
                       //科目选择
                       Container(
-                      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                        padding: EdgeInsets.symmetric(
+                          vertical: 4,
+                          horizontal: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: _getBackgroundColor(),
                           border: Border.all(

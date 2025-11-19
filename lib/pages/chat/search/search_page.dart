@@ -363,7 +363,9 @@ class _SearchPageState extends State<SearchPage> {
           color: Color.fromARGB(100, 0, 255, 0),
           title: GFListTile(
             avatar: GFAvatar(
-              backgroundImage: AssetImage("lib/data/images/1.png"),
+              backgroundImage: _searchController.userImage != null
+                  ? MemoryImage(_searchController.userImage!)
+                  : AssetImage("lib/data/images/1.png"),
               radius: 20,
             ),
             title: Text(

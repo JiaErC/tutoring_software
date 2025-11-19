@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,9 @@ abstract class _SearchController with Store {
   Map<String, bool> selectedTeachSubjectsMap = {};
   @observable
   Map<String, bool> isViewSubjects = {};
+  //获取图片信息
+  @observable
+  Uint8List? userImage;
 
   //对用户的评分
   @observable
@@ -58,6 +62,8 @@ abstract class _SearchController with Store {
           isViewSubjects = searchUserData.uTeachSubjects.map(
             (key, value) => MapEntry(key, true),
           );
+          //获取用户的头像
+          await searchImageByUid(uid);
           searchUid = uid;
         } else {
           debugPrint('search_controller.dart 获取用户数据失败: ${result['message']}');
@@ -145,6 +151,38 @@ abstract class _SearchController with Store {
       rethrow;
     }
   }
+
+// 搜索用户相关图片的方法
+@action
+Future<void> searchImageByUid(String uid) async {
+  try {
+    // 打印调试信息
+    debugPrint('search_controller.dart 正在搜索UID为$uid的图片');
+    
+    // 从后端API获取图片
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/user-avatars/get/$uid'),
+      headers: {'Content-Type': 'application/json'},
+    );
+    
+    if (response.statusCode == 200) {
+      final result = jsonDecode(response.body);
+      if (result['code'] == 200 && result['data'] != null) {
+        // 假设后端返回的是base64编码的图片数据
+        final imageDataBase64 = result['data']['imageData'];
+        final Uint8List imageData = base64Decode(imageDataBase64);
+        userImage = imageData;
+        debugPrint('search_controller.dart 成功获取UID为$uid的图片');
+      } else {
+        debugPrint('search_controller.dart 获取图片失败: ${result['message']}');
+      }
+    } else {
+      debugPrint('search_controller.dart 获取图片失败，状态码: ${response.statusCode}');
+    }
+  } catch (e) {
+    debugPrint('search_controller.dart 获取图片异常: $e');
+  }
+}
 
   //修改显示学科
   @action
