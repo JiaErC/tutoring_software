@@ -3,9 +3,9 @@ import 'package:flutter/material.dart' hide SearchController;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 import 'package:tutoring_software/pages/chat/search/search_controller.dart';
-import 'package:tutoring_software/bean/data_process/json_process.dart';
 
 // 评价输入组件
 class RatingInput extends StatefulWidget {
@@ -40,6 +40,9 @@ class _RatingInputState extends State<RatingInput> {
   // 评论内容
   TextEditingController _commentController = TextEditingController();
 
+  //搜索控制器
+  final SearchController _searchController = Modular.get<SearchController>();
+
   @override
   void initState() {
     super.initState();
@@ -64,22 +67,19 @@ class _RatingInputState extends State<RatingInput> {
     super.dispose();
   }
 
-    //文字边框的颜色设置
+  //文字边框的颜色设置
   Color _getRoleColor() {
-    return  Colors.red.shade600;
+    return Colors.red.shade600;
   }
 
   //背景的颜色设置
   Color _getBackgroundColor() {
-    return  Colors.red.shade100;
+    return Colors.red.shade100;
   }
 
   @override
   Widget build(BuildContext context) {
     //引入搜索控制器
-    final SearchController _searchController = Modular.get<SearchController>();
-    //制作学科是否选择表 
-    Map<String, bool> subjectsSelected = initSubjectsBoolMap(_searchController.searchUserData.uTeachSubjects);
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -252,7 +252,9 @@ class _RatingInputState extends State<RatingInput> {
                   '选择科目',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
+                _buildSubjects(),
+                const SizedBox(height: 20),
                 // 添加取消和确定按钮
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -299,181 +301,206 @@ class _RatingInputState extends State<RatingInput> {
     );
   }
 
-  //   //接下来制作显示老师或者学生学习的各个学科
-  // Widget _buildSubjects() {
-  //   return Container(
-  //     padding: EdgeInsets.symmetric(horizontal: 40),
-  //     alignment: Alignment.centerLeft,
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: _buildBigSubjects(),
-  //     ),
-  //   );
-  // }
+  //接下来制作显示搜索出来的老师的各个学科
+  Widget _buildSubjects() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 40),
+      alignment: Alignment.centerLeft,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _buildBigSubjects(),
+      ),
+    );
+  }
 
-  // //箭头形状显示选择的学科大类
-  // List<Widget> _buildBigSubjects() {
-  //   List<Widget> list = [];
-  //   myController.subjects.forEach((bigSubject, smallSubjects) {
-  //     debugPrint("是否展开：${_isViewSubjects[bigSubject]}");
-  //     list.add(
-  //       Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           AnimatedContainer(
-  //             margin: EdgeInsets.only(top: 6),
-  //             duration: Duration(milliseconds: 150),
-  //             width: 200,
-  //             height: 40,
-  //             decoration: BoxDecoration(
-  //               color: _getBackgroundColor(),
-  //               borderRadius: BorderRadius.only(
-  //                 topLeft: Radius.zero,
-  //                 bottomLeft: Radius.zero,
-  //                 topRight: Radius.zero,
-  //                 bottomRight: Radius.circular(20),
-  //               ),
-  //               border: Border.all(color: _getRoleColor(), width: 2),
-  //             ),
-  //             child: TextButton(
-  //               child: Row(
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 children: [
-  //                   Text(
-  //                     bigSubject,
-  //                     style: TextStyle(
-  //                       color: _getRoleColor(),
-  //                       fontWeight: FontWeight.bold,
-  //                       fontSize: 16,
-  //                     ),
-  //                   ),
-  //                   SizedBox(width: 8), // 文本和图标之间的间距
-  //                   Icon(
-  //                     (_isViewSubjects[bigSubject] ?? true)
-  //                         ? Icons.arrow_drop_down
-  //                         : Icons.arrow_right,
-  //                     color: _getRoleColor(),
-  //                     size: 40,
-  //                   ),
-  //                 ],
-  //               ),
-  //               onPressed: () => setState(() {
-  //                 debugPrint("是否展开：${_isViewSubjects[bigSubject]}");
-  //                 myController.switchViewSubjects(bigSubject);
-  //               }),
-  //             ),
-  //           ),
-  //           _isViewSubjects[bigSubject] ?? true
-  //               ? Column(children: _buildSmallSubjects(smallSubjects))
-  //               : SizedBox.shrink(), //这里是学科栏目
-  //         ],
-  //       ),
-  //     );
-  //   });
-  //   return list;
-  // }
+  //箭头形状显示选择的学科大类
+  List<Widget> _buildBigSubjects() {
+    List<Widget> list = [];
+    _searchController.searchUserData.uTeachSubjects.forEach((
+      bigSubject,
+      smallSubjects,
+    ) {
+      list.add(
+        Observer(
+          builder: (_) {
+            bool isExpanded =
+                _searchController.isViewSubjects[bigSubject] ?? true;
+            debugPrint("rating_input.dart 当前展开状态：$isExpanded");
 
-  // //小学科按钮
-  // List<Widget> _buildSmallSubjects(bs) {
-  //   List<Widget> list = [];
-  //   bs.forEach((smallSubject, value) {
-  //     list.add(
-  //       Container(
-  //         margin: EdgeInsets.only(bottom: 8),
-  //         padding: EdgeInsets.symmetric(horizontal: 20),
-  //         child: Row(
-  //           children: <Widget>[
-  //             AnimatedContainer(
-  //               margin: EdgeInsets.only(top: 4),
-  //               padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-  //               duration: Duration(milliseconds: 300),
-  //               decoration: BoxDecoration(
-  //                 color: _getBackgroundColor(),
-  //                 borderRadius: BorderRadius.only(
-  //                   topLeft: Radius.zero,
-  //                   bottomLeft: Radius.zero,
-  //                   topRight: Radius.circular(20),
-  //                   bottomRight: Radius.circular(20),
-  //                 ),
-  //                 border: Border.all(color: _getRoleColor(), width: 2),
-  //               ),
-  //               child: AnimatedSwitcher(
-  //                 duration: Duration(milliseconds: 300),
-  //                 child: Text(
-  //                   smallSubject,
-  //                   key: ValueKey<String>('text_\${smallSubject}'), // 修改为唯一的key
-  //                   style: TextStyle(
-  //                     color: _getRoleColor(),
-  //                     fontWeight: FontWeight.bold,
-  //                     fontSize: 16,
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //             _buildLastSubjects(value),
-  //           ], //添加了小学科
-  //         ),
-  //       ),
-  //     );
-  //   });
-  //   return list;
-  // }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AnimatedContainer(
+                  margin: EdgeInsets.only(top: 6),
+                  duration: Duration(milliseconds: 150),
+                  width: 200,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: _getBackgroundColor(),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.zero,
+                      bottomLeft: Radius.zero,
+                      topRight: Radius.zero,
+                      bottomRight: Radius.circular(20),
+                    ),
+                    border: Border.all(color: _getRoleColor(), width: 2),
+                  ),
+                  child: TextButton(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          bigSubject,
+                          style: TextStyle(
+                            color: _getRoleColor(),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        // 使用AnimatedSwitcher确保图标正确动画切换
+                        AnimatedSwitcher(
+                          duration: Duration(milliseconds: 200),
+                          child: Icon(
+                            isExpanded
+                                ? Icons.arrow_drop_down
+                                : Icons.arrow_right,
+                            key: ValueKey<bool>(isExpanded),
+                            color: _getRoleColor(),
+                            size: 40,
+                          ),
+                        ),
+                      ],
+                    ),
+                    onPressed: () {
+                      // 只调用switchViewSubjects，不读取状态
+                      _searchController.switchViewSubjects(bigSubject);
+                    },
+                  ),
+                ),
+                // 使用AnimatedSwitcher确保内容正确显示/隐藏
+                AnimatedSwitcher(
+                  duration: Duration(milliseconds: 300),
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                        return FadeTransition(opacity: animation, child: child);
+                      },
+                  child: isExpanded
+                      ? Column(
+                          key: ValueKey('expanded_$bigSubject'),
+                          children: _buildSmallSubjects(smallSubjects),
+                        )
+                      : SizedBox.shrink(),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+    });
+    return list;
+  }
 
-  // //获取每个科目
-  // Widget _buildLastSubjects(ss) {
-  //   List<Widget> list = [];
-  //   ss.forEach((s) {
-  //     list.add(
-  //       StatefulBuilder(
-  //         builder: (BuildContext context, StateSetter setState) {
-  //           bool isSelected = false; // 用于跟踪当前按钮是否被选中
-  //           return Container(
-  //             margin: EdgeInsets.symmetric(horizontal: 4),
-  //             decoration: BoxDecoration(
-  //               border: Border.all(color: _getBackgroundColor(), width: 2),
-  //             ),
-  //             child: TextButton(
-  //               style: TextButton.styleFrom(
-  //                 backgroundColor: isSelected
-  //                     ? _getBackgroundColor() // 选中时的背景色
-  //                     : Colors.transparent, // 未选中时透明
-  //                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-  //               ),
-  //               onPressed: () {
-  //                 setState(() {
-  //                   isSelected = !isSelected; // 切换选中状态
-  //                 });
-  //               },
-  //               child: Text(
-  //                 s,
-  //                 style: TextStyle(
-  //                   color: _getRoleColor(),
-  //                   fontWeight: FontWeight.normal,
-  //                   fontSize: 13,
-  //                 ),
-  //               ),
-  //             ),
-  //           );
-  //         },
-  //       ),
-  //     );
-  //   });
-  //   // 返回一个有边框的Container容器
-  //   return Expanded(
-  //     child: Container(
-  //       margin: EdgeInsets.only(left: 5),
-  //       padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-  //       decoration: BoxDecoration(
-  //         border: Border.all(color: _getRoleColor(), width: 2),
-  //       ),
-  //       // 移除Wrap，直接在ScrollView中放置Row
-  //       child: SingleChildScrollView(
-  //         scrollDirection: Axis.horizontal,
-  //         // 添加physics参数确保滚动体验
-  //         physics: AlwaysScrollableScrollPhysics(),
-  //         child: Row(children: list),
-  //       ),
-  //     ),
-  //   );
-  // }
+  //小学科按钮
+  List<Widget> _buildSmallSubjects(bs) {
+    List<Widget> list = [];
+    bs.forEach((smallSubject, value) {
+      list.add(
+        Container(
+          margin: EdgeInsets.only(bottom: 8),
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: <Widget>[
+              AnimatedContainer(
+                margin: EdgeInsets.only(top: 4),
+                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                duration: Duration(milliseconds: 300),
+                decoration: BoxDecoration(
+                  color: _getBackgroundColor(),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.zero,
+                    bottomLeft: Radius.zero,
+                    topRight: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                  border: Border.all(color: _getRoleColor(), width: 2),
+                ),
+                child: AnimatedSwitcher(
+                  duration: Duration(milliseconds: 300),
+                  child: Text(
+                    smallSubject,
+                    key: ValueKey<String>('text_\${smallSubject}'), // 修改为唯一的key
+                    style: TextStyle(
+                      color: _getRoleColor(),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+              _buildLastSubjects(value),
+            ], //添加了小学科
+          ),
+        ),
+      );
+    });
+    return list;
+  }
+
+  //获取每个科目
+  Widget _buildLastSubjects(ss) {
+    List<Widget> list = [];
+    ss.forEach((s) {
+      list.add(
+        StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            bool isSelected =
+                _searchController.selectedTeachSubjectsMap[s] ??
+                false; // 用于跟踪当前按钮是否被选中
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? _getBackgroundColor() // 选中时的背景色
+                    : Colors.transparent, // 未选中时透明
+                border: Border.all(color: _getRoleColor(), width: 2),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  setState(() {
+                    _searchController.changeSelectedSubjects(s);
+                  });
+                },
+                child: Text(
+                  s,
+                  style: TextStyle(
+                    color: _getRoleColor(),
+                    fontWeight: FontWeight.normal,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    });
+    // 返回一个有边框的Container容器
+    return Expanded(
+      child: Container(
+        margin: EdgeInsets.only(left: 5),
+        padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+        decoration: BoxDecoration(
+          border: Border.all(color: _getRoleColor(), width: 2),
+        ),
+        // 移除Wrap，直接在ScrollView中放置Row
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          // 添加physics参数确保滚动体验
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Row(children: list),
+        ),
+      ),
+    );
+  }
 }
