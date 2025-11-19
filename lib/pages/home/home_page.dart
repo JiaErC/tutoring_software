@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:getwidget/getwidget.dart';
-import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
-
-import 'package:tutoring_software/modules/account_manager/account_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,103 +9,157 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String uid = "";
-  bool isSearched = true;
-
-  //绑定api控制类
-  AccountController accountController = Modular.get<AccountController>();
-
-  //创建phonenumber控制器
-  final TextEditingController phoneNumberController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
+  // 添加一个变量来标识当前用户是否为教师
+  bool _isTeacher = true; // 默认为教师，实际应用中应从用户数据中获取
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Column(
-          children: [
-            GFButton(
-              text: "获取UID",
-              onPressed: () async {
-                // 1. 将回调标记为 async
-                try {
-                  // 2. 使用 await 等待异步操作完成
-                  String result = await accountController.getUid();
-                  // 3. 只有在获取到结果后才调用 setState 更新UI
-                  setState(() {
-                    uid = result;
-                  });
-                } catch (e) {
-                  // 4. 添加错误处理，防止应用崩溃
-                  print("获取UID失败: $e");
-                  // 5. 显示错误提示给用户
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text("获取UID失败: $e")));
-                }
-              },
-            ),
-            Text(uid),
-            const SizedBox(height: 20),
-            TextField(
-              controller: phoneNumberController,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                prefixIcon: const Icon(MdiIcons.phone),
-                border: const UnderlineInputBorder(),
-                labelText: '电话号码',
-                suffixIcon: IconButton(
-                  onPressed: () async {
-                    uid = await accountController.getUidByPhone(
-                      phoneNumberController.text,
-                    );
-                    setState(
-                      () => debugPrint(
-                        "电话号码:${phoneNumberController.text}获取UID:$uid",
-                      ),
-                    );
-                  },
-                  icon: const Icon(MdiIcons.accountBox),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  '家教服务',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
                 ),
-                errorText: null,
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                prefixIcon: const Icon(MdiIcons.email),
-                border: const UnderlineInputBorder(),
-                labelText: '邮箱',
-                suffixIcon: IconButton(
-                  onPressed: () async {
-                    uid = await accountController.getUidByEmail(
-                      emailController.text,
-                    );
-                    setState(
-                      () => debugPrint(
-                        "邮箱:${emailController.text}获取UID:$uid",
+                const SizedBox(height: 30),
+                if (_isTeacher) ...[
+                  // 教师功能模块
+                  const Text(
+                    '教师功能',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // 跳转到学情分析页面
+                        Modular.to.pushNamed('/learning_analysis');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                    );
-                  },
-                  icon: const Icon(MdiIcons.accountBox),
+                      child: const Text(
+                        '分析学生学情',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // 跳转到试卷评阅页面
+                        Modular.to.pushNamed('/test_scoring');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('评测试卷', style: TextStyle(fontSize: 18)),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // 跳转到查看评价页面
+                        Modular.to.pushNamed('/view_evaluations');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('查看评价', style: TextStyle(fontSize: 18)),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                ],
+                // 学生功能模块
+                const Text(
+                  '学生功能',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
                 ),
-                errorText: null,
-              ),
-            )
-          ],
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 60,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // 跳转到教师基本信息页面
+                      Modular.to.pushNamed('/teacher_info');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      '查看老师基本信息',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 60,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // 跳转到教师评价页面
+                      Modular.to.pushNamed('/teacher_evaluation');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('评价教师', style: TextStyle(fontSize: 18)),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
-  }
-
-  // 记得在组件销毁时释放控制器资源
-  @override
-  void dispose() {
-    phoneNumberController.dispose();
-    super.dispose();
   }
 }
