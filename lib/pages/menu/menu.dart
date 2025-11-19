@@ -3,10 +3,12 @@
 import "package:flutter/material.dart";
 import "package:flutter_modular/flutter_modular.dart";
 import "package:provider/provider.dart";
+import 'package:getwidget/getwidget.dart';
+
 import "package:tutoring_software/bean/widgets/embedded_native_control_area.dart";
 import "package:tutoring_software/pages/router.dart";
 import "package:tutoring_software/bean/widgets/edge_box.dart";
-import "package:tutoring_software/pages/menu/avatar.dart";
+import 'package:tutoring_software/modules/avatar/avatar_controller.dart';
 
 class ScaffoldMenu extends StatefulWidget {
   const ScaffoldMenu({super.key});
@@ -49,6 +51,9 @@ class NavigationBarState extends ChangeNotifier {
 
 //菜单的主页
 class _ScaffoldMenu extends State<ScaffoldMenu> {
+  //头像控制器
+  final AvatarController _avatarController = Modular.get<AvatarController>();
+
   final PageController _page = PageController();
 
   @override
@@ -74,10 +79,10 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
   Widget bottomMenuWidget(BuildContext context, NavigationBarState state) {
     return Scaffold(
       appBar: AppBar(
-        elevation:0,
+        elevation: 0,
         leading: EdgeBox(
           margin: EdgeInsets.only(left: 5, top: 5),
-          child: PersonAvatar(),
+          child: _buildAvatar()
         ),
       ),
       body: Container(
@@ -134,7 +139,7 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
               child: NavigationRail(
                 backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                 //创建头部个人头像区域
-                leading: PersonAvatar(),
+                leading: _buildAvatar(),
                 groupAlignment: 1.0,
                 labelType: NavigationRailLabelType.selected,
                 destinations: const <NavigationRailDestination>[
@@ -190,6 +195,22 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  //头像区域
+  Widget _buildAvatar() {
+    return InkWell(
+      onTap: () {
+        debugPrint("点击头像");
+        Modular.to.pushNamed("/tab/my");
+      },
+      child: GFAvatar(
+        backgroundImage: _avatarController.avatarData != null
+            ? MemoryImage(_avatarController.avatarData!)
+            : AssetImage("lib/data/images/1.png"),
+        radius: 20,
       ),
     );
   }

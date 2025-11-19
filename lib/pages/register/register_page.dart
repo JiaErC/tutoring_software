@@ -9,6 +9,8 @@ import 'package:tutoring_software/modules/user_data/user_data_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/modules/account_manager/account_controller.dart';
+import 'package:tutoring_software/modules/account_manager/account_match.dart';
+import 'package:tutoring_software/pages/subjects/subjects_controller.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -48,7 +50,9 @@ class _RegisterPageState extends State<RegisterPage> {
   final StatusController statusController = Modular.get<StatusController>();
   //引入账号控制器
   final AccountController accountController = Modular.get<AccountController>();
-
+  //添加学科选择界面控制实例
+  final SubjectsController _subjectsController =
+      Modular.get<SubjectsController>();
   //创建一个是否横屏的显示器
   bool _isLandscape = false;
 
@@ -74,6 +78,8 @@ class _RegisterPageState extends State<RegisterPage> {
     // 初始化时同步数据
     _syncControllerWithForm();
     _gender = _registerController.uGender;
+    // 注册时候清空页面选择界面数据
+    _subjectsController.registerInit();
   }
 
   @override
@@ -104,17 +110,13 @@ class _RegisterPageState extends State<RegisterPage> {
     _confirmPasswordController.text = _registerController.uConfirmPassword;
     _gender = _registerController.uGender;
     _selectedRoles = _registerController.uRole;
-    _isTeachSelectedSubject = _registerController.uTeachSubjects.isNotEmpty;
-    _isStudySelectedSubject = _registerController.uStudySubjects.isNotEmpty;
+    _isTeachSelectedSubject = _subjectsController.teachSubjects.isNotEmpty;
+    _isStudySelectedSubject = _subjectsController.studySubjects.isNotEmpty;
+    uTeachSubjects = _subjectsController.teachSubjects;
+    uStudySubjects = _subjectsController.studySubjects;
     uBirthday = _registerController.uBirthday;
   }
 
-  //邮箱正则表达式
-  final RegExp _emailRegex = RegExp(
-    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-  );
-  //电话号码正则表达式（中国手机号）
-  final RegExp _phoneRegex = RegExp(r'^1[3-9]\d{9}$');
   // 用户名正则表达式：2-30个任意字符
   final RegExp _usernameRegex = RegExp(r'^.{2,30}$');
   // 密码正则表达式：至少包含一个数字、一个大写字母、一个小写字母和一个特殊字符
@@ -127,7 +129,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void _validateEmail(String value) {
     setState(() {
       _registerController.uEmail = value;
-      _isEmailValid = _emailRegex.hasMatch(value) || value.isEmpty;
+      _isEmailValid = AccountMatch.isValidEmail(value) || value.isEmpty;
       accountController.getUidByEmail(value);
     });
     // 检查邮箱唯一性
@@ -149,7 +151,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void _validatePhone(String value) {
     setState(() {
       _registerController.uPhone = value;
-      _isPhoneValid = _phoneRegex.hasMatch(value) || value.isEmpty;
+      _isPhoneValid = AccountMatch.isValidPhone(value) || value.isEmpty;
       accountController.getUidByPhone(value);
     });
     // 检查电话号码唯一性
@@ -255,6 +257,24 @@ class _RegisterPageState extends State<RegisterPage> {
       ).showSnackBar(const SnackBar(content: Text('请选择您的身份（学生/老师）')));
       return isValid;
     }
+    // 如果是学生角色，验证是否选择了学习科目
+    if (_selectedRoles.contains(1) &&
+        _subjectsController.studySubjects.isEmpty) {
+      isValid = false;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('请选择学习科目')));
+      return isValid;
+    }
+    // 如果是老师角色，验证是否选择了教学科目
+    if (_selectedRoles.contains(2) &&
+        _subjectsController.teachSubjects.isEmpty) {
+      isValid = false;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('请选择教学科目')));
+      return isValid;
+    }
 
     return isValid;
   }
@@ -270,6 +290,8 @@ class _RegisterPageState extends State<RegisterPage> {
     uGender = _gender ?? 0;
     // 赋值身份
     uRole = Set.from(_selectedRoles); // 创建一个新的Set以避免引用问题
+    uTeachSubjects = _subjectsController.teachSubjects;
+    uStudySubjects = _subjectsController.studySubjects;
   }
 
   //这个是选择学科的提示
@@ -316,11 +338,11 @@ class _RegisterPageState extends State<RegisterPage> {
         uID: uID,
         uName: uName,
         uEmail: uEmail,
-        uPassword: uPassword,
-        uPhone: uPhone,
-        uBirthday: uBirthday,
-        uGender: uGender.toString(), // 转换为字符串
-        uRole: uRole.toList().join(','), // 转换为逗号分隔的字符串
+        uPhone: uPhone, // 修正：调整为正确的顺序
+        uGender: uGender.toString(), // 修正：调整为正确的顺序
+        uBirthday: uBirthday, // 修正：调整为正确的顺序
+        uPassword: uPassword, // 修正：调整为正确的顺序
+        uRole: uRole.toList().join(','),
         uTeachSubjects: uTeachSubjects,
         uStudySubjects: uStudySubjects,
       );
@@ -361,13 +383,17 @@ class _RegisterPageState extends State<RegisterPage> {
           ).showSnackBar(SnackBar(content: Text(e.toString())));
         }
       }
+      await statusController.setStatus(userDataItem);
+      // statusController.changePassword(uPassword);
       userDataController.saveUserData(userDataItem);
-      statusController.setStatus(userDataItem);
+      // //打印UserDataItem来查看是否错误
+      // debugPrint('这个是注册的数据，请看看有没有错误${userDataItem.toString()}');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('注册成功！数据已保存。')));
-      // 注册成功后导航到登录页面或首页
-      Modular.to.pushReplacementNamed('/login');
+      // 注册成功后，调用subjects_controller的init方法重新从status获取数据
+      _subjectsController.init();
+      Modular.to.pushReplacementNamed('/tab/my');
     } catch (e) {
       print('保存用户数据失败: $e');
       ScaffoldMessenger.of(
@@ -384,7 +410,10 @@ class _RegisterPageState extends State<RegisterPage> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context), // 返回上一级路由
+          onPressed: () {
+            _subjectsController.init();
+            Navigator.pop(context);
+          }, // 返回上一级路由
         ),
         title: const Text('注册'), // 设置页面标题
       ),
@@ -683,7 +712,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  //跳转到选择学习科目的界面
+  // 3. 修改_buildStudySubjects方法
   Widget _buildStudySubjects(BuildContext context) {
     return Row(
       children: [
@@ -694,28 +723,23 @@ class _RegisterPageState extends State<RegisterPage> {
           style: TextStyle(fontSize: 12, color: Colors.black87),
         ),
         const SizedBox(width: 60),
-        //跳转到选择科目的界面
         OutlinedButton.icon(
           onPressed: () async {
-            // final result = await Modular.to.pushNamed(
-            //   '/subjects',
-            //   arguments: {'isTeacher': false},
-            // );
             await Modular.to.pushNamed(
               '/subjects',
               arguments: {'isTeacher': false},
             );
             setState(() {
+              // 使用subjectsController替代registerController
               _isStudySelectedSubject =
-                  _registerController.uStudySubjects.isNotEmpty;
-              uStudySubjects = _registerController.uStudySubjects;
+                  _subjectsController.studySubjects.isNotEmpty;
+              uStudySubjects = _subjectsController.studySubjects;
             });
           },
           icon: const Icon(MdiIcons.pencil),
           label: const Text('选择科目'),
         ),
         const SizedBox(width: 60),
-        //提示框，提示是否选择了学科
         _textPrompt(_isStudySelectedSubject),
       ],
     );
@@ -732,32 +756,23 @@ class _RegisterPageState extends State<RegisterPage> {
           style: TextStyle(fontSize: 12, color: Colors.black87),
         ),
         const SizedBox(width: 60),
-        //跳转到选择科目的界面
         OutlinedButton.icon(
           onPressed: () async {
-            // 使用await等待返回结果，废弃的await取得的路由返回结果
-            // final result = await Modular.to.pushNamed(
-            //   '/subjects',
-            //   arguments: {'isTeacher': true},
-            // );
-            /*使用await关键字来等待导航操作的完成，也就是等代码在导航到下一个页面并且返回之后，再执行接下来的代码*/
             await Modular.to.pushNamed(
               '/subjects',
               arguments: {'isTeacher': true},
             );
-            // 直接使用注册控制类来获取选择的学科
-            // 更新状态，表示已选择学科
             setState(() {
+              // 使用subjectsController替代registerController
               _isTeachSelectedSubject =
-                  _registerController.uTeachSubjects.isNotEmpty;
-              uTeachSubjects = _registerController.uTeachSubjects;
+                  _subjectsController.teachSubjects.isNotEmpty;
+              uTeachSubjects = _subjectsController.teachSubjects;
             });
           },
           icon: const Icon(MdiIcons.pen),
           label: const Text('选择科目'),
         ),
         const SizedBox(width: 60),
-        //提示框，提示是否选择了学科
         _textPrompt(_isTeachSelectedSubject),
       ],
     );

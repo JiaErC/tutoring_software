@@ -1,19 +1,4 @@
 /*代码复用来自Kazumi*/
-// import 'package:kazumi/pages/index_page.dart';
-// import 'package:kazumi/pages/router.dart';
-// import 'package:kazumi/pages/init_page.dart';
-// import 'package:kazumi/pages/popular/popular_controller.dart';
-// import 'package:kazumi/plugins/plugins_controller.dart';
-// import 'package:kazumi/pages/video/video_controller.dart';
-// import 'package:kazumi/pages/timeline/timeline_controller.dart';
-// import 'package:kazumi/pages/collect/collect_controller.dart';
-// import 'package:kazumi/pages/my/my_controller.dart';
-// import 'package:kazumi/pages/history/history_controller.dart';
-// import 'package:kazumi/pages/video/video_module.dart';
-// import 'package:kazumi/pages/info/info_module.dart';
-// import 'package:kazumi/pages/settings/settings_module.dart';
-// import 'package:kazumi/shaders/shaders_controller.dart';
-// import 'package:kazumi/pages/search/search_module.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import 'package:tutoring_software/pages/index_page.dart';
@@ -26,6 +11,10 @@ import 'package:tutoring_software/pages/register/register_controller.dart';
 import 'package:tutoring_software/pages/login/login_controller.dart';
 import 'package:tutoring_software/pages/my/my_controller.dart';
 import 'package:tutoring_software/pages/chat/search/search_controller.dart';
+import 'package:tutoring_software/pages/subjects/subjects_controller.dart'; 
+import 'package:tutoring_software/modules/signature/signature_controller.dart';
+import 'package:tutoring_software/modules/avatar/avatar_controller.dart';
+import 'package:tutoring_software/modules/comment/comment_controller.dart'; 
 
 //目的是定义整个软件的路由
 class IndexModule extends Module {
@@ -47,7 +36,12 @@ class IndexModule extends Module {
     i.addSingleton(LoginController.new);
     i.addSingleton(MyController.new);
     i.addSingleton(SearchController.new);
+    i.addSingleton(SubjectsController.new);
+    i.addSingleton(SignatureController.new);
+    i.addSingleton(AvatarController.new);
+    i.addSingleton(CommentController.new);
     i.get<MyController>().init();
+    i.get<SubjectsController>().init();
   }
 
   @override

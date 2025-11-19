@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 import 'package:tutoring_software/modules/api/api_settings.dart';
+import 'package:tutoring_software/bean/data_process/json_process.dart';
 
 part 'search_controller.g.dart';
 
@@ -17,6 +19,14 @@ abstract class _SearchController with Store {
   String searchUid = '';
   @observable
   late UserDataItem searchUserData;
+  //用户教学学科的选择map
+  @observable
+  Map<String, bool> selectedTeachSubjectsMap = {};
+  @observable
+  Map<String, bool> isViewSubjects = {};
+  //获取图片信息
+  @observable
+  Uint8List? userImage;
 
   //对用户的评分
   @observable
@@ -41,16 +51,31 @@ abstract class _SearchController with Store {
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
         if (result['code'] == 200) {
-          debugPrint('获取用户数据成功: ${result['message']}');
+          debugPrint('search_controller.dart 获取用户数据成功: ${result['message']}');
           searchUserData = UserDataItem.fromBackend(result['data']);
+          debugPrint(
+            'search_controller.dart 用户的选课情况: ${searchUserData.uTeachSubjects}',
+          );
+          selectedTeachSubjectsMap = initSubjectsBoolMap(
+            searchUserData.uTeachSubjects,
+          );
+          isViewSubjects = searchUserData.uTeachSubjects.map(
+            (key, value) => MapEntry(key, true),
+          );
+          //获取用户的头像
+          await searchImageByUid(uid);
           searchUid = uid;
         } else {
-          debugPrint('获取用户数据失败: ${result['message']}');
+          debugPrint('search_controller.dart 获取用户数据失败: ${result['message']}');
           throw Exception('获取失败:${result['message']}');
         }
       } else {
-        debugPrint('API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
-        throw Exception('获取用户数据失败: HTTP ${response.statusCode}');
+        debugPrint(
+          'search_controller.dart API请求失败，状态码：${response.statusCode}，响应体：${response.body}',
+        );
+        throw Exception(
+          'search_controller.dart 获取用户数据失败: HTTP ${response.statusCode}',
+        );
       }
     } catch (e) {
       rethrow;
@@ -72,19 +97,23 @@ abstract class _SearchController with Store {
         final result = jsonDecode(response.body);
         if (result['code'] == 200) {
           final String uid = result['data']['uid'].toString();
-          debugPrint('通过电话号码$phoneNumber获取到了UID: $uid');
+          debugPrint('search_controller.dart 通过电话号码$phoneNumber获取到了UID: $uid');
           searchUserDataItem(uid);
         } else {
-          throw Exception('通过电话号码获取UID失败: ${result['message']}');
+          throw Exception(
+            'search_controller.dart 通过电话号码获取UID失败: ${result['message']}',
+          );
         }
       } else {
-        debugPrint('API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
+        debugPrint(
+          'search_controller.dart API请求失败，状态码：${response.statusCode}，响应体：${response.body}',
+        );
         throw Exception(
-          'Failed to get UID by phone: HTTP ${response.statusCode}',
+          'search_controller.dart Failed to get UID by phone: HTTP ${response.statusCode}',
         );
       }
     } catch (e) {
-      debugPrint('Error: $e');
+      debugPrint('search_controller.dart Error: $e');
       rethrow;
     }
   }
@@ -102,20 +131,83 @@ abstract class _SearchController with Store {
         final result = jsonDecode(response.body);
         if (result['code'] == 200) {
           final String uid = result['data']['uid'].toString();
-          debugPrint('通过邮箱$email获取到了UID: $uid');
+          debugPrint('search_controller.dart 通过邮箱$email获取到了UID: $uid');
           searchUserDataItem(uid);
         } else {
-          throw Exception('通过邮箱$email获取UID失败: ${result['message']}');
+          throw Exception(
+            'search_controller.dart 通过邮箱$email获取UID失败: ${result['message']}',
+          );
         }
       } else {
-        debugPrint('API请求失败，状态码：${response.statusCode}，响应体：${response.body}');
+        debugPrint(
+          'search_controller.dart API请求失败，状态码：${response.statusCode}，响应体：${response.body}',
+        );
         throw Exception(
-          'Failed to get UID by email: HTTP ${response.statusCode}',
+          'search_controller.dart Failed to get UID by email: HTTP ${response.statusCode}',
         );
       }
     } catch (e) {
-      debugPrint('Error: $e');
+      debugPrint('search_controller.dart Error: $e');
       rethrow;
     }
+  }
+
+// 搜索用户相关图片的方法
+@action
+Future<void> searchImageByUid(String uid) async {
+  try {
+    // 打印调试信息
+    debugPrint('search_controller.dart 正在搜索UID为$uid的图片');
+    
+    // 从后端API获取图片
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/user-avatars/get/$uid'),
+      headers: {'Content-Type': 'application/json'},
+    );
+    
+    if (response.statusCode == 200) {
+      final result = jsonDecode(response.body);
+      if (result['code'] == 200 && result['data'] != null) {
+        // 假设后端返回的是base64编码的图片数据
+        final imageDataBase64 = result['data']['imageData'];
+        final Uint8List imageData = base64Decode(imageDataBase64);
+        userImage = imageData;
+        debugPrint('search_controller.dart 成功获取UID为$uid的图片');
+      } else {
+        debugPrint('search_controller.dart 获取图片失败: ${result['message']}');
+      }
+    } else {
+      debugPrint('search_controller.dart 获取图片失败，状态码: ${response.statusCode}');
+    }
+  } catch (e) {
+    debugPrint('search_controller.dart 获取图片异常: $e');
+  }
+}
+
+  //修改显示学科
+  @action
+  void switchViewSubjects(String bigSubject) {
+    isViewSubjects[bigSubject] = !(isViewSubjects[bigSubject] ?? false);
+      // 打印调试信息
+  debugPrint("search_controller.dart $bigSubject是否展开：${isViewSubjects[bigSubject]}");
+  }
+
+  //修改选择的学科
+  @action
+  void changeSelectedSubjects(String s) {
+    // 设置当前点击的学科为选中状态
+    if (selectedTeachSubjectsMap.containsKey(s)) {
+      // 清除所有学科的选中状态
+      selectedTeachSubjectsMap = selectedTeachSubjectsMap.map((key, value) {
+        return MapEntry(key, key == s ? !value : false); // 只有 s 的值取反，其他都为 false
+      });
+    } else {
+      // 清除所有学科的选中状态
+      selectedTeachSubjectsMap = selectedTeachSubjectsMap.map((key, value) {
+        return MapEntry(key, false);
+      });
+      selectedTeachSubjectsMap[s] = true;
+    }
+    debugPrint("search_controller.dart 学科状态: $selectedTeachSubjectsMap");
   }
 }

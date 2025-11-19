@@ -2,6 +2,7 @@
 import "package:hive/hive.dart";
 
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
+import 'package:tutoring_software/bean/data_process/json_process.dart';
 
 part 'status.g.dart';
 
@@ -28,6 +29,8 @@ class Status {
   late Map<String, dynamic> uTeachSubjects;
   @HiveField(9)
   late Map<String, dynamic> uStudySubjects;
+  @HiveField(10)
+  late String uPassword;
 
   //给isLogin和uID赋值，注册的时候，直接修改
   Status({
@@ -41,6 +44,7 @@ class Status {
     this.uBirthday = "",
     this.uTeachSubjects = const {},
     this.uStudySubjects = const {},
+    this.uPassword = "",
   });
 
   //从UserDataItem中的命名构造函数
@@ -53,9 +57,12 @@ class Status {
     uPhone = item.uPhone;
     uRole = item.uRole;
     uBirthday = item.uBirthday;
-    uTeachSubjects = item.uTeachSubjects;
-    uStudySubjects = item.uStudySubjects;
+    uPassword = item.uPassword;
+    // 关键修复：创建深拷贝而不是直接引用
+    uTeachSubjects = deepCopyMap(item.uTeachSubjects);
+    uStudySubjects = deepCopyMap(item.uStudySubjects);
   }
+
 
   //toString方法
   @override

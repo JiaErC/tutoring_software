@@ -2,12 +2,17 @@ import "package:hive/hive.dart";
 
 import "package:tutoring_software/modules/user_data/user_data_item.dart";
 import 'package:tutoring_software/modules/status/status.dart';
+import 'package:tutoring_software/modules/avatar/avatar_item.dart';
 
 class GStorage {
   //存储用户相关的数据集
   static late Box<UserDataItem> userDataBox;
   //存储这个用户登录状态的数据集
   static late Box<Status> statusBox;
+  //存储签名的盒子
+  static late Box<String> signatureBox;
+  //存储头像的
+  static late Box<AvatarItem> avatarItemBox;
   //存储手机号和电话号码的数据集
   // static late Box<String> phoneNumberBox;
   // static late Box<String> emailBox;
@@ -16,6 +21,7 @@ class GStorage {
   static Future init() async {
     Hive.registerAdapter(UserDataItemAdapter());
     Hive.registerAdapter(StatusAdapter());
+    Hive.registerAdapter(AvatarItemAdapter()); 
     /*数据不重要的时候，直接删除数据库解决问题*/
     // await Hive.deleteBoxFromDisk('userData');
     // await Hive.deleteBoxFromDisk('status');
@@ -24,6 +30,8 @@ class GStorage {
     userDataBox = await Hive.openBox('userData');
     // userDataBox.clear();
     statusBox = await Hive.openBox('status');
+    signatureBox = await Hive.openBox('signature');
+    avatarItemBox = await Hive.openBox('avatarItem');
     //如果登录状态盒子为空，就添加一个默认的登录状态
     if (statusBox.isEmpty) {
       statusBox.add(Status(isLogin: false, uID: ""));

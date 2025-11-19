@@ -67,7 +67,7 @@ public class EmailUidController {
         try {
             boolean success = emailUidService.saveEmailUid(email, uid);
             if (success) {
-                //打印成功信息
+                // 打印成功信息
                 LOGGER.info("Successfully saved EmailUid: email={}, uid={}", email, uid);
                 return Result.success(new EmailUid(email, uid));
             } else {
@@ -94,7 +94,7 @@ public class EmailUidController {
         }
     }
 
-    @DeleteMapping("/{email}")
+    @DeleteMapping("/delete/email/{email}")
     public Result<String> deleteByEmail(@PathVariable String email) {
         try {
             boolean success = emailUidService.deleteByEmail(email);
@@ -105,6 +105,21 @@ public class EmailUidController {
             }
         } catch (Exception e) {
             LOGGER.error("Error deleting by email", e);
+            return Result.error("Internal server error");
+        }
+    }
+
+    @DeleteMapping("/delete/uid/{uid}")
+    public Result<String> deleteByUid(@PathVariable Long uid) {
+        try {
+            boolean success = emailUidService.deleteByUid(uid);
+            if (success) {
+                return Result.success("Delete successful");
+            } else {
+                return Result.error("Delete failed or UID not found");
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error deleting by UID", e);
             return Result.error("Internal server error");
         }
     }

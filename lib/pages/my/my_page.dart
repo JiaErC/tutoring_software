@@ -7,6 +7,11 @@ import 'package:mobx/mobx.dart';
 import 'package:tutoring_software/bean/widgets/edge_box.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/pages/my/my_controller.dart';
+import 'package:tutoring_software/modules/signature/signature_controller.dart';
+import 'package:tutoring_software/modules/avatar/avatar_controller.dart';
+import 'package:tutoring_software/modules/comment/comment_controller.dart';
+import 'package:tutoring_software/modules/comment/comment.dart';
+import 'package:tutoring_software/modules/avatar/avatar_item.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -20,6 +25,13 @@ class _MyPageState extends State<MyPage> {
   final StatusController statusController = Modular.get<StatusController>();
   //获取MyController
   final MyController myController = Modular.get<MyController>();
+  //获取签名控制器
+  final SignatureController signatureController =
+      Modular.get<SignatureController>();
+  //获取头像控制器
+  final AvatarController _avatarController = Modular.get<AvatarController>();
+  //获取评论控制器
+  final CommentController _commentController = Modular.get<CommentController>();
 
   // 存储reaction的disposer
   ReactionDisposer? _loginReaction;
@@ -28,10 +40,9 @@ class _MyPageState extends State<MyPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 在首帧渲染后初始化
-      _initializeController();
-    });
+    myController.init();
+
+    _initializeController();
   }
 
   void _initializeController() {
@@ -39,23 +50,46 @@ class _MyPageState extends State<MyPage> {
       // 初始化MyController，同步StatusController的状态
       myController.init();
 
-      // 设置reaction来监听登录状态变化
+      // 修改reaction，监听更多的相关状态变化
       _loginReaction = reaction(
-        // 监听一个包含isLogin和uID的列表，这样任何一个变化都会触发
-        (_) => [statusController.isLogin, statusController.uID],
+        // 监听所有可能影响学科显示的状态
+        (_) => [
+          statusController.isLogin,
+          statusController.uID,
+          statusController.uStudySubjects,
+          statusController.uTeachSubjects,
+          statusController.uRole,
+        ],
         (List value) {
-          // 使用setState确保UI更新
+          // 使用setState确保UI更新在正确的线程中
           setState(() {
-            // 当登录状态或用户ID变化时，重新初始化MyController
+            // 当任何相关状态变化时，重新初始化MyController
             myController.init();
+            // 显式调用getSubjects确保学科数据最新
+            myController.getSubjects();
+            debugPrint("my_page.dart：用户信息变化\n");
             debugPrint(
-              '用户信息变化: 登录状态=${statusController.isLogin}, 用户ID=${statusController.uID}',
+              '用户信息变化: 登录状态=${statusController.isLogin}, 用户ID=${statusController.uID}，获取到的学科信息为：${myController.subjects}',
             );
           });
         },
       );
+      // 页面加载时立即获取最新学科数据
+      myController.getSubjects();
     } catch (e) {
       debugPrint('初始化控制器失败: $e');
+    }
+  }
+
+  // 获取评论数据的方法
+  Future<void> _getComments() async {
+    if (statusController.isLogin) {
+      final uid = statusController.uID;
+      if (_isStudent) {
+        await _commentController.getCommentsByStudentUid(uid);
+      } else {
+        await _commentController.getCommentsByTeacherUid(uid);
+      }
     }
   }
 
@@ -73,17 +107,25 @@ class _MyPageState extends State<MyPage> {
   //获取当前用户角色
   bool get _isStudent => myController.isStudent;
   //获取当前用户教学的学科信息，选了什么学科，还有是否选择了学科
-  Map<String, dynamic> get _subjects => myController.subjects;
-  bool get _isSelectedSubjects => _subjects.isNotEmpty;
+  //选择的学科
+
+  bool get _isSelectedSubjects => myController.subjects.isNotEmpty;
   //每个大学科的选择情况
   Map<String, bool> get _isViewSubjects => myController.isViewSubjects;
+  //获取是否显示学科信息
+  bool get _isView => myController.isView;
+  bool get _isViewComments => myController.isViewComment;
+
   @override
   Widget build(BuildContext context) {
+    debugPrint("MyPage获取到的学科信息为：${myController.subjects}");
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
               height: 250,
@@ -92,12 +134,18 @@ class _MyPageState extends State<MyPage> {
               ),
             ),
             const SizedBox(height: 20),
+            //添加一个按钮，用于切换学科显示状态
+            _buildToggleSubjectsButton(),
             //这里放置学科显示组件
-            _isLogin
+            _isLogin && _isView
                 ? _isSelectedSubjects
                       ? _buildSubjects()
                       : SizedBox.shrink()
                 : SizedBox.shrink(),
+            //评论显示按钮
+            _buildToggleCommentsButton(),
+            //这里放置评论显示组件
+            _isLogin && _isViewComments ? _buildComments() : SizedBox.shrink(),
           ],
         ),
       ),
@@ -125,7 +173,9 @@ class _MyPageState extends State<MyPage> {
           avatar: InkWell(
             onTap: () => Modular.to.pushNamed("/login/password"),
             child: GFAvatar(
-              backgroundImage: AssetImage("lib/data/images/1.png"),
+              backgroundImage: _avatarController.avatarData != null
+                  ? MemoryImage(_avatarController.avatarData!)
+                  : AssetImage("lib/data/images/1.png"),
               radius: 20,
             ),
           ),
@@ -134,7 +184,11 @@ class _MyPageState extends State<MyPage> {
               ? "电话号码:${statusController.uPhone}\n邮箱:${statusController.uEmail}\nUid:${statusController.uID}"
               : "这里是联系方式",
         ),
-        content: Text("这里是简介"),
+        content: Text(
+          signatureController.hasSignature
+              ? signatureController.uSignature
+              : "这里是个性签名",
+        ),
         //buttonBar:这里存放标签和联系方式
       ),
     );
@@ -155,55 +209,88 @@ class _MyPageState extends State<MyPage> {
   Widget _settingButton(context) {
     return Expanded(
       flex: 2,
-      child: EdgeBox(
-        margin: EdgeInsets.only(right: 20, top: 10),
-        child: Align(
-          alignment: Alignment.topRight,
-          child: GFButtonBar(
-            children: [
-              IconButton(
-                iconSize: 22,
-                padding: const EdgeInsets.all(8),
-                style: const ButtonStyle(
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                tooltip: "进入或者退出无痕模式",
-                onPressed: () => debugPrint("点击切换无痕模式按钮"),
-                icon: Icon(Icons.stream),
+      child: Column(
+        children: [
+          EdgeBox(
+            margin: EdgeInsets.only(right: 40, top: 10),
+            child: Align(
+              alignment: Alignment.topRight,
+              child: GFButtonBar(
+                children: [
+                  IconButton(
+                    iconSize: 22,
+                    padding: const EdgeInsets.all(8),
+                    style: const ButtonStyle(
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    tooltip: "进入或者退出无痕模式",
+                    onPressed: () => debugPrint("点击切换无痕模式按钮"),
+                    icon: Icon(Icons.stream),
+                  ),
+                  IconButton(
+                    iconSize: 22,
+                    padding: const EdgeInsets.all(8),
+                    style: const ButtonStyle(
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    tooltip: '设置账号模式',
+                    onPressed: () => debugPrint("点击切换账号模式按钮"),
+                    icon: const Icon(Icons.switch_account_outlined),
+                  ),
+                  IconButton(
+                    iconSize: 22,
+                    padding: const EdgeInsets.all(8),
+                    style: const ButtonStyle(
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    tooltip: '切换主题',
+                    onPressed: () => debugPrint("点击切换主题按钮"),
+                    icon: Icon(Icons.sunny),
+                  ),
+                  IconButton(
+                    iconSize: 22,
+                    padding: const EdgeInsets.all(8),
+                    style: const ButtonStyle(
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    tooltip: '设置',
+                    onPressed: () => Modular.to.pushNamed("/settings"),
+                    icon: const Icon(Icons.settings_outlined),
+                  ),
+                ],
               ),
-              IconButton(
-                iconSize: 22,
-                padding: const EdgeInsets.all(8),
-                style: const ButtonStyle(
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                tooltip: '设置账号模式',
-                onPressed: () => debugPrint("点击切换账号模式按钮"),
-                icon: const Icon(Icons.switch_account_outlined),
-              ),
-              IconButton(
-                iconSize: 22,
-                padding: const EdgeInsets.all(8),
-                style: const ButtonStyle(
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                tooltip: '切换主题',
-                onPressed: () => debugPrint("点击切换主题按钮"),
-                icon: Icon(Icons.sunny),
-              ),
-              IconButton(
-                iconSize: 22,
-                padding: const EdgeInsets.all(8),
-                style: const ButtonStyle(
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                tooltip: '设置',
-                onPressed: () => Modular.to.pushNamed("/settings"),
-                icon: const Icon(Icons.settings_outlined),
-              ),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(height: 10),
+          //接下来是编辑资料的按钮
+          Container(
+            margin: EdgeInsets.only(right: 50),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: statusController.isLogin ? Colors.blue : Colors.grey,
+                width: 2,
+              ),
+              color: Colors.transparent,
+            ),
+            width: double.infinity,
+            height: 50,
+            child: TextButton(
+              onPressed: statusController.isLogin
+                  ? () =>
+                        Modular.to.pushNamed("/tab/my/info") // 登录时跳转到编辑资料页面
+                  : null,
+              child: Text(
+                "编辑资料",
+                style: TextStyle(
+                  color: statusController.isLogin
+                      ? Colors.blue.shade700
+                      : Colors.grey, // 根据登录状态设置文字颜色, fontSize: 16),
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -228,17 +315,18 @@ class _MyPageState extends State<MyPage> {
             ),
             child: MaterialButton(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              onPressed: () {
+              onPressed: () async {
+                await _getComments();
                 // 这里添加切换身份的逻辑
                 setState(() {
                   // 注意：这里只是为了演示UI变化，实际切换身份的逻辑需要根据您的业务需求实现
                   // 可能需要调用statusController中的方法来更新用户角色
-                  if (_isLogin) myController.switchIdentity();
-                  debugPrint(
-                    _isLogin
-                        ? "切换身份：${_isStudent ? '学生 -> 老师' : '老师 -> 学生'}"
-                        : '请先登录',
-                  );
+                  if (_isLogin) {
+                    myController.switchIdentity();
+                    myController.getSubjects();
+                    myController.isViewComment = false;
+                  }
+                  //同时关闭评论按钮
                   // 实际应用中应该是类似这样的调用：
                   // statusController.switchUserRole();
                 });
@@ -300,6 +388,61 @@ class _MyPageState extends State<MyPage> {
     );
   }
 
+  /**********************************学科显示***************************************************************************/
+
+  // 添加一个按钮，用于切换学科显示状态
+  Widget _buildToggleSubjectsButton() {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 40),
+      decoration: BoxDecoration(color: _isView ? Colors.grey : Colors.blue),
+      width: 130,
+      child: TextButton(
+        onPressed: () {
+          setState(() {
+            myController.switchView();
+          });
+        },
+        child: Text(
+          "显示学科",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 添加一个按钮，用于切换评论显示状态
+  Widget _buildToggleCommentsButton() {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 40),
+      decoration: BoxDecoration(
+        color: _isViewComments ? Colors.grey : Colors.blue,
+      ),
+      width: 130,
+      child: TextButton(
+        onPressed: () async {
+          await _getComments();
+          setState(() {
+            myController.switchCommentsView(); // 调用控制器中的方法切换评论显示状态
+          });
+        },
+        child: Text(
+          "显示评论",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
   //接下来制作显示老师或者学生学习的各个学科
   Widget _buildSubjects() {
     return Container(
@@ -315,7 +458,7 @@ class _MyPageState extends State<MyPage> {
   //箭头形状显示选择的学科大类
   List<Widget> _buildBigSubjects() {
     List<Widget> list = [];
-    _subjects.forEach((bigSubject, smallSubjects) {
+    myController.subjects.forEach((bigSubject, smallSubjects) {
       debugPrint("是否展开：${_isViewSubjects[bigSubject]}");
       list.add(
         Column(
@@ -425,33 +568,202 @@ class _MyPageState extends State<MyPage> {
     List<Widget> list = [];
     ss.forEach((s) {
       list.add(
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 4),
-          decoration: BoxDecoration(
-            border: Border.all(color: _getBackgroundColor(), width: 2),
-          ),
-          child: Text(
-            s,
-            style: TextStyle(
-              color: _getRoleColor(),
-              fontWeight: FontWeight.normal,
-              fontSize: 16,
-            ),
-          ),
+        StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            bool isSelected =
+                myController.subjectsSelectedMap[s] ?? false; // 用于跟踪当前按钮是否被选中
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? _getBackgroundColor() // 选中时的背景色
+                    : Colors.transparent, // 未选中时透明
+                border: Border.all(color: _getRoleColor(), width: 2),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  setState(() {
+                    if (myController.subjectsSelectedMap.containsKey(s)) {
+                      myController.subjectsSelectedMap[s] =
+                          !myController.subjectsSelectedMap[s]!;
+                    } else {
+                      myController.subjectsSelectedMap[s] = true;
+                    }
+                  });
+                },
+                child: Text(
+                  s,
+                  style: TextStyle(
+                    color: _getRoleColor(),
+                    fontWeight: FontWeight.normal,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       );
     });
-    //返回一个有边框的Container容器
-    return Container(
-      margin: EdgeInsets.only(left: 5),
-      padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-      decoration: BoxDecoration(
-        border: Border.all(color: _getRoleColor(), width: 2),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(children: list),
+    // 返回一个有边框的Container容器
+    return Expanded(
+      child: Container(
+        margin: EdgeInsets.only(left: 5),
+        padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+        decoration: BoxDecoration(
+          border: Border.all(color: _getRoleColor(), width: 2),
+        ),
+        // 移除Wrap，直接在ScrollView中放置Row
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          // 添加physics参数确保滚动体验
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Row(children: list),
+        ),
       ),
     );
   }
+
+  /***********************评论组件********************** */
+  // 构建评论显示组件
+  Widget _buildComments() {
+    final comments = _isStudent
+        ? _commentController.studentList
+        : _commentController.teacherList;
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${_isStudent ? '学生' : '老师'}评论 (${comments.length}条)',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: _getRoleColor(),
+            ),
+          ),
+          SizedBox(height: 10),
+          if (comments.isEmpty)
+            Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '暂无评论',
+                style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              ),
+            )
+          else
+            ...comments.map((comment) => _buildCommentItem(comment)).toList(),
+        ],
+      ),
+    );
+  }
+
+  // 构建单个评论项
+  Widget _buildCommentItem(Comment comment) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 15),
+      padding: EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: _getBackgroundColor(),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _getRoleColor(), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              //评论者头像和用户名
+              Row(
+                children: [
+                  FutureBuilder<AvatarItem?>(
+                    future: _avatarController.getAvatarByUid(
+                      comment.studentUid,
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircleAvatar(
+                          radius: 16,
+                          backgroundColor: Colors.grey.shade300,
+                          child: Icon(
+                            Icons.person,
+                            size: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                        );
+                      } else if (snapshot.hasData && snapshot.data != null) {
+                        return CircleAvatar(
+                          backgroundImage: MemoryImage(
+                            snapshot.data!.imageData,
+                          ),
+                          radius: 16,
+                        );
+                      } else {
+                        return CircleAvatar(
+                          radius: 16,
+                          backgroundColor: Colors.grey.shade300,
+                          child: Icon(
+                            Icons.person,
+                            size: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  SizedBox(width: 8),
+                  // Text(
+                  //   comment.username,
+                  //   style: TextStyle(
+                  //     fontWeight: FontWeight.bold,
+                  //     color: _getRoleColor(),
+                  //   ),
+                  // ),
+                ],
+              ),
+              Text(
+                '学科: ${comment.subject}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: _getRoleColor(),
+                ),
+              ),
+              Text(
+                comment.createdAt,
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          Text(comment.content, style: TextStyle(fontSize: 14)),
+          SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(Icons.star, color: Colors.amber, size: 16),
+              SizedBox(width: 4),
+              Text(
+                '评分: ${comment.rating}',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // //获取评论者头像的方法
+  // Future<ImageProvider> _getCommenterAvatar(String uid) async{
+  //   var commenterAvatar = await _avatarController.getAvatarByUid(uid);
+  //   return commenterAvatar != null
+  //       ? MemoryImage(commenterAvatar.imageData)
+  //       : AssetImage('');
+  // }
 }

@@ -10,4 +10,5 @@ public interface PhoneNumberUidService extends IService<PhoneNumberUid> {
     boolean savePhoneNumberUid(String phoneNumber, Long uid);
     boolean updateByPhoneNumber(String phoneNumber, Long uid);
     boolean deleteByPhoneNumber(String phoneNumber);
+    boolean deleteByUid(Long uid); // 新增：根据UID删除手机号映射
 }

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.tutoring_software.backend.uid_management.entity.UserAvatars;
 import com.tutoring_software.backend.uid_management.mapper.UserAvatarsMapper;
 
+@Service
 public class UserAvatarsServiceImpl extends ServiceImpl<UserAvatarsMapper, UserAvatars> implements UserAvatarsService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserAvatarsServiceImpl.class);
 

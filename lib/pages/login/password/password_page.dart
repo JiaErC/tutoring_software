@@ -7,6 +7,10 @@ import 'package:tutoring_software/modules/account_manager/account_controller.dar
 import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 import 'package:tutoring_software/modules/account_manager/account_match.dart';
+import 'package:tutoring_software/pages/subjects/subjects_controller.dart';
+import 'package:tutoring_software/modules/signature/signature_controller.dart';
+import 'package:tutoring_software/modules/avatar/avatar_controller.dart';
+
 
 class PasswordPage extends StatefulWidget {
   const PasswordPage({super.key});
@@ -26,11 +30,21 @@ class _PasswordPageState extends State<PasswordPage> {
   AccountController accountController = Modular.get<AccountController>();
   //登录状态控制器
   StatusController statusController = Modular.get<StatusController>();
+  // 添加 SignatureController
+  final SignatureController signatureController =
+      Modular.get<SignatureController>();
+  // 添加 AvatarController
+  final AvatarController avatarController = Modular.get<AvatarController>();
+
+
 
   bool showPassword = false; //是否显示密码的变量
   //两个控制器
   final TextEditingController _userAccountController = TextEditingController();
   final TextEditingController _userPasswordController = TextEditingController();
+  //添加学科控制器
+  final SubjectsController subjectsController =
+      Modular.get<SubjectsController>();
 
   //判断账号是否满足邮箱和手机号的格式
   bool _isAccountValid = true;
@@ -286,6 +300,14 @@ class _PasswordPageState extends State<PasswordPage> {
                       if (userDataItem != null) {
                         //改变登录状态
                         statusController.setStatus(userDataItem);
+                        // 添加changePassword方法调用，将密码同步到StatusController
+                        // statusController.changePassword(uPassword);
+                        // 调用 SignatureController 的 init 方法获取签名
+                        await signatureController.init(accountController.uID);
+                        // 调用 AvatarController 的 init 方法获取头像
+                        await avatarController.init(accountController.uID);
+                        // 调用SubjectsController的init()方法初始化科目数据
+                        subjectsController.init();
                         debugPrint("登录成功:\n${userDataItem.toString()}");
                         //返回到上一个页面
                         Modular.to.pushReplacementNamed("/tab/my");

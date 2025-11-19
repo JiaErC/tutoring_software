@@ -53,7 +53,7 @@ public class PhoneNumberUidController {
         try {
             boolean success = phoneNumberUidService.savePhoneNumberUid(phoneNumber, uid);
             if (success) {
-                //打印成功信息
+                // 打印成功信息
                 LOGGER.info("Successfully saved PhoneNumberUid: phoneNumber={}, uid={}", phoneNumber, uid);
                 return Result.success("Save successful");
             } else {
@@ -80,7 +80,7 @@ public class PhoneNumberUidController {
         }
     }
 
-    @DeleteMapping("/{phoneNumber}")
+    @DeleteMapping("/delete/phone/{phoneNumber}")
     public Result<String> deleteByPhoneNumber(@PathVariable String phoneNumber) {
         try {
             boolean success = phoneNumberUidService.deleteByPhoneNumber(phoneNumber);
@@ -91,6 +91,21 @@ public class PhoneNumberUidController {
             }
         } catch (Exception e) {
             LOGGER.error("Error deleting by phone number", e);
+            return Result.error("Internal server error");
+        }
+    }
+
+    @DeleteMapping("/delete/uid/{uid}")
+    public Result<String> deleteByUid(@PathVariable Long uid) {
+        try {
+            boolean success = phoneNumberUidService.deleteByUid(uid);
+            if (success) {
+                return Result.success("Delete successful");
+            } else {
+                return Result.error("Delete failed or UID not found");
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error deleting by UID", e);
             return Result.error("Internal server error");
         }
     }
