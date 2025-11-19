@@ -1,4 +1,5 @@
 // 添加所需的导入
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:getwidget/getwidget.dart';
@@ -37,6 +38,9 @@ class RatingInput extends StatefulWidget {
 class _RatingInputState extends State<RatingInput> {
   // 评分状态
   int _rating = 5;
+  //科目选择
+  String _subject = "";
+
   // 评论内容
   TextEditingController _commentController = TextEditingController();
 
@@ -127,8 +131,31 @@ class _RatingInputState extends State<RatingInput> {
                     ),
                     const SizedBox(width: 30),
                     // 选择科目按钮
-                    if (widget.isShowSelectSubjectButton)
+                    if (widget.isShowSelectSubjectButton) ...[
                       _buildSelectSubjectButton(),
+                      const SizedBox(width: 30),
+                    ],
+                    if (_subject.isNotEmpty)
+                      //科目选择
+                      Container(
+                      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: _getBackgroundColor(),
+                          border: Border.all(
+                            color: _getRoleColor(),
+                            width: 1.5,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          _subject,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 Row(
@@ -231,11 +258,6 @@ class _RatingInputState extends State<RatingInput> {
     );
   }
 
-  //通过get方法获取_searchController中的属性
-  Map<String, bool> get _selectedSubjects =>
-      _searchController.selectedTeachSubjectsMap;
-  Map<String, bool> get _isViewSubjects => _searchController.isViewSubjects;
-
   // 展示这个老师有什么科目可以选择
   void _showSubjectsMenu() {
     showModalBottomSheet(
@@ -294,6 +316,18 @@ class _RatingInputState extends State<RatingInput> {
                             onPressed: () {
                               // 确定操作，返回到上一个路由
                               Navigator.of(context).pop();
+                              //把唯一一个true的科目放到这里
+                              setState(
+                                () => _subject = _searchController
+                                    .selectedTeachSubjectsMap
+                                    .keys
+                                    .firstWhere(
+                                      (key) =>
+                                          _searchController
+                                              .selectedTeachSubjectsMap[key] ==
+                                          true,
+                                    ),
+                              );
                             },
                             child: Text('确定'),
                           ),
