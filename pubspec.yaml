@@ -107,3 +107,4 @@ flutter:
     - lib/data/images/1.png
     #json文件
     - lib/data/subjects_data.json
+    - lib/data/subjects_code.json
