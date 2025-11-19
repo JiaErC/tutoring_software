@@ -15,7 +15,7 @@ part 'avatar_controller.g.dart';
 class AvatarController = _AvatarController with _$AvatarController;
 
 abstract class _AvatarController with Store {
-  static final String avatarBaseUrl = '$baseUrl/api/user-avatars';
+  final String avatarBaseUrl = '$baseUrl/api/user-avatars';
 
   //打开头像盒子
   var _avatarItemBox = GStorage.avatarItemBox;

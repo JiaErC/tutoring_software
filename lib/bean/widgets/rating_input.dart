@@ -4,8 +4,13 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:intl/intl.dart';
 
 import 'package:tutoring_software/pages/chat/search/search_controller.dart';
+import 'package:tutoring_software/modules/comment/comment_controller.dart';
+import 'package:tutoring_software/modules/avatar/avatar_controller.dart';
+import 'package:tutoring_software/modules/status/status_controller.dart';
+import 'package:tutoring_software/modules/comment/comment.dart';
 
 // 评价输入组件
 class RatingInput extends StatefulWidget {
@@ -207,8 +212,12 @@ class _RatingInputState extends State<RatingInput> {
                   child: Container(
                     margin: EdgeInsets.only(top: 8),
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (_commentController.text.trim().isNotEmpty) {
+                          await _publishComment(
+                            _commentController.text.trim(),
+                            _rating,
+                          );
                           widget.onSubmit(
                             _commentController.text.trim(),
                             _rating,
@@ -569,5 +578,33 @@ class _RatingInputState extends State<RatingInput> {
         ),
       ),
     );
+  }
+
+  /************评论发布方法************* */
+  Future<void> _publishComment(String commentString, int rating) async {
+    //获取状态控制器、头像控制器
+    final StatusController _statusController = Modular.get<StatusController>();
+    final AvatarController _avatarController = Modular.get<AvatarController>();
+    //获取评论控制器
+    final CommentController _commentController =
+        Modular.get<CommentController>();
+    //获取当前时间
+    var now = DateTime.now();
+    var formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+
+    //构建评论对象
+    Comment comment = Comment.fromBackend(
+      studentUid: _statusController.uID,
+      teacherUid: _searchController.searchUid, // 需确认来源（示例值）
+      content: commentString,
+      rating: rating.toString(), // int→String 类型转换
+      createdAt: formatter.format(now),
+      subject: _subject,
+    );
+
+    //发布评论
+    if (await _commentController.saveComment(comment)) {
+      debugPrint("rating_input.dart: 评论发布成功 ");
+    }
   }
 }

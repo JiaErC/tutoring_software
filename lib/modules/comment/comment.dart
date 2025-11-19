@@ -1,6 +1,4 @@
 class Comment {
-  // 添加id字段
-  String? id;
   // 保持studentUid和teacherUid字段
   String studentUid = "";
   String teacherUid = "";
@@ -18,7 +16,6 @@ class Comment {
 
   // 添加带参数的构造函数
   Comment.fromBackend({
-    this.id,
     required this.studentUid,
     required this.teacherUid,
     required this.content,
@@ -30,7 +27,6 @@ class Comment {
   // 添加从JSON解析的工厂方法
   factory Comment.fromJson(Map<String, dynamic> json) {
     return Comment()
-      ..id = json['id']?.toString()
       ..studentUid = json['studentUid']?.toString() ?? ''
       ..teacherUid = json['teacherUid']?.toString() ?? ''
       ..content = json['content'] ?? ''
@@ -42,8 +38,8 @@ class Comment {
   // 添加转换为JSON的方法
   Map<String, dynamic> toJson() {
     return {
-      'studentUid': studentUid,
-      'teacherUid': teacherUid,
+      'studentUid': int.tryParse(studentUid), // 尝试转换为int，如果失败则保留原值
+      'teacherUid': int.tryParse(teacherUid), // 尝试转换为int，如果失败则保留原值
       'content': content,
       'rating': rating,
       'createdAt': createdAt,
