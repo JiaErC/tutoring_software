@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' hide SearchController;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 import 'package:tutoring_software/pages/chat/search/search_controller.dart';
 
@@ -235,7 +236,7 @@ class _RatingInputState extends State<RatingInput> {
       _searchController.selectedTeachSubjectsMap;
   Map<String, bool> get _isViewSubjects => _searchController.isViewSubjects;
 
-  //展示这个老师有什么科目可以选择
+  // 展示这个老师有什么科目可以选择
   void _showSubjectsMenu() {
     showModalBottomSheet(
       isScrollControlled: true,
@@ -244,6 +245,7 @@ class _RatingInputState extends State<RatingInput> {
         // 使用StatefulBuilder来管理模态框内部的状态
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
+            // 监听学科选择状态变化
             return SafeArea(
               child: Container(
                 padding: EdgeInsets.only(
@@ -263,7 +265,12 @@ class _RatingInputState extends State<RatingInput> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _buildSubjects(),
+                    // 每次状态变化时重新构建整个科目列表
+                    Observer(
+                      builder: (_) {
+                        return _buildSubjects();
+                      },
+                    ),
                     const SizedBox(height: 20),
                     // 添加取消和确定按钮
                     Row(
@@ -319,13 +326,17 @@ class _RatingInputState extends State<RatingInput> {
         border: Border.all(color: Colors.blueAccent, width: 2),
         borderRadius: BorderRadius.circular(8.0),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 40),
+      padding: EdgeInsets.symmetric(horizontal: 20),
       alignment: Alignment.centerLeft,
       child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: _buildBigSubjects(),
+        child: Observer(
+          builder: (_) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _buildBigSubjects(),
+            );
+          },
         ),
       ),
     );
@@ -404,9 +415,13 @@ class _RatingInputState extends State<RatingInput> {
                         return FadeTransition(opacity: animation, child: child);
                       },
                   child: isExpanded
-                      ? Column(
-                          key: ValueKey('expanded_$bigSubject'),
-                          children: _buildSmallSubjects(smallSubjects),
+                      ? Observer(
+                          builder: (_) {
+                            return Column(
+                              key: ValueKey('expanded_$bigSubject'),
+                              children: _buildSmallSubjects(smallSubjects),
+                            );
+                          },
                         )
                       : SizedBox.shrink(),
                 ),
@@ -427,37 +442,43 @@ class _RatingInputState extends State<RatingInput> {
         Container(
           margin: EdgeInsets.only(bottom: 8),
           padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: <Widget>[
-              AnimatedContainer(
-                margin: EdgeInsets.only(top: 4),
-                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                duration: Duration(milliseconds: 300),
-                decoration: BoxDecoration(
-                  color: _getBackgroundColor(),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.zero,
-                    bottomLeft: Radius.zero,
-                    topRight: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                  border: Border.all(color: _getRoleColor(), width: 2),
-                ),
-                child: AnimatedSwitcher(
-                  duration: Duration(milliseconds: 300),
-                  child: Text(
-                    smallSubject,
-                    key: ValueKey<String>('text_\${smallSubject}'), // 修改为唯一的key
-                    style: TextStyle(
-                      color: _getRoleColor(),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+          child: Observer(
+            builder: (_) {
+              return Row(
+                children: <Widget>[
+                  AnimatedContainer(
+                    margin: EdgeInsets.only(top: 4),
+                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                    duration: Duration(milliseconds: 300),
+                    decoration: BoxDecoration(
+                      color: _getBackgroundColor(),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.zero,
+                        bottomLeft: Radius.zero,
+                        topRight: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                      border: Border.all(color: _getRoleColor(), width: 2),
+                    ),
+                    child: AnimatedSwitcher(
+                      duration: Duration(milliseconds: 300),
+                      child: Text(
+                        smallSubject,
+                        key: ValueKey<String>(
+                          'text_\${smallSubject}',
+                        ), // 修改为唯一的key
+                        style: TextStyle(
+                          color: _getRoleColor(),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              _buildLastSubjects(value),
-            ], //添加了小学科
+                  _buildLastSubjects(value),
+                ], //添加了小学科
+              );
+            },
           ),
         ),
       );
@@ -467,58 +488,49 @@ class _RatingInputState extends State<RatingInput> {
 
   // 获取每个科目
   Widget _buildLastSubjects(ss) {
-    List<Widget> list = [];
-    ss.forEach((s) {
-      list.add(
-        StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            // 关键点：在builder函数内部获取最新状态，而不是在外部缓存
-            bool isSelected =
-                _searchController.selectedTeachSubjectsMap[s] ?? false;
-            return Container(
-              margin: EdgeInsets.symmetric(horizontal: 4),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? _getBackgroundColor() // 选中时的背景色
-                    : Colors.transparent, // 未选中时透明
-                border: Border.all(color: _getRoleColor(), width: 2),
-              ),
-              child: TextButton(
-                onPressed: () {
-                  // 第一步：调用MobX action更新状态
-                  _searchController.changeSelectedSubjects(s);
-
-                  // 第二步：使用StatefulBuilder的setState强制重新构建当前组件
-                  // 这会导致重新执行builder函数，从而获取最新的selectedTeachSubjectsMap值
-                  setState(() {
-                    // 这里不需要写任何代码，setState本身就会触发builder重新执行
-                    // 重新执行时会再次获取_searchController.selectedTeachSubjectsMap[s]
-                  });
-                },
-                child: Text(
-                  s,
-                  style: TextStyle(
-                    color: _getRoleColor(),
-                    fontWeight: FontWeight.normal,
-                    fontSize: 13,
+    // 添加Expanded包裹Container，使其在Row中占据剩余空间
+    return Expanded(
+      child: Container(
+        margin: EdgeInsets.only(left: 5),
+        padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+        decoration: BoxDecoration(
+          border: Border.all(color: _getRoleColor(), width: 2),
+        ),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Row(
+            children: ss.map<Widget>((s) {
+              // 添加<Widget>类型参数
+              // 在builder函数内部获取最新状态
+              bool isSelected =
+                  _searchController.selectedTeachSubjectsMap[s] ?? false;
+              return Container(
+                margin: EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? _getBackgroundColor() // 选中时的背景色
+                      : Colors.transparent, // 未选中时透明
+                  border: Border.all(color: _getRoleColor(), width: 2),
+                ),
+                child: TextButton(
+                  onPressed: () {
+                    // 调用MobX action更新状态
+                    _searchController.changeSelectedSubjects(s);
+                  },
+                  child: Text(
+                    s,
+                    style: TextStyle(
+                      color: _getRoleColor(),
+                      fontWeight: FontWeight.normal,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            }).toList(),
+          ),
         ),
-      );
-    });
-    return Container(
-      margin: EdgeInsets.only(left: 5),
-      padding: EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-      decoration: BoxDecoration(
-        border: Border.all(color: _getRoleColor(), width: 2),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: AlwaysScrollableScrollPhysics(),
-        child: Row(children: list),
       ),
     );
   }
