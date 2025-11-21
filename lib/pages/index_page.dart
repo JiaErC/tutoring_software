@@ -23,6 +23,8 @@ class _IndexPageState extends State<IndexPage> with WidgetsBindingObserver {
       Modular.get<SignatureController>();
   //获取头像控制器
   final AvatarController _avatarController = Modular.get<AvatarController>();
+  //初始化状态
+  bool _isInitializing = true;
 
   @override
   void initState() {
@@ -30,35 +32,37 @@ class _IndexPageState extends State<IndexPage> with WidgetsBindingObserver {
     // 在首帧渲染后恢复登录状态
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _restoreLoginStatus();
-      // 在恢复登录状态后再初始化签名，确保uID已经设置
-      _initSignature();
+      // 调用异步方法，使用then处理完成后的回调
+      _initSignature().then((_) {
+        setState(() {
+          _isInitializing = false;
+        });
+      });
     });
-    // 或者直接调用，但不等待
-    // _initSignature();
   }
 
-  // 新增单独的异步方法用于初始化签名
-  void _initSignature() {
-    // 不使用await，只调用异步方法
-    _signatureController
-        .init(_statusController.uID)
-        .then((_) {
-          // 如果需要在签名初始化完成后做些什么，可以在这里处理
-          debugPrint('index_page.dart 签名初始化完成');
-        })
-        .catchError((e) {
-          debugPrint('index_page.dart 签名初始化失败: $e');
-        });
-    // 初始化头像
-    _avatarController
-        .init(_statusController.uID)
-        .then((_) {
-          // 如果需要在头像初始化完成后做些什么，可以在这里处理
-          debugPrint('index_page.dart 头像初始化完成');
-        })
-        .catchError((e) {
-          debugPrint('index_page.dart 头像初始化失败: $e');
-        });
+  // 修改_initSignature方法为异步方法
+  Future<void> _initSignature() async {
+    try {
+      // 使用Future.wait等待多个异步操作同时完成
+      await Future.wait([
+        _signatureController.init(_statusController.uID),
+        _avatarController.init(_statusController.uID),
+      ]);
+
+      debugPrint('index_page.dart 所有初始化完成');
+
+      // 在这里执行需要等待初始化完成后才执行的其他方法
+      _doSomethingAfterInitialization();
+    } catch (e) {
+      debugPrint('index_page.dart 初始化过程中发生错误: $e');
+    }
+  }
+
+  // 添加一个在初始化完成后执行的方法
+  void _doSomethingAfterInitialization() {
+    // 这里放置需要在所有初始化完成后执行的代码
+    debugPrint('执行初始化后的操作');
   }
 
   @override
@@ -92,6 +96,9 @@ class _IndexPageState extends State<IndexPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    if (_isInitializing) {
+      return Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return const ScaffoldMenu();
   }
 }

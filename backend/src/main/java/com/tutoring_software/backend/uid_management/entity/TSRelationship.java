@@ -18,6 +18,10 @@ public class TSRelationship {
     // 老师UID字段
     @TableField("teacher_uid")
     private Long teacherUid;
+
+    //学科选择关系char(6)
+    @TableField("subject")
+    private String subject;
     
     // 构造函数
     public TSRelationship() {}
@@ -50,5 +54,13 @@ public class TSRelationship {
     
     public void setTeacherUid(Long teacherUid) {
         this.teacherUid = teacherUid;
+    }
+    
+    public String getSubject() {
+        return subject;
+    }
+    
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 }

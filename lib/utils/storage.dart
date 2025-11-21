@@ -25,6 +25,8 @@ class GStorage {
     /*数据不重要的时候，直接删除数据库解决问题*/
     // await Hive.deleteBoxFromDisk('userData');
     // await Hive.deleteBoxFromDisk('status');
+    // await Hive.deleteBoxFromDisk('signature');
+    // await Hive.deleteBoxFromDisk('avatarItem');
     // await Hive.deleteBoxFromDisk('phoneNumber');
     // await Hive.deleteBoxFromDisk('email');
     userDataBox = await Hive.openBox('userData');
