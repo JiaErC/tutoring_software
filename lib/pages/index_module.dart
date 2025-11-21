@@ -18,6 +18,8 @@ import 'package:tutoring_software/modules/comment/comment_controller.dart';
 import 'package:tutoring_software/pages/teacher_info/teacher_info_module.dart'; 
 import 'package:tutoring_software/pages/test_scoring/test_scoring_module.dart';
 import 'package:tutoring_software/pages/teacher_evaluation/teacher_evaluation_module.dart';
+import 'package:tutoring_software/pages/selecter/selecter_module.dart';
+import 'package:tutoring_software/pages/selecter/selecter_controller.dart';
 
 //目的是定义整个软件的路由
 class IndexModule extends Module {
@@ -43,6 +45,7 @@ class IndexModule extends Module {
     i.addSingleton(SignatureController.new);
     i.addSingleton(AvatarController.new);
     i.addSingleton(CommentController.new);
+    i.addSingleton(SelecterController.new);
     i.get<MyController>().init();
     i.get<SubjectsController>().init();
   }
@@ -94,6 +97,6 @@ class IndexModule extends Module {
     r.module("/reacher_info",module:TeacherInfoModule());
     r.module("/test_scoring",module:TestScoringModule());
     r.module("/teacher_evaluation",module:TeacherEvaluationModule());
-
+    r.module("/selecter",module:SelecterModule());
   }
 }

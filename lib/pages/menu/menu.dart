@@ -51,7 +51,7 @@ class NavigationBarState extends ChangeNotifier {
 
 //菜单的主页
 class _ScaffoldMenu extends State<ScaffoldMenu> {
-  //头像控制器
+  //获取控制器
   final AvatarController _avatarController = Modular.get<AvatarController>();
 
   final PageController _page = PageController();
@@ -82,7 +82,7 @@ class _ScaffoldMenu extends State<ScaffoldMenu> {
         elevation: 0,
         leading: EdgeBox(
           margin: EdgeInsets.only(left: 5, top: 5),
-          child: _buildAvatar()
+          child: _buildAvatar(),
         ),
       ),
       body: Container(

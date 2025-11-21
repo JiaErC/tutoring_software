@@ -325,6 +325,7 @@ class _MyPageState extends State<MyPage> {
                     myController.switchIdentity();
                     myController.getSubjects();
                     myController.isViewComment = false;
+                    statusController.changeIsTeacher();
                   }
                   //同时关闭评论按钮
                   // 实际应用中应该是类似这样的调用：

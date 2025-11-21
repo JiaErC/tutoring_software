@@ -11,6 +11,7 @@ import 'package:tutoring_software/modules/comment/comment_controller.dart';
 import 'package:tutoring_software/modules/avatar/avatar_controller.dart';
 import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/modules/comment/comment.dart';
+import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
 
 // 评价输入组件
 class RatingInput extends StatefulWidget {
@@ -306,44 +307,28 @@ class _RatingInputState extends State<RatingInput> {
                     ),
                     const SizedBox(height: 20),
                     // 添加取消和确定按钮
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey,
-                            ),
-                            onPressed: () {
-                              // 取消操作，返回到上一个路由
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('取消'),
-                          ),
-                        ),
-                        SizedBox(width: 20),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // 确定操作，返回到上一个路由
-                              Navigator.of(context).pop();
-                              //把唯一一个true的科目放到这里
-                              setState(
-                                () => _subject = _searchController
-                                    .selectedTeachSubjectsMap
-                                    .keys
-                                    .firstWhere(
-                                      (key) =>
-                                          _searchController
-                                              .selectedTeachSubjectsMap[key] ==
-                                          true,
-                                    ),
-                              );
-                            },
-                            child: Text('确定'),
-                          ),
-                        ),
-                      ],
+                    buildCancelAndConfirmButton(
+                      () {
+                        // 取消操作，返回到上一个路由
+                        Navigator.of(context).pop();
+                      },
+                      () {
+                        // 确定操作，返回到上一个路由
+                        Navigator.of(context).pop();
+                        //把唯一一个true的科目放到这里
+                        setState(
+                          () => _subject = _searchController
+                              .selectedTeachSubjectsMap
+                              .keys
+                              .firstWhere(
+                                (key) =>
+                                    _searchController
+                                        .selectedTeachSubjectsMap[key] ==
+                                    true,
+                              ),
+                        );
+                      },
+                      context: context,
                     ),
                     SizedBox(height: 20),
                   ],

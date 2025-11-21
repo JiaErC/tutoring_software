@@ -44,6 +44,10 @@ abstract class _StatusController with Store {
   @observable
   String uPassword = "";
 
+  //判断是否为老师
+  @observable
+  bool isTeacher = false;
+
   //初始化，从盒子中获得登录状态和uID
   @action
   void init() {
@@ -93,28 +97,28 @@ abstract class _StatusController with Store {
 
   //用户登录或者注册，也就是直接修改
   @action
-Future<void> setStatus(UserDataItem u) async {
-  // 创建新的Status实例，但确保学科数据是深拷贝的
-  Status newStatus = Status(
-    isLogin: true,
-    uID: u.uID,
-    uName: u.uName,
-    uGender: u.uGender,
-    uEmail: u.uEmail,
-    uPhone: u.uPhone,
-    uRole: u.uRole,
-    uBirthday: u.uBirthday,
-    uPassword: u.uPassword,
-    uTeachSubjects: deepCopyMap(u.uTeachSubjects),
-    uStudySubjects: deepCopyMap(u.uStudySubjects),
-  );
-  statusBox.clear();
-  statusBox.add(newStatus);
-  changeStatus(newStatus);
-  debugPrint(
-    "status_controller.dart_状态更新完成: 教学科目=$uTeachSubjects, 学习科目=$uStudySubjects",
-  );
-}
+  Future<void> setStatus(UserDataItem u) async {
+    // 创建新的Status实例，但确保学科数据是深拷贝的
+    Status newStatus = Status(
+      isLogin: true,
+      uID: u.uID,
+      uName: u.uName,
+      uGender: u.uGender,
+      uEmail: u.uEmail,
+      uPhone: u.uPhone,
+      uRole: u.uRole,
+      uBirthday: u.uBirthday,
+      uPassword: u.uPassword,
+      uTeachSubjects: deepCopyMap(u.uTeachSubjects),
+      uStudySubjects: deepCopyMap(u.uStudySubjects),
+    );
+    statusBox.clear();
+    statusBox.add(newStatus);
+    changeStatus(newStatus);
+    debugPrint(
+      "status_controller.dart_状态更新完成: 教学科目=$uTeachSubjects, 学习科目=$uStudySubjects",
+    );
+  }
 
   @action
   void updateSubjects(
@@ -144,4 +148,9 @@ Future<void> setStatus(UserDataItem u) async {
   //   uPassword = newPassword;
   //   debugPrint('status_controller.dart 控制器中的密码已更新: $uPassword');
   // }
+  //修改是否为老师的情况
+  @action
+  void changeIsTeacher(){
+    isTeacher = !isTeacher;
+  }
 }

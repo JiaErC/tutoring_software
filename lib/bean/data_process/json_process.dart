@@ -27,3 +27,12 @@ Map<String, bool> initSubjectsBoolMap(Map<String, dynamic> source) {
   });
   return result;
 }
+
+//把每个学科的最大学科配一个键值对，这个键位学科大类的名字，值为true
+Map<String, bool> initBigSubjectsBoolMap(Map<String, dynamic> source) {
+  final result = <String, bool>{};
+  source.forEach((key, _) {
+    result[key] = true;
+  });
+  return result;
+}

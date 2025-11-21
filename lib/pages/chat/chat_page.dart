@@ -204,7 +204,8 @@ class _ChatPageState extends State<ChatPage> {
               ],
             ),
             onPressed: () {
-              debugPrint("筛选老师或者学生");
+              debugPrint("chat_page.dart 筛选老师或者学生");
+              Modular.to.pushNamed("/selecter/");
             },
           ),
         ),
