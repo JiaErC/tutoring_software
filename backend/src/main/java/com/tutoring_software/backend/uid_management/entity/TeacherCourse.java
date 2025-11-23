@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
-@TableName("teachers")
-public class Teacher {
+@TableName("teachers_courses")
+public class TeacherCourse {
     // BIGSERIAL 自增id
     @TableId(type = IdType.AUTO)
     private Long id;
@@ -15,23 +15,18 @@ public class Teacher {
     @TableField("teacher_uid")
     private Long teacherUid;
     
-    // 老师的评分rating
-    @TableField("rating")
-    private double rating;
-    
-    // 老师的评价数量 int comments
-    @TableField("comments")
-    private int comments;
+    // 老师选择教学的学科(6位整数组成的学科ID)
+    @TableField("subject")
+    private String subject;
 
     // 无参构造函数
-    public Teacher() {
+    public TeacherCourse() {
     }
     
     // 全参构造函数
-    public Teacher(Long teacherUid, double rating, int comments) {
+    public TeacherCourse(Long teacherUid, String subject) {
         this.teacherUid = teacherUid;
-        this.rating = rating;
-        this.comments = comments;
+        this.subject = subject;
     }
     
     // getter 和 setter 方法
@@ -51,19 +46,11 @@ public class Teacher {
         this.teacherUid = teacherUid;
     }
     
-    public double getRating() {
-        return rating;
+    public String getSubject(){
+        return subject;
     }
-    
-    public void setRating(double rating) {
-        this.rating = rating;
-    }
-    
-    public int getComments() {
-        return comments;
-    }
-    
-    public void setComments(int comments) {
-        this.comments = comments;
+        
+    public void setSubject(String subject){
+        this.subject = subject;
     }
 }

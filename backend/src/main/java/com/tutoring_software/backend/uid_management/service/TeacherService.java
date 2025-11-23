@@ -8,13 +8,16 @@ import com.tutoring_software.backend.uid_management.entity.Teacher;
 public interface TeacherService extends IService<Teacher> {
     // 通过老师uid获取老师信息
     Teacher getByTeacherUid(Long teacherUid);
-    
-    // 通过学科代码获取老师列表
-    List<Teacher> getBySubjectCode(String subjectCode);
-    
+
     // 保存老师信息
-    boolean saveTeacher(Long teacherUid, String rating, String subjectCode);
+    boolean saveTeacher(Long teacherUid, double rating, String subjectCode);
     
     // 更新老师信息
-    boolean updateTeacher(Long teacherUid, String rating, String subjectCode);
+    boolean updateTeacher(Long teacherUid, double rating, String subjectCode);
+    
+    // 通过评分大于指定值获取老师列表
+    List<Teacher> getByRatingGreaterThan(double rating);
+    
+    // 通过评论数大于指定值获取老师列表
+    List<Teacher> getByCommentsGreaterThan(int comments);
 }

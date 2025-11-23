@@ -21,7 +21,11 @@ public class TSRelationship {
 
     //学科选择关系char(6)
     @TableField("subject")
-    private String subject;
+    private int subject;
+
+    //学情分析
+    @TableField("analysis")    
+    private String analysis;
     
     // 构造函数
     public TSRelationship() {}
@@ -56,11 +60,19 @@ public class TSRelationship {
         this.teacherUid = teacherUid;
     }
     
-    public String getSubject() {
+    public int getSubject() {
         return subject;
     }
     
-    public void setSubject(String subject) {
+    public void setSubject(int subject) {
         this.subject = subject;
+    }
+
+    public String getAnalysis() {
+        return analysis;
+    }
+
+    public void setAnalysis(String analysis) {
+        this.analysis = analysis;
     }
 }

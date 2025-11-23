@@ -22,14 +22,9 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     }
 
     @Override
-    public List<Teacher> getBySubjectCode(String subjectCode) {
-        return baseMapper.getBySubjectCode(subjectCode);
-    }
-
-    @Override
-    public boolean saveTeacher(Long teacherUid, String rating, String subjectCode) {
+    public boolean saveTeacher(Long teacherUid, double rating, String subjectCode) {
         try {
-            Teacher teacher = new Teacher(teacherUid, rating, subjectCode);
+            Teacher teacher = new Teacher(teacherUid, rating, 0); // comments初始化为0
             return save(teacher);
         } catch (Exception e) {
             LOGGER.error("保存老师信息失败，teacherUid: {}", teacherUid, e);
@@ -38,7 +33,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     }
 
     @Override
-    public boolean updateTeacher(Long teacherUid, String rating, String subjectCode) {
+    public boolean updateTeacher(Long teacherUid, double rating, String subjectCode) {
         try {
             // 先查询老师是否存在
             Teacher existingTeacher = getByTeacherUid(teacherUid);
@@ -49,12 +44,22 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
 
             // 更新老师信息
             existingTeacher.setRating(rating);
-            existingTeacher.setSubjectCode(subjectCode);
+            // 注意：Teacher实体类中没有subjectCode字段，这里不设置subjectCode
 
             return updateById(existingTeacher);
         } catch (Exception e) {
             LOGGER.error("更新老师{}信息失败", teacherUid, e);
             return false;
         }
+    }
+    
+    @Override
+    public List<Teacher> getByRatingGreaterThan(double rating) {
+        return baseMapper.getByRatingGreaterThan(rating);
+    }
+    
+    @Override
+    public List<Teacher> getByCommentsGreaterThan(int comments) {
+        return baseMapper.getByCommentsGreaterThan(comments);
     }
 }

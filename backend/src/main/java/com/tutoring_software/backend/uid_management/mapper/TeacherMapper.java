@@ -14,7 +14,11 @@ public interface TeacherMapper extends BaseMapper<Teacher> {
     @Select("SELECT * FROM teachers WHERE teacher_uid = #{teacherUid}")
     Teacher getByTeacherUid(Long teacherUid);
     
-    // 通过学科代码获取老师列表
-    @Select("SELECT * FROM teachers WHERE subject_code = #{subjectCode}")
-    List<Teacher> getBySubjectCode(String subjectCode);
+    // 通过评分大于指定值获取老师列表
+    @Select("SELECT * FROM teachers WHERE rating >= #{rating}")
+    List<Teacher> getByRatingGreaterThan(double rating);
+    
+    // 通过评论数大于指定值获取老师列表
+    @Select("SELECT * FROM teachers WHERE comments >= #{comments}")
+    List<Teacher> getByCommentsGreaterThan(int comments);
 }
