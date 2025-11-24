@@ -8,7 +8,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tutoring_software.backend.uid_management.Result;
 import com.tutoring_software.backend.uid_management.entity.Teacher;
 import com.tutoring_software.backend.uid_management.entity.TeacherCourse;
-import com.tutoring_software.backend.uid_management.service.TeacherService;
 import com.tutoring_software.backend.uid_management.service.TeacherCourseService;
+import com.tutoring_software.backend.uid_management.service.TeacherService;
 
 @RestController
 @RequestMapping("/api/teacher_info")
@@ -45,7 +44,7 @@ public class TeacherInfoController {
             // 1. 提取查询条件
             List<String> subjects = request.get("subjects") instanceof List ? 
                 (List<String>) request.get("subjects") : new ArrayList<>();
-            Double minRating = null;
+            Double minRating = 0.0;
             if (request.get("minRating") != null) {
                 try {
                     minRating = Double.parseDouble(request.get("minRating").toString());
@@ -53,8 +52,14 @@ public class TeacherInfoController {
                     LOGGER.warn("评分格式无效: {}", request.get("minRating"));
                 }
             }
-            Integer minComments = request.get("minComments") instanceof Number ? 
-                ((Number) request.get("minComments")).intValue() : null;
+            Integer minComments = 0;
+            if (request.get("minComments") != null) {
+                try {
+                    minComments = Integer.parseInt(request.get("minComments").toString());
+                } catch (NumberFormatException e) {
+                    LOGGER.warn("评论数格式无效: {}", request.get("minComments"));
+                }
+            }
             
             // 2. 获取符合条件的老师列表
             List<Teacher> filteredTeachers = new ArrayList<>();
