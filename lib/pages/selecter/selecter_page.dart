@@ -6,6 +6,7 @@ import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/pages/subjects/subjects_controller.dart';
 import 'package:tutoring_software/pages/selecter/selecter_controller.dart';
 import 'package:tutoring_software/bean/widgets/widgets_builder.dart';
+import 'package:tutoring_software/modules/relationship/teacher_controller.dart';
 
 class SelecterPage extends StatefulWidget {
   const SelecterPage({super.key});
@@ -21,6 +22,7 @@ class _SelecterPageState extends State<SelecterPage> {
       Modular.get<SubjectsController>();
   final SelecterController _selecterController =
       Modular.get<SelecterController>();
+  final TeacherController _teacherController = Modular.get<TeacherController>();
 
   //文本控制器
   final TextEditingController _ratingTextController = TextEditingController(
@@ -71,6 +73,7 @@ class _SelecterPageState extends State<SelecterPage> {
             children: [
               _buildSubjectsContainer(),
               _buildRatingFilter(),
+              const SizedBox(height: 20),
               _buildCommentFilter(),
               _buildCancelAndConfirmButton(),
               const SizedBox(height: 50),
@@ -391,74 +394,74 @@ class _SelecterPageState extends State<SelecterPage> {
     return rating / 20;
   }
 
-Widget _buildCommentFilter() {
-  return Container(
-    margin: EdgeInsets.symmetric(horizontal: 60),
-    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '筛选评价数量',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            // 最小值输入框
-            Expanded(
-              child: TextField(
-                controller: _minCommentController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: '最小值',
-                  border: OutlineInputBorder(),
-                  hintText: '0',
-                ),
-                onChanged: (value) {
-                  // 验证输入值
-                  if (value.isEmpty) {
-                    _selecterController.minComment = 0;
-                  } else {
-                    int? minVal = int.tryParse(value);
-                    if (minVal != null && minVal >= 0) {
-                      _selecterController.minComment = minVal;
+  Widget _buildCommentFilter() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 60),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '筛选评价数量',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              // 最小值输入框
+              Expanded(
+                child: TextField(
+                  controller: _minCommentController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: '最小值',
+                    border: OutlineInputBorder(),
+                    hintText: '0',
+                  ),
+                  onChanged: (value) {
+                    // 验证输入值
+                    if (value.isEmpty) {
+                      _selecterController.minComment = 0;
+                    } else {
+                      int? minVal = int.tryParse(value);
+                      if (minVal != null && minVal >= 0) {
+                        _selecterController.minComment = minVal;
+                      }
                     }
-                  }
-                },
-              ),
-            ),
-            const SizedBox(width: 10),
-            // 最大值输入框
-            Expanded(
-              child: TextField(
-                controller: _maxCommentController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: '最大值',
-                  border: OutlineInputBorder(),
-                  hintText: '无限',
+                  },
                 ),
-                onChanged: (value) {
-                  // 验证输入值
-                  if (value.isEmpty) {
-                    // 空值表示无限
-                    _selecterController.maxComment = null;
-                  } else {
-                    int? maxVal = int.tryParse(value);
-                    if (maxVal != null && maxVal >= 0) {
-                      _selecterController.maxComment = maxVal;
-                    }
-                  }
-                },
               ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
+              const SizedBox(width: 10),
+              // 最大值输入框
+              Expanded(
+                child: TextField(
+                  controller: _maxCommentController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: '最大值',
+                    border: OutlineInputBorder(),
+                    hintText: '无限',
+                  ),
+                  onChanged: (value) {
+                    // 验证输入值
+                    if (value.isEmpty) {
+                      // 空值表示无限
+                      _selecterController.maxComment = null;
+                    } else {
+                      int? maxVal = int.tryParse(value);
+                      if (maxVal != null && maxVal >= 0) {
+                        _selecterController.maxComment = maxVal;
+                      }
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   //创建取消和确定按钮的栏目
   Widget _buildCancelAndConfirmButton() {
@@ -472,9 +475,27 @@ Widget _buildCommentFilter() {
           // 取消操作，使用传入的context
           Navigator.of(context).pop();
         },
-        () {
-          // 确定操作，使用传入的context
-          Navigator.of(context).pop();
+        () async {
+          //等待执行转换操作
+          await _selecterController.updateSelectedStudyNumberSubjects();
+          if (!_statusController.isTeacher) {
+            Map<String, String> subjects =
+                _selecterController.selectedStudyNumberSubjects;
+            // 确定操作，打印筛选条件
+            debugPrint(
+              "selecter_page.dart打印筛选条件中\n:"
+              "筛选的学科： $subjects，\n"
+              "评价数量大于等于${_selecterController.minComment}，\n"
+              "评价数量小于等于${_selecterController.maxComment ?? '无限'}，\n"
+              "评分大于等于${_selecterController.rating.toStringAsFixed(2)}分",
+            );
+            _teacherController.searchTeachersInfo(
+              subjects,
+              _selecterController.rating,
+              _selecterController.minComment,
+              _selecterController.maxComment,
+            );
+          }
           // 其他操作...
         },
         context: context, // 传入context

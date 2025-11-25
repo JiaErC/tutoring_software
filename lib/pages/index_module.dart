@@ -20,6 +20,7 @@ import 'package:tutoring_software/pages/test_scoring/test_scoring_module.dart';
 import 'package:tutoring_software/pages/teacher_evaluation/teacher_evaluation_module.dart';
 import 'package:tutoring_software/pages/selecter/selecter_module.dart';
 import 'package:tutoring_software/pages/selecter/selecter_controller.dart';
+import 'package:tutoring_software/modules/relationship/teacher_controller.dart';
 
 //目的是定义整个软件的路由
 class IndexModule extends Module {
@@ -46,6 +47,7 @@ class IndexModule extends Module {
     i.addSingleton(AvatarController.new);
     i.addSingleton(CommentController.new);
     i.addSingleton(SelecterController.new);
+    i.addSingleton(TeacherController.new);
     i.get<MyController>().init();
     i.get<SubjectsController>().init();
   }

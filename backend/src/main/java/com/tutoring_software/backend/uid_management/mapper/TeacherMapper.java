@@ -2,6 +2,7 @@ package com.tutoring_software.backend.uid_management.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -25,4 +26,8 @@ public interface TeacherMapper extends BaseMapper<Teacher> {
     //评论数在最小值和最大值之间的评论数量
     @Select("SELECT * FROM teachers WHERE comments >= #{minComments} AND comments <= #{maxComments}")
     List<Teacher> getByCommentsBetween(int minComments, int maxComments);
+
+   // 通过老师uid删除老师信息
+    @Delete("DELETE FROM teachers WHERE teacher_uid = #{teacherUid}")
+    int deleteByTeacherUid(Long teacherUid);
 }

@@ -12,6 +12,7 @@ import 'package:tutoring_software/pages/subjects/subjects_controller.dart';
 import 'package:tutoring_software/modules/user_data/user_data_item.dart';
 import 'package:tutoring_software/modules/signature/signature_controller.dart';
 import 'package:tutoring_software/modules/avatar/avatar_controller.dart';
+import 'package:tutoring_software/modules/relationship/teacher_controller.dart';
 
 class InfoPage extends StatefulWidget {
   const InfoPage({super.key});
@@ -36,6 +37,8 @@ class _InfoPageState extends State<InfoPage> {
       Modular.get<SignatureController>();
   //引入头像控制器
   final AvatarController _avatarController = Modular.get<AvatarController>();
+  //引入教师控制器
+  final TeacherController _teacherController = Modular.get<TeacherController>();
 
   // 添加TextEditingController用于处理输入
   late TextEditingController _userNameController;
@@ -1287,6 +1290,13 @@ class _InfoPageState extends State<InfoPage> {
       //接下来更新状态
       _statusController.setStatus(newUser);
       await _userDataController.updateUserData(newUser);
+      //如果包含老师角色，就需要更新老师的科目信息
+      if(_tempSelectedRoles?.contains(2) ?? false){
+        await _teacherController.updateTeacherCourses(
+          newUser.uID,
+          initSubjectsNumMap(initSubjectsBoolMap(newUser.uTeachSubjects)),
+        );
+      }
 
       ScaffoldMessenger.of(
         context,

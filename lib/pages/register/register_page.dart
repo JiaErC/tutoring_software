@@ -11,6 +11,8 @@ import 'package:tutoring_software/modules/status/status_controller.dart';
 import 'package:tutoring_software/modules/account_manager/account_controller.dart';
 import 'package:tutoring_software/modules/account_manager/account_match.dart';
 import 'package:tutoring_software/pages/subjects/subjects_controller.dart';
+import 'package:tutoring_software/modules/relationship/teacher_controller.dart';
+import 'package:tutoring_software/bean/data_process/json_process.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -53,6 +55,9 @@ class _RegisterPageState extends State<RegisterPage> {
   //添加学科选择界面控制实例
   final SubjectsController _subjectsController =
       Modular.get<SubjectsController>();
+  //引入教师控制器
+  final TeacherController _teacherController = Modular.get<TeacherController>();
+
   //创建一个是否横屏的显示器
   bool _isLandscape = false;
 
@@ -388,6 +393,15 @@ class _RegisterPageState extends State<RegisterPage> {
       userDataController.saveUserData(userDataItem);
       // //打印UserDataItem来查看是否错误
       // debugPrint('这个是注册的数据，请看看有没有错误${userDataItem.toString()}');
+      //如果包含老师角色，就需要注册老师信息
+      if (uRole.contains(2)) {
+        await _teacherController.registerTeacher(
+          uID,
+          initSubjectsNumMap(
+            initSubjectsBoolMap(_subjectsController.teachSubjects),
+          ),
+        );
+      }
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('注册成功！数据已保存。')));

@@ -27,6 +27,12 @@ abstract class _SelecterController with Store {
   @observable
   Map<String, bool> isViewTeachSubjects = {};
 
+  //用来保存传递到后端的学科选择号码情况
+  @observable
+  Map<String, String> selectedStudyNumberSubjects = {};
+  @observable
+  Map<String, String> selectedTeachNumberSubjects = {};
+
   @observable
   double rating = 0.0;
 
@@ -72,5 +78,12 @@ abstract class _SelecterController with Store {
   @action
   changeSelectedStudySubjects(String subject) {
     selectedStudySubjects[subject] = !selectedStudySubjects[subject]!;
+  }
+
+  //根据选中的学科来制作对应的选课号码表
+  @action
+  Future<void> updateSelectedStudyNumberSubjects() async {
+    selectedStudyNumberSubjects = initSubjectsNumMap(selectedStudySubjects);
+    selectedTeachNumberSubjects = initSubjectsNumMap(selectedTeachSubjects);
   }
 }

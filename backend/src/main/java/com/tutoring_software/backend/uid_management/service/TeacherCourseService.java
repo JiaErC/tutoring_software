@@ -17,4 +17,7 @@ public interface TeacherCourseService extends IService<TeacherCourse> {
     
     // 更新老师课程信息
     boolean updateTeacherCourse(Long teacherUid, String subjectCode);
+
+    // 删除老师课程信息
+    boolean deleteTeacherCourse(Long teacherUid);
 }

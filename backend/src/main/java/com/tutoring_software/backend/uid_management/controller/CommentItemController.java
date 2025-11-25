@@ -1,7 +1,9 @@
 package com.tutoring_software.backend.uid_management.controller;
 
 import com.tutoring_software.backend.uid_management.entity.CommentItem;
+import com.tutoring_software.backend.uid_management.entity.Teacher;
 import com.tutoring_software.backend.uid_management.service.CommentItemService;
+import com.tutoring_software.backend.uid_management.service.TeacherService;
 import com.tutoring_software.backend.uid_management.Result;
 
 import org.slf4j.Logger;
@@ -23,7 +25,10 @@ public class CommentItemController {
 
     @Autowired
     private CommentItemService commentItemService;
-    
+
+    @Autowired
+    private TeacherService teacherService;
+
     /**
      * 根据老师UID获取评论列表
      */
@@ -42,7 +47,7 @@ public class CommentItemController {
             return Result.error("Internal server error");
         }
     }
-    
+
     /**
      * 根据学生UID获取评论列表
      */
@@ -61,7 +66,7 @@ public class CommentItemController {
             return Result.error("Internal server error");
         }
     }
-    
+
     /**
      * 保存评论
      */
@@ -76,6 +81,16 @@ public class CommentItemController {
             boolean success = commentItemService.saveComment(commentItem);
             if (success) {
                 LOGGER.info("成功保存评论: 学生{} 评论老师{}", commentItem.getStudentUid(), commentItem.getTeacherUid());
+                // 更新老师的评论数
+                Teacher teacher = teacherService.getByTeacherUid(commentItem.getTeacherUid());
+                if (teacher != null) {
+                    double commentRating = Double.parseDouble(commentItem.getRating());
+                    double currentRating = teacher.getRating();
+                    double newRating = (currentRating * teacher.getComments() + commentRating)
+                            / (teacher.getComments() + 1);
+                    int newComments = teacher.getComments() + 1;
+                    teacherService.updateTeacher(commentItem.getTeacherUid(), newRating, newComments);
+                }
                 return Result.success("Save successful");
             } else {
                 return Result.error("Save failed");

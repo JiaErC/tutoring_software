@@ -14,7 +14,8 @@ import com.tutoring_software.backend.uid_management.mapper.TeacherCourseMapper;
  * 老师课程服务实现类
  */
 @Service
-public class TeacherCourseServiceImpl extends ServiceImpl<TeacherCourseMapper, TeacherCourse> implements TeacherCourseService {
+public class TeacherCourseServiceImpl extends ServiceImpl<TeacherCourseMapper, TeacherCourse>
+        implements TeacherCourseService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TeacherCourseServiceImpl.class);
 
@@ -44,14 +45,14 @@ public class TeacherCourseServiceImpl extends ServiceImpl<TeacherCourseMapper, T
     public boolean saveTeacherCourse(Long teacherUid, String subjectCode) {
         try {
             LOGGER.info("保存老师课程信息: teacherUid={}, subjectCode={}", teacherUid, subjectCode);
-            
+
             // 先检查是否已存在该老师的课程信息
             TeacherCourse existingCourse = getByTeacherUid(teacherUid);
             if (existingCourse != null) {
                 LOGGER.warn("老师{}的课程信息已存在，保存失败", teacherUid);
                 return false;
             }
-            
+
             // 创建新的老师课程对象
             TeacherCourse teacherCourse = new TeacherCourse(teacherUid, subjectCode);
             return save(teacherCourse);
@@ -65,7 +66,7 @@ public class TeacherCourseServiceImpl extends ServiceImpl<TeacherCourseMapper, T
     public boolean updateTeacherCourse(Long teacherUid, String subjectCode) {
         try {
             LOGGER.info("更新老师课程信息: teacherUid={}, subjectCode={}", teacherUid, subjectCode);
-            
+
             // 先查询老师课程是否存在
             TeacherCourse existingCourse = getByTeacherUid(teacherUid);
             if (existingCourse == null) {
@@ -78,6 +79,32 @@ public class TeacherCourseServiceImpl extends ServiceImpl<TeacherCourseMapper, T
             return updateById(existingCourse);
         } catch (Exception e) {
             LOGGER.error("更新老师课程信息失败: teacherUid={}, subjectCode={}", teacherUid, subjectCode, e);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deleteTeacherCourse(Long teacherUid) {
+        try {
+            LOGGER.info("开始删除老师课程信息，teacherUid: {}", teacherUid);
+
+            // 先查询老师课程是否存在
+            TeacherCourse existingCourse = getByTeacherUid(teacherUid);
+            if (existingCourse == null) {
+                LOGGER.warn("老师{}的课程信息不存在，无需删除", teacherUid);
+                return false;
+            }
+
+            int result = baseMapper.deleteByTeacherUid(teacherUid);
+            if (result > 0) {
+                LOGGER.info("删除老师课程信息成功，teacherUid: {}", teacherUid);
+                return true;
+            } else {
+                LOGGER.error("删除老师课程信息失败，teacherUid: {}", teacherUid);
+                return false;
+            }
+        } catch (Exception e) {
+            LOGGER.error("删除老师课程信息异常，teacherUid: {}", teacherUid, e);
             return false;
         }
     }

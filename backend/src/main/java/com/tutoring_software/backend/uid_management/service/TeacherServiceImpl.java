@@ -22,9 +22,9 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     }
 
     @Override
-    public boolean saveTeacher(Long teacherUid, double rating, String subjectCode) {
+    public boolean saveTeacher(Long teacherUid, double rating, int comments) {
         try {
-            Teacher teacher = new Teacher(teacherUid, rating, 0); // comments初始化为0
+            Teacher teacher = new Teacher(teacherUid, rating, comments); // comments初始化为0
             return save(teacher);
         } catch (Exception e) {
             LOGGER.error("保存老师信息失败，teacherUid: {}", teacherUid, e);
@@ -33,7 +33,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     }
 
     @Override
-    public boolean updateTeacher(Long teacherUid, double rating, String subjectCode) {
+    public boolean updateTeacher(Long teacherUid, double rating, int comments) {
         try {
             // 先查询老师是否存在
             Teacher existingTeacher = getByTeacherUid(teacherUid);
@@ -44,7 +44,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
 
             // 更新老师信息
             existingTeacher.setRating(rating);
-            // 注意：Teacher实体类中没有subjectCode字段，这里不设置subjectCode
+            existingTeacher.setComments(comments);
 
             return updateById(existingTeacher);
         } catch (Exception e) {
@@ -66,5 +66,31 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     @Override
     public List<Teacher> getByCommentsBetween(int minComments, int maxComments) {
         return baseMapper.getByCommentsBetween(minComments, maxComments);
+    }
+
+        @Override
+    public boolean deleteTeacher(Long teacherUid) {
+        try {
+            LOGGER.info("开始删除老师信息，teacherUid: {}", teacherUid);
+            
+            // 先查询老师是否存在
+            Teacher existingTeacher = getByTeacherUid(teacherUid);
+            if (existingTeacher == null) {
+                LOGGER.warn("老师{}不存在，无需删除", teacherUid);
+                return false;
+            }
+            
+            int result = baseMapper.deleteByTeacherUid(teacherUid);
+            if (result > 0) {
+                LOGGER.info("删除老师信息成功，teacherUid: {}", teacherUid);
+                return true;
+            } else {
+                LOGGER.error("删除老师信息失败，teacherUid: {}", teacherUid);
+                return false;
+            }
+        } catch (Exception e) {
+            LOGGER.error("删除老师信息异常，teacherUid: {}", teacherUid, e);
+            return false;
+        }
     }
 }
