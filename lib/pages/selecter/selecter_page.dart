@@ -26,6 +26,12 @@ class _SelecterPageState extends State<SelecterPage> {
   final TextEditingController _ratingTextController = TextEditingController(
     text: '0',
   );
+  final TextEditingController _minCommentController = TextEditingController(
+    text: '',
+  );
+  final TextEditingController _maxCommentController = TextEditingController(
+    text: '',
+  );
 
   //初始化
   @override
@@ -65,6 +71,7 @@ class _SelecterPageState extends State<SelecterPage> {
             children: [
               _buildSubjectsContainer(),
               _buildRatingFilter(),
+              _buildCommentFilter(),
               _buildCancelAndConfirmButton(),
               const SizedBox(height: 50),
             ],
@@ -383,6 +390,75 @@ class _SelecterPageState extends State<SelecterPage> {
   double _convertToFivePointScale(double rating) {
     return rating / 20;
   }
+
+Widget _buildCommentFilter() {
+  return Container(
+    margin: EdgeInsets.symmetric(horizontal: 60),
+    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '筛选评价数量',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            // 最小值输入框
+            Expanded(
+              child: TextField(
+                controller: _minCommentController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: '最小值',
+                  border: OutlineInputBorder(),
+                  hintText: '0',
+                ),
+                onChanged: (value) {
+                  // 验证输入值
+                  if (value.isEmpty) {
+                    _selecterController.minComment = 0;
+                  } else {
+                    int? minVal = int.tryParse(value);
+                    if (minVal != null && minVal >= 0) {
+                      _selecterController.minComment = minVal;
+                    }
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            // 最大值输入框
+            Expanded(
+              child: TextField(
+                controller: _maxCommentController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: '最大值',
+                  border: OutlineInputBorder(),
+                  hintText: '无限',
+                ),
+                onChanged: (value) {
+                  // 验证输入值
+                  if (value.isEmpty) {
+                    // 空值表示无限
+                    _selecterController.maxComment = null;
+                  } else {
+                    int? maxVal = int.tryParse(value);
+                    if (maxVal != null && maxVal >= 0) {
+                      _selecterController.maxComment = maxVal;
+                    }
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 
   //创建取消和确定按钮的栏目
   Widget _buildCancelAndConfirmButton() {

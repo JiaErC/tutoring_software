@@ -21,4 +21,8 @@ public interface TeacherMapper extends BaseMapper<Teacher> {
     // 通过评论数大于指定值获取老师列表
     @Select("SELECT * FROM teachers WHERE comments >= #{comments}")
     List<Teacher> getByCommentsGreaterThan(int comments);
+
+    //评论数在最小值和最大值之间的评论数量
+    @Select("SELECT * FROM teachers WHERE comments >= #{minComments} AND comments <= #{maxComments}")
+    List<Teacher> getByCommentsBetween(int minComments, int maxComments);
 }

@@ -62,4 +62,9 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherMapper, Teacher>
     public List<Teacher> getByCommentsGreaterThan(int comments) {
         return baseMapper.getByCommentsGreaterThan(comments);
     }
+    
+    @Override
+    public List<Teacher> getByCommentsBetween(int minComments, int maxComments) {
+        return baseMapper.getByCommentsBetween(minComments, maxComments);
+    }
 }

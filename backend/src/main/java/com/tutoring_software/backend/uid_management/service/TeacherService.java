@@ -20,4 +20,7 @@ public interface TeacherService extends IService<Teacher> {
     
     // 通过评论数大于指定值获取老师列表
     List<Teacher> getByCommentsGreaterThan(int comments);
+
+    //通过评论数大于最小值，大于最大值的老师列表
+    List<Teacher> getByCommentsBetween(int minComments, int maxComments);
 }

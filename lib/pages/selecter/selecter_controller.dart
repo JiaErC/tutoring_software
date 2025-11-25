@@ -30,6 +30,12 @@ abstract class _SelecterController with Store {
   @observable
   double rating = 0.0;
 
+  //评论的最大值和最小值
+  @observable
+  int minComment = 0;
+  @observable
+  int? maxComment = null;
+
   //初始化，用来获取用户选择学习或者选择教学的学科
   @action
   init(
